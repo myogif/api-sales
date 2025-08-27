@@ -1,21 +1,5 @@
-# Enterprise REST API
+#REST API SALES
 
-Production-ready REST API built with Node.js, Express, Sequelize, JWT Authentication, and Swagger documentation.
-
-## Features
-
-- **Express.js** - Fast, unopinionated web framework
-- **Sequelize ORM** - PostgreSQL/MySQL support with migrations and seeders
-- **JWT Authentication** - Secure token-based authentication
-- **Role-based Access Control** - MANAGER, SUPERVISOR, SALES roles
-- **Swagger Documentation** - Interactive API documentation at `/docs`
-- **Excel Export** - Export product data to Excel files
-- **Input Validation** - Express-validator for request validation
-- **Error Handling** - Centralized error handling with consistent JSON responses
-- **Rate Limiting** - Protection against brute force attacks
-- **Soft Delete** - Paranoid delete for data recovery
-- **Pagination & Filtering** - Query-based pagination and filtering
-- **ESLint** - Airbnb style guide
 
 ## Quick Start
 
