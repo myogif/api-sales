@@ -1,5 +1,5 @@
 const { User, Store, Product } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col, literal, sequelize } = require('sequelize');
 const logger = require('../utils/logger');
 
 class ManagerService {
@@ -14,37 +14,38 @@ class ManagerService {
             attributes: [
               'id',
               'name',
-              [fn('COUNT', col('products.id')), 'productCount']
             ],
             include: [
               {
                 model: Product,
                 as: 'products',
-                attributes: [],
+                attributes: ['id'], // Only fetch product ID for counting
                 required: false,
-                paranoid: false,         // penting untuk lifetime
+                paranoid: false,
               }
             ],
-            // Jika Store juga pakai paranoid dan kamu ingin benar2 lifetime, aktifkan ini:
             paranoid: false,
-            group: ['Store.id'],
-            order: [[fn('COUNT', col('products.id')), 'DESC']],
             limit: 10,
+            subQuery: false // Keep subQuery: false for correct LEFT JOIN behavior
           })
         ]);
 
+      // Manually calculate productCount after fetching
       const topTenStores = topStores.map(s => ({
         storeId: s.id,
         storeName: s.name,
-        productCount: Number(s.get('productCount')) || 0,
+        productCount: s.products ? s.products.length : 0, // Count associated products
       }));
+
+      // Sort the stores by productCount in descending order
+      topTenStores.sort((a, b) => b.productCount - a.productCount);
 
       return {
         totalStores,
         totalSupervisors,
         totalSales,
         totalProducts,
-        topTenStores, 
+        topTenStores: topTenStores.slice(0, 10), // Take top 10 after sorting
       };
     } catch (error) {
       logger.error('Failed to get manager dashboard:', error);
