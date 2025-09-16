@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api-sales:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: enterprise_api_dev
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DIALECT: postgres
+      JWT_SECRET: fallback-secret-key # Consider using a more secure secret in production
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Exclude node_modules from host mount
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: enterprise_api_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
