@@ -374,6 +374,44 @@ const options = {
             },
           },
         },
+        MonthlyProductSummaryResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            message: {
+              type: 'string',
+              example: 'Monthly product summary retrieved successfully',
+            },
+            data: {
+              type: 'object',
+              properties: {
+                year: {
+                  type: 'integer',
+                  example: 2024,
+                },
+                monthlyProducts: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      month: {
+                        type: 'string',
+                        example: 'January',
+                      },
+                      total: {
+                        type: 'integer',
+                        example: 12,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         UserResponse: {
           type: 'object',
           properties: {

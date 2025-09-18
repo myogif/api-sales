@@ -9,6 +9,7 @@ const {
   getSupervisors,
   getSalesUsers,
   getProducts,
+  getMonthlyProductSummary,
   handleValidationErrors,
 } = require('../controllers/manager.controller');
 
@@ -129,6 +130,32 @@ router.get('/supervisors', getSupervisors);
  *               $ref: '#/components/schemas/PaginatedUsersResponse'
  */
 router.get('/sales', getSalesUsers);
+
+/**
+ * @swagger
+ * /api/managers/products/monthly-summary:
+ *   get:
+ *     summary: Get monthly product summary for a year
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           minimum: 1900
+ *           maximum: 9999
+ *         description: Year to summarise. Defaults to the current year when omitted.
+ *     responses:
+ *       200:
+ *         description: Monthly product summary retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MonthlyProductSummaryResponse'
+ */
+router.get('/products/monthly-summary', getMonthlyProductSummary);
 
 /**
  * @swagger

@@ -17,6 +17,28 @@ const getDashboard = async (req, res, next) => {
   }
 };
 
+const getMonthlyProductSummary = async (req, res, next) => {
+  try {
+    const { year: yearQuery } = req.query;
+    const currentYear = new Date().getUTCFullYear();
+
+    let year = currentYear;
+
+    if (typeof yearQuery !== 'undefined' && yearQuery !== '') {
+      const parsedYear = Number(yearQuery);
+      if (!Number.isInteger(parsedYear) || parsedYear < 1900 || parsedYear > 9999) {
+        return res.status(400).json(response.error('Year must be an integer between 1900 and 9999'));
+      }
+      year = parsedYear;
+    }
+
+    const summary = await managerService.getMonthlyProductSummary(year);
+    res.json(response.success('Monthly product summary retrieved successfully', summary));
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createSupervisorValidation = [
   body('phone')
     .notEmpty()
@@ -199,5 +221,6 @@ module.exports = {
   getSupervisors,
   getSalesUsers,
   getProducts,
+  getMonthlyProductSummary,
   handleValidationErrors,
 };
