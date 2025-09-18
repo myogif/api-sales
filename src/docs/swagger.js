@@ -183,12 +183,12 @@ const options = {
             storeId: {
               type: 'string',
               format: 'uuid',
-              description: 'Provide this when assigning the supervisor to an existing store',
+              description: 'Optional. Provide this only when assigning the supervisor to an existing store. A new UUID will be generated automatically when creating a new store.',
               example: '11111111-1111-1111-1111-111111111111',
             },
             store: {
               type: 'object',
-              description: 'Provide this object to create a brand new store for the supervisor',
+              description: 'Provide this object to create a brand new store for the supervisor. The API will generate the storeId automatically when this is supplied.',
               properties: {
                 name: {
                   type: 'string',

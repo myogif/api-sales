@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+const { v4: uuidv4 } = require('uuid');
 const managerService = require('../services/manager.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
@@ -35,13 +36,14 @@ const createSupervisorValidation = [
     .isUUID()
     .withMessage('Store ID must be a valid UUID'),
   body().custom((_, { req }) => {
-    const { storeId, store } = req.body;
+    const originalStoreId = req.body.storeId;
+    const { store } = req.body;
 
-    if (!storeId && !store) {
+    if (!originalStoreId && !store) {
       throw new Error('Either storeId or store details must be provided');
     }
 
-    if (storeId && store) {
+    if (originalStoreId && store) {
       throw new Error('Provide either storeId or store details, not both');
     }
 
@@ -57,6 +59,10 @@ const createSupervisorValidation = [
 
       if (name.length < 2 || name.length > 100) {
         throw new Error('Store name must be between 2 and 100 characters');
+      }
+
+      if (!originalStoreId) {
+        req.body.storeId = uuidv4();
       }
 
       if (store.phone) {
