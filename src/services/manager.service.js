@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
 
@@ -153,6 +154,71 @@ class ManagerService {
       return { message: 'Supervisor deleted successfully' };
     } catch (error) {
       logger.error('Failed to delete supervisor:', error);
+      throw error;
+    }
+  }
+
+  async getMonthlyProductSummary(yearInput = new Date().getUTCFullYear()) {
+    try {
+      const year = typeof yearInput === 'number' && !Number.isNaN(yearInput)
+        ? yearInput
+        : new Date().getUTCFullYear();
+
+      const startOfYear = new Date(Date.UTC(year, 0, 1));
+      const startOfNextYear = new Date(Date.UTC(year + 1, 0, 1));
+      const monthExpression = sequelize.fn('DATE_TRUNC', 'month', sequelize.col('purchasedAt'));
+
+      const results = await Product.findAll({
+        attributes: [
+          [monthExpression, 'month'],
+          [sequelize.fn('COUNT', sequelize.col('id')), 'productCount'],
+        ],
+        where: {
+          isActive: true,
+          purchasedAt: {
+            [Op.gte]: startOfYear,
+            [Op.lt]: startOfNextYear,
+          },
+        },
+        group: [monthExpression],
+        order: [[monthExpression, 'ASC']],
+        raw: true,
+      });
+
+      const monthCountMap = results.reduce((acc, { month, productCount }) => {
+        if (month) {
+          const parsedMonth = new Date(month);
+          const monthIndex = parsedMonth.getUTCMonth();
+          if (!Number.isNaN(monthIndex)) {
+            acc[monthIndex] = Number(productCount);
+          }
+        }
+        return acc;
+      }, {});
+
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+
+      const monthlyProducts = monthNames.map((name, index) => ({
+        month: name,
+        total: monthCountMap[index] ?? 0,
+      }));
+
+      return { year, monthlyProducts };
+    } catch (error) {
+      logger.error('Failed to get monthly product summary:', error);
       throw error;
     }
   }
