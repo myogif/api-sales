@@ -55,11 +55,16 @@ class ManagerService {
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
     try {
-      const { store: storePayload, storeId: existingStoreId, ...userData } = supervisorData;
-      let storeId = existingStoreId;
+      const { store: storePayload, storeId, ...userData } = supervisorData;
+      let resolvedStoreId = storeId;
 
       if (storePayload) {
+        if (!resolvedStoreId) {
+          throw new Error('Store information is required');
+        }
+
         const newStore = await Store.create({
+          id: resolvedStoreId,
           name: storePayload.name.trim(),
           address: storePayload.address,
           phone: storePayload.phone ? String(storePayload.phone).trim() : undefined,
@@ -67,26 +72,26 @@ class ManagerService {
           isActive: typeof storePayload.isActive === 'boolean' ? storePayload.isActive : undefined,
         }, { transaction });
 
-        storeId = newStore.id;
+        resolvedStoreId = newStore.id;
 
         logger.info('Store created for supervisor:', {
           storeId: newStore.id,
           storeName: newStore.name,
         });
-      } else if (storeId) {
-        const existingStore = await Store.findByPk(storeId, { transaction });
+      } else if (resolvedStoreId) {
+        const existingStore = await Store.findByPk(resolvedStoreId, { transaction });
         if (!existingStore) {
           throw new Error('Store not found');
         }
       }
 
-      if (!storeId) {
+      if (!resolvedStoreId) {
         throw new Error('Store information is required');
       }
 
       const supervisor = await User.create({
         ...userData,
-        storeId,
+        storeId: resolvedStoreId,
         role: 'SUPERVISOR',
       }, { transaction });
 
