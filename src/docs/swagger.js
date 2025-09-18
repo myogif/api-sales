@@ -161,7 +161,7 @@ const options = {
         },
         CreateSupervisorRequest: {
           type: 'object',
-          required: ['phone', 'password', 'name', 'storeId'],
+          required: ['phone', 'password', 'name'],
           properties: {
             phone: {
               type: 'string',
@@ -183,7 +183,42 @@ const options = {
             storeId: {
               type: 'string',
               format: 'uuid',
+              description: 'Provide this when assigning the supervisor to an existing store',
               example: '11111111-1111-1111-1111-111111111111',
+            },
+            store: {
+              type: 'object',
+              description: 'Provide this object to create a brand new store for the supervisor',
+              properties: {
+                name: {
+                  type: 'string',
+                  minLength: 2,
+                  maxLength: 100,
+                  example: 'Central Store',
+                },
+                address: {
+                  type: 'string',
+                  nullable: true,
+                  example: '123 Main Street, City Center',
+                },
+                phone: {
+                  type: 'string',
+                  nullable: true,
+                  minLength: 10,
+                  maxLength: 20,
+                  example: '080123456789',
+                },
+                email: {
+                  type: 'string',
+                  nullable: true,
+                  example: 'central@store.com',
+                },
+                isActive: {
+                  type: 'boolean',
+                  nullable: true,
+                  example: true,
+                },
+              },
             },
           },
         },

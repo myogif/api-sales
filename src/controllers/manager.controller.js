@@ -31,10 +31,52 @@ const createSupervisorValidation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Name must be between 2 and 100 characters'),
   body('storeId')
-    .notEmpty()
-    .withMessage('Store ID is required')
+    .optional({ checkFalsy: true })
     .isUUID()
     .withMessage('Store ID must be a valid UUID'),
+  body().custom((_, { req }) => {
+    const { storeId, store } = req.body;
+
+    if (!storeId && !store) {
+      throw new Error('Either storeId or store details must be provided');
+    }
+
+    if (storeId && store) {
+      throw new Error('Provide either storeId or store details, not both');
+    }
+
+    if (store) {
+      if (typeof store !== 'object' || Array.isArray(store)) {
+        throw new Error('Store must be an object');
+      }
+
+      const name = typeof store.name === 'string' ? store.name.trim() : '';
+      if (!name) {
+        throw new Error('Store name is required');
+      }
+
+      if (name.length < 2 || name.length > 100) {
+        throw new Error('Store name must be between 2 and 100 characters');
+      }
+
+      if (store.phone) {
+        const phone = String(store.phone);
+        if (phone.length < 10 || phone.length > 20) {
+          throw new Error('Store phone must be between 10 and 20 characters');
+        }
+      }
+
+      if (store.email) {
+        const email = String(store.email).trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          throw new Error('Store email must be a valid email address');
+        }
+      }
+    }
+
+    return true;
+  }),
 ];
 
 const createSupervisor = async (req, res, next) => {
@@ -42,6 +84,12 @@ const createSupervisor = async (req, res, next) => {
     const supervisor = await managerService.createSupervisor(req.body);
     res.status(201).json(response.success('Supervisor created successfully', supervisor));
   } catch (error) {
+    if (error.message === 'Store not found') {
+      return res.status(404).json(response.error('Store not found'));
+    }
+    if (error.message === 'Store information is required') {
+      return res.status(400).json(response.error('Store information is required'));
+    }
     next(error);
   }
 };

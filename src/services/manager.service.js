@@ -1,5 +1,4 @@
-const { User, Store, Product } = require('../models');
-const { Op, fn, col, literal, sequelize } = require('sequelize');
+const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
 
 class ManagerService {
@@ -54,19 +53,70 @@ class ManagerService {
   }
 
   async createSupervisor(supervisorData) {
+    const transaction = await sequelize.transaction();
     try {
+      const { store: storePayload, storeId: existingStoreId, ...userData } = supervisorData;
+      let storeId = existingStoreId;
+
+      if (storePayload) {
+        const newStore = await Store.create({
+          name: storePayload.name.trim(),
+          address: storePayload.address,
+          phone: storePayload.phone ? String(storePayload.phone).trim() : undefined,
+          email: storePayload.email ? String(storePayload.email).trim() : undefined,
+          isActive: typeof storePayload.isActive === 'boolean' ? storePayload.isActive : undefined,
+        }, { transaction });
+
+        storeId = newStore.id;
+
+        logger.info('Store created for supervisor:', {
+          storeId: newStore.id,
+          storeName: newStore.name,
+        });
+      } else if (storeId) {
+        const existingStore = await Store.findByPk(storeId, { transaction });
+        if (!existingStore) {
+          throw new Error('Store not found');
+        }
+      }
+
+      if (!storeId) {
+        throw new Error('Store information is required');
+      }
+
       const supervisor = await User.create({
-        ...supervisorData,
+        ...userData,
+        storeId,
         role: 'SUPERVISOR',
+      }, { transaction });
+
+      await supervisor.reload({
+        include: [
+          {
+            model: Store,
+            as: 'store',
+            attributes: ['id', 'name', 'address', 'phone', 'email'],
+          },
+        ],
+        transaction,
       });
+
+      await transaction.commit();
 
       logger.info('Supervisor created by manager:', {
         supervisorId: supervisor.id,
         phone: supervisor.phone,
+        storeId: supervisor.storeId,
       });
 
       return supervisor.toSafeJSON();
     } catch (error) {
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        logger.error('Failed to rollback createSupervisor transaction:', rollbackError);
+      }
+
       logger.error('Failed to create supervisor:', error);
       throw error;
     }
