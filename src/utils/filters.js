@@ -3,18 +3,18 @@ const { Op } = require('sequelize');
 const buildProductFilters = (query, user, sequelize) => {
   const where = {};
   
-  // Text search in name, sku, notes
+  // Text search in name, code, notes
   if (query.q) {
     where[Op.or] = [
       { name: { [Op.iLike]: `%${query.q}%` } },
-      { sku: { [Op.iLike]: `%${query.q}%` } },
+      { code: { [Op.iLike]: `%${query.q}%` } },
       { notes: { [Op.iLike]: `%${query.q}%` } },
     ];
   }
   
-  // Exact SKU match
-  if (query.sku) {
-    where.sku = query.sku;
+  // Exact code match
+  if (query.code) {
+    where.code = query.code;
   }
   
   // Store filter

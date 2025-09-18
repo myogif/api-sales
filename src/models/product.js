@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         len: [2, 200],
       },
     },
-    sku: {
+    code: {
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
@@ -48,12 +48,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    persen: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   }, {
     tableName: 'products',
     paranoid: true,
     indexes: [
       {
-        fields: ['sku'],
+        fields: ['code'],
         unique: true,
       },
       {
@@ -83,6 +87,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'creatorId',
       as: 'creator',
     });
+
   };
 
   return Product;

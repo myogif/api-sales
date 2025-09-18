@@ -91,8 +91,8 @@ GET /sales/products?export=excel&mine=true
 - `sortOrder` - Sort direction: asc/desc (default: desc)
 
 ### Product Filters
-- `q` - Search in name, sku, notes
-- `sku` - Exact SKU match
+- `q` - Search in name, code, notes
+- `code` - Exact code match
 - `store_id` - Filter by store
 - `purchased_from` - Start date (YYYY-MM-DD)
 - `purchased_to` - End date (YYYY-MM-DD)

@@ -15,8 +15,8 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
-          ? 'https://garansiplus.com'
-          : 'https://garansiplus.com',
+          ? 'http://localhost:3000'
+          : 'http://localhost:3000',
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
       },
     ],
@@ -75,15 +75,15 @@ const options = {
           schema: {
             type: 'string',
           },
-          description: 'Search in name, SKU, and notes',
+          description: 'Search in name, code, and notes',
         },
-        SkuParam: {
+        codeParam: {
           in: 'query',
-          name: 'sku',
+          name: 'code',
           schema: {
             type: 'string',
           },
-          description: 'Filter by exact SKU',
+          description: 'Filter by exact code',
         },
         StoreIdParam: {
           in: 'query',
@@ -212,7 +212,7 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'sku', 'purchasedAt'],
+          required: ['name', 'code', 'purchasedAt'],
           properties: {
             name: {
               type: 'string',
@@ -220,7 +220,7 @@ const options = {
               maxLength: 200,
               example: 'iPhone 15 Pro Max',
             },
-            sku: {
+            code: {
               type: 'string',
               minLength: 2,
               maxLength: 50,
@@ -230,6 +230,11 @@ const options = {
               type: 'string',
               maxLength: 1000,
               example: 'Latest iPhone with titanium design and Action Button',
+            },
+            persen: {
+              type: 'integer',
+              maxLength: 1000,
+              example: 30,
             },
             purchasedAt: {
               type: 'string',
@@ -557,7 +562,7 @@ const options = {
               type: 'string',
               example: 'iPhone 15 Pro',
             },
-            sku: {
+            code: {
               type: 'string',
               example: 'APPLE-IP15P-001',
             },

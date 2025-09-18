@@ -144,7 +144,7 @@ router.get('/sales', getSalesUsers);
  *       - $ref: '#/components/parameters/SortByParam'
  *       - $ref: '#/components/parameters/SortOrderParam'
  *       - $ref: '#/components/parameters/SearchParam'
- *       - $ref: '#/components/parameters/SkuParam'
+ *       - $ref: '#/components/parameters/codeParam'
  *       - $ref: '#/components/parameters/StoreIdParam'
  *       - $ref: '#/components/parameters/PurchasedFromParam'
  *       - $ref: '#/components/parameters/PurchasedToParam'

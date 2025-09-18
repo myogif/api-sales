@@ -13,16 +13,19 @@ const createProductValidation = [
     .withMessage('Product name is required')
     .isLength({ min: 2, max: 200 })
     .withMessage('Product name must be between 2 and 200 characters'),
-  body('sku')
+  body('code')
     .notEmpty()
-    .withMessage('SKU is required')
+    .withMessage('Product code is required')
     .isLength({ min: 2, max: 50 })
-    .withMessage('SKU must be between 2 and 50 characters'),
+    .withMessage('Product code must be between 2 and 50 characters'),
   body('purchasedAt')
     .notEmpty()
     .withMessage('Purchase date is required')
     .isDate()
     .withMessage('Purchase date must be a valid date (YYYY-MM-DD)'),
+  body('persen')
+    .notEmpty()
+    .withMessage('Persen is required'),
   body('notes')
     .optional()
     .isLength({ max: 1000 })

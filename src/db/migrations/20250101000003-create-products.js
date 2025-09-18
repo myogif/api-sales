@@ -11,7 +11,7 @@ module.exports = {
         type: Sequelize.STRING(200),
         allowNull: false,
       },
-      sku: {
+      code: {
         type: Sequelize.STRING(50),
         allowNull: false,
         unique: true,
@@ -66,7 +66,7 @@ module.exports = {
     });
 
     // Add indexes
-    await queryInterface.addIndex('products', ['sku'], { unique: true });
+    await queryInterface.addIndex('products', ['code'], { unique: true });
     await queryInterface.addIndex('products', ['name']);
     await queryInterface.addIndex('products', ['store_id']);
     await queryInterface.addIndex('products', ['creator_id']);

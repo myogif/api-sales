@@ -13,7 +13,7 @@ class SalesService {
       logger.info('Product created by sales user:', {
         productId: product.id,
         creatorId,
-        sku: product.sku,
+        code: product.code,
       });
 
       return product;
@@ -41,7 +41,7 @@ class SalesService {
       logger.info('Product deleted by sales user:', {
         productId,
         creatorId,
-        sku: product.sku,
+        code: product.code,
       });
 
       return { message: 'Product deleted successfully' };
