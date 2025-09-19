@@ -138,20 +138,22 @@ class ManagerService {
         throw new Error('Supervisor not found');
       }
 
-      // Soft delete supervisor
-      await supervisor.destroy();
-
-      // Also soft delete all sales users under this supervisor
-      await User.destroy({
-        where: { supervisorId},
+      const activeSalesCount = await User.count({
+        where: { supervisorId, role: 'SALES' },
       });
 
-      logger.info('Supervisor deleted by manager:', {
+      if (activeSalesCount > 0) {
+        throw new Error('Cannot delete supervisor with active sales');
+      }
+
+      await supervisor.destroy({ force: true });
+
+      logger.info('Supervisor permanently deleted by manager:', {
         supervisorId,
         phone: supervisor.phone,
       });
 
-      return { message: 'Supervisor deleted successfully' };
+      return { message: 'Supervisor permanently deleted successfully' };
     } catch (error) {
       logger.error('Failed to delete supervisor:', error);
       throw error;
