@@ -143,7 +143,7 @@ class ManagerService {
 
       // Also soft delete all sales users under this supervisor
       await User.destroy({
-        where: { supervisorId, role: 'SALES' },
+        where: { supervisorId},
       });
 
       logger.info('Supervisor deleted by manager:', {
