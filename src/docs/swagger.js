@@ -15,8 +15,8 @@ const options = {
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
-          ? 'http://localhost:3000'
-          : 'http://localhost:3000',
+          ? 'https://garansiplus.com'
+          : 'https://garansiplus.com',
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
       },
     ],
