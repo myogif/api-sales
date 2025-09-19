@@ -169,7 +169,11 @@ class ManagerService {
 
       const createdAt = Product.rawAttributes.createdAt.field || 'createdAt';
       const createdAtColumn = sequelize.col(`${Product.name}.${createdAt}`);
-      const monthExpression = sequelize.fn('DATE_TRUNC', 'month', createdAtColumn);
+      const monthExpression = sequelize.fn(
+        'DATE_FORMAT',
+        createdAtColumn,
+        '%Y-%m-01T00:00:00.000Z',
+      );
 
       const results = await Product.findAll({
         attributes: [
