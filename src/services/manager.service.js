@@ -130,10 +130,13 @@ class ManagerService {
   }
 
   async deleteSupervisor(supervisorId) {
+    const transaction = await sequelize.transaction();
     try {
       const supervisor = await User.findOne({
         where: { id: supervisorId, role: 'SUPERVISOR' },
+        transaction,
       });
+      const storeId = supervisor ? supervisor.storeId : null;
 
       if (!supervisor) {
         throw new Error('Supervisor not found');
@@ -141,21 +144,38 @@ class ManagerService {
 
       const activeSalesCount = await User.count({
         where: { supervisorId, role: 'SALES' },
+        transaction,
       });
 
       if (activeSalesCount > 0) {
         throw new Error('Cannot delete supervisor with active sales');
       }
 
-      await supervisor.destroy({ force: true });
+      const supervisorPhone = supervisor.phone;
+      await supervisor.destroy({ force: true, transaction });
+
+      if (storeId) {
+        await Store.destroy({ where: { id: storeId }, force: true, transaction });
+      }
+
+      await transaction.commit();
 
       logger.info('Supervisor permanently deleted by manager:', {
         supervisorId,
-        phone: supervisor.phone,
+        phone: supervisorPhone,
+        storeId,
       });
 
       return { message: 'Supervisor permanently deleted successfully' };
     } catch (error) {
+      if (!transaction.finished) {
+        try {
+          await transaction.rollback();
+        } catch (rollbackError) {
+          logger.error('Failed to rollback deleteSupervisor transaction:', rollbackError);
+        }
+      }
+
       logger.error('Failed to delete supervisor:', error);
       throw error;
     }
