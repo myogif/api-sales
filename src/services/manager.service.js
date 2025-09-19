@@ -34,6 +34,7 @@ class ManagerService {
       const topTenStores = topStores.map(s => ({
         storeId: s.id,
         storeName: s.name,
+        address: s.address,
         productCount: s.products ? s.products.length : 0, // Count associated products
       }));
 
