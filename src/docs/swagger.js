@@ -94,18 +94,18 @@ const options = {
           },
           description: 'Filter by store ID',
         },
-        PurchasedFromParam: {
+        CretatedAtFromParam: {
           in: 'query',
-          name: 'purchased_from',
+          name: 'created_at_from',
           schema: {
             type: 'string',
             format: 'date',
           },
           description: 'Filter by purchase date from (YYYY-MM-DD)',
         },
-        PurchasedToParam: {
+        CreatedAtToParam: {
           in: 'query',
-          name: 'purchased_to',
+          name: 'created_at_to',
           schema: {
             type: 'string',
             format: 'date',
@@ -241,7 +241,7 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'code', 'purchasedAt'],
+          required: ['name', 'code'],
           properties: {
             name: {
               type: 'string',
@@ -255,20 +255,10 @@ const options = {
               maxLength: 50,
               example: 'APPLE-IP15PM-001',
             },
-            notes: {
-              type: 'string',
-              maxLength: 1000,
-              example: 'Latest iPhone with titanium design and Action Button',
-            },
             persen: {
               type: 'integer',
               maxLength: 1000,
               example: 30,
-            },
-            purchasedAt: {
-              type: 'string',
-              format: 'date',
-              example: '2024-12-01',
             },
           },
         },
@@ -638,7 +628,7 @@ const options = {
               nullable: true,
               example: 'Latest iPhone model with titanium design',
             },
-            purchasedAt: {
+            createdAt: {
               type: 'string',
               format: 'date',
               example: '2024-12-01',

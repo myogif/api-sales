@@ -38,7 +38,7 @@ router.get('/dashboard', getDashboard);
 
 /**
  * @swagger
- * /api/managers/supervisors:
+ * /api/managers/add-supervisors:
  *   post:
  *     summary: Create a supervisor
  *     tags: [Manager]
@@ -58,7 +58,7 @@ router.get('/dashboard', getDashboard);
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
  */
-router.post('/supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);
+router.post('/add-supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);
 
 /**
  * @swagger
@@ -173,8 +173,8 @@ router.get('/products/monthly-summary', getMonthlyProductSummary);
  *       - $ref: '#/components/parameters/SearchParam'
  *       - $ref: '#/components/parameters/codeParam'
  *       - $ref: '#/components/parameters/StoreIdParam'
- *       - $ref: '#/components/parameters/PurchasedFromParam'
- *       - $ref: '#/components/parameters/PurchasedToParam'
+ *       - $ref: '#/components/parameters/CreatedAtFromParam'
+ *       - $ref: '#/components/parameters/CreatedAtToParam'
  *       - $ref: '#/components/parameters/CreatorIdParam'
  *       - $ref: '#/components/parameters/ExportParam'
  *     responses:

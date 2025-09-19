@@ -24,10 +24,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    purchasedAt: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
     storeId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -65,9 +61,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       {
         fields: ['creatorId'],
-      },
-      {
-        fields: ['purchasedAt'],
       },
       {
         fields: ['name'],

@@ -23,15 +23,15 @@ const buildProductFilters = (query, user, sequelize) => {
   }
   
   // Date range filters
-  if (query.purchased_from || query.purchased_to) {
+  if (query.created_at_from || query.created_at_to) {
     const dateFilter = {};
-    if (query.purchased_from) {
-      dateFilter[Op.gte] = query.purchased_from;
+    if (query.created_at) {
+      dateFilter[Op.gte] = query.created_at_from;
     }
-    if (query.purchased_to) {
-      dateFilter[Op.lte] = query.purchased_to;
+    if (query.created_at_to) {
+      dateFilter[Op.lte] = query.created_at_to;
     }
-    where.purchasedAt = dateFilter;
+    where.created_At = dateFilter;
   }
   
   // Creator filter

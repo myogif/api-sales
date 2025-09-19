@@ -76,7 +76,7 @@ Add `?export=excel` to any GET /products endpoint to download Excel file:
 GET /managers/products?export=excel
 
 # Export filtered products
-GET /managers/products?export=excel&q=iphone&store_id=uuid&purchased_from=2025-01-01
+GET /managers/products?export=excel&q=iphone&store_id=uuid&created_at_from=2025-01-01
 
 # Export own products for sales
 GET /sales/products?export=excel&mine=true
@@ -94,8 +94,8 @@ GET /sales/products?export=excel&mine=true
 - `q` - Search in name, code, notes
 - `code` - Exact code match
 - `store_id` - Filter by store
-- `purchased_from` - Start date (YYYY-MM-DD)
-- `purchased_to` - End date (YYYY-MM-DD)
+- `created_at_from` - Start date (YYYY-MM-DD)
+- `created_at_to` - End date (YYYY-MM-DD)
 - `creator_id` - Filter by creator
 - `mine` - Show only own products (sales only)
 
