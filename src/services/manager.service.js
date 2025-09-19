@@ -166,7 +166,14 @@ class ManagerService {
 
       const startOfYear = new Date(Date.UTC(year, 0, 1));
       const startOfNextYear = new Date(Date.UTC(year + 1, 0, 1));
-      const monthExpression = sequelize.fn('DATE_TRUNC', 'month', sequelize.col('purchasedAt'));
+
+      const productTableNameData = Product.getTableName();
+      const productTableName = typeof productTableNameData === 'string'
+        ? productTableNameData
+        : productTableNameData.tableName;
+      const purchasedAtField = Product.rawAttributes.purchasedAt.field || 'purchasedAt';
+      const purchasedAtColumn = sequelize.col(`${productTableName}.${purchasedAtField}`);
+      const monthExpression = sequelize.fn('DATE_TRUNC', 'month', purchasedAtColumn);
 
       const results = await Product.findAll({
         attributes: [
