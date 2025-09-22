@@ -150,7 +150,7 @@ const options = {
               type: 'string',
               minLength: 10,
               maxLength: 20,
-              example: '080000000001',
+              example: '08114328888',
             },
             password: {
               type: 'string',
@@ -525,7 +525,7 @@ const options = {
             },
             phone: {
               type: 'string',
-              example: '080000000001',
+              example: '08114328888',
             },
             name: {
               type: 'string',
