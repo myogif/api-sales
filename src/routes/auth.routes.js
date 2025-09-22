@@ -3,8 +3,11 @@ const {
   loginLimiter,
   loginValidation,
   login,
+  updatePasswordValidation,
+  updatePassword,
   handleValidationErrors,
 } = require('../controllers/auth.controller');
+const { authenticate } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -41,5 +44,47 @@ const router = express.Router();
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/login', loginLimiter, loginValidation, handleValidationErrors, login);
+
+/**
+ * @swagger
+ * /api/auth/password:
+ *   put:
+ *     summary: Update current user's password
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdatePasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UpdatePasswordResponse'
+ *       400:
+ *         description: Validation error or incorrect current password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.put(
+  '/password',
+  authenticate,
+  updatePasswordValidation,
+  handleValidationErrors,
+  updatePassword,
+);
 
 module.exports = router;

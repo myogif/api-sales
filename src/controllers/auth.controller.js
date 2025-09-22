@@ -31,10 +31,24 @@ const loginValidation = [
     .withMessage('Password must be at least 6 characters'),
 ];
 
+const updatePasswordValidation = [
+  body('newPassword')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 6 })
+    .withMessage('New password must be at least 6 characters'),
+  body('currentPassword')
+    .optional()
+    .isString()
+    .withMessage('Current password must be a string')
+    .isLength({ min: 6 })
+    .withMessage('Current password must be at least 6 characters'),
+];
+
 const login = async (req, res, next) => {
   try {
     const { phone, password } = req.body;
-    
+
     const result = await authService.login(phone, password);
     
     res.json(response.success('Login successful', result));
@@ -46,9 +60,28 @@ const login = async (req, res, next) => {
   }
 };
 
+const updatePassword = async (req, res, next) => {
+  try {
+    const { newPassword, currentPassword } = req.body;
+
+    req.currentUser.password = newPassword;
+
+    const updatedUser = await authService.updatePassword(req.currentUser, { currentPassword });
+
+    res.json(response.success('Password updated successfully', updatedUser));
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(response.error(error.message));
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   loginLimiter,
   loginValidation,
   login,
+  updatePasswordValidation,
+  updatePassword,
   handleValidationErrors,
 };
