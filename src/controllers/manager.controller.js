@@ -176,6 +176,16 @@ const getProducts = async (req, res, next) => {
     const exporting = req.query.export === 'excel';
     const where = buildProductFilters(req.query, req.user);
 
+    const creatorInclude = {
+      model: User,
+      as: 'creator',
+      attributes: ['id', 'name', 'phone', 'supervisorId'],
+    };
+
+    if (req.query.supervisor_id) {
+      creatorInclude.where = { supervisorId: req.query.supervisor_id };
+    }
+
     const baseOptions = {
       where,
       include: [
@@ -184,11 +194,7 @@ const getProducts = async (req, res, next) => {
           as: 'store',
           attributes: ['id', 'name', 'address', 'phone'],
         },
-        {
-          model: User,
-          as: 'creator',
-          attributes: ['id', 'name', 'phone'],
-        },
+        creatorInclude,
       ],
       distinct: true,
     };
