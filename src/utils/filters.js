@@ -25,13 +25,13 @@ const buildProductFilters = (query, user, sequelize) => {
   // Date range filters
   if (query.created_at_from || query.created_at_to) {
     const dateFilter = {};
-    if (query.created_at) {
+    if (query.created_at_from) {
       dateFilter[Op.gte] = query.created_at_from;
     }
     if (query.created_at_to) {
       dateFilter[Op.lte] = query.created_at_to;
     }
-    where.created_At = dateFilter;
+    where.createdAt = dateFilter;
   }
   
   // Creator filter
