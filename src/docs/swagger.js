@@ -94,7 +94,7 @@ const options = {
           },
           description: 'Filter by store ID',
         },
-        CretatedAtFromParam: {
+        CreatedAtFromParam: {
           in: 'query',
           name: 'created_at_from',
           schema: {
@@ -137,7 +137,9 @@ const options = {
             type: 'string',
             enum: ['excel'],
           },
-          description: 'Export format (returns .xlsx file instead of JSON)',
+          description:
+            'Export format (returns .xlsx file instead of JSON). Example request: GET /api/sales/products?export=excel&created_at_from=2024-01-01&created_at_to=2024-01-31',
+          example: 'excel',
         },
       },
       schemas: {
