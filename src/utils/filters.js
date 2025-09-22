@@ -38,7 +38,11 @@ const buildProductFilters = (query, user, sequelize) => {
   if (query.creator_id) {
     where.creatorId = query.creator_id;
   }
-  
+
+  if (query.supervisor_id) {
+    where['$creator.supervisorId$'] = query.supervisor_id;
+  }
+
   // Mine filter (only for SALES role)
   if (query.mine === 'true' && user.role === 'SALES') {
     where.creatorId = user.sub;
