@@ -76,8 +76,7 @@ class AuthService {
       throw error;
     }
   }
-}
-  async updatePassword(user, { currentPassword } = {}) {
+   async updatePassword(user, { currentPassword } = {}) {
     try {
       if (currentPassword) {
         const userWithPassword = await User.scope('withPassword').findByPk(user.id);

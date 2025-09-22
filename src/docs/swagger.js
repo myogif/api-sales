@@ -14,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production' 
+        url: process.env.NODE_ENV === 'production'
           ? 'https://garansiplus.com'
           : 'https://garansiplus.com',
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
@@ -161,7 +161,7 @@ const options = {
             },
           },
         },
-        ForgotPasswordRequest: {
+      ForgotPasswordRequest: {
           type: 'object',
           required: ['phone', 'newPassword'],
           properties: {
@@ -170,6 +170,14 @@ const options = {
               minLength: 10,
               maxLength: 20,
               example: '08114328888',
+            },
+            newPassword: {
+              type: 'string',
+              minLength: 6,
+              example: 'newStrongPassword123',
+            },
+          },
+        },
         UpdatePasswordRequest: {
           type: 'object',
           required: ['newPassword'],
@@ -183,7 +191,6 @@ const options = {
             newPassword: {
               type: 'string',
               minLength: 6,
-              example: 'newStrongPassword123',
               example: 'newSecurePassword123',
             },
           },
