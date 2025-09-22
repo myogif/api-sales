@@ -9,10 +9,11 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
     { header: 'Nama', key: 'name', width: 30 },
     { header: 'Kode', key: 'code', width: 20 },
     { header: 'Harga', key: 'price', width: 18 },
+    { header: 'Status', key: 'status', width: 15 },
     { header: 'Toko', key: 'storeName', width: 25 },
-    { header: 'No HP', key: 'storePhone', width: 15 },
+    { header: 'No. HP Toko', key: 'storePhone', width: 15 },
     { header: 'Sales', key: 'creatorName', width: 25 },
-    { header: 'Nomor Sales', key: 'creatorPhone', width: 15 },
+    { header: 'No. HP Sales', key: 'creatorPhone', width: 15 },
     { header: 'Tanggal Mulai Garansi', key: 'createdAt', width: 20 },
   ];
 
@@ -30,6 +31,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       name: product.name,
       code: product.code,
       price: product.price !== undefined && product.price !== null ? Number(product.price) : '',
+      status: deriveStatus(product.status, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
       storePhone: product.store?.phone || '',
       creatorName: product.creator?.name || '',
@@ -54,6 +56,36 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   res.end();
 };
 
+
+function deriveStatus(currentStatus, createdAt) {
+  if (!createdAt) return currentStatus ?? '';
+
+  const created = new Date(createdAt);
+  if (isNaN(created)) return currentStatus ?? '';
+
+  // Tambah 6 bulan dari tanggal dibuat
+  const sixMonthsAfter = new Date(created);
+  sixMonthsAfter.setMonth(sixMonthsAfter.getMonth() + 6);
+
+  const now = new Date();
+  const isYoungerThanSixMonths = now < sixMonthsAfter;
+
+  const isActiveLike  = /^(aktif|active)$/i.test((currentStatus || '').trim());
+  const isExpiredLike = /^expired$/i.test((currentStatus || '').trim());
+
+  // Aturan:
+  // 1) Jika status masih aktif tapi umur > 6 bulan -> "Expired"
+  if (isActiveLike && !isYoungerThanSixMonths) return 'Expired';
+
+  // 2) Jika status masih expired tapi umur < 6 bulan -> "Used"
+  if (isExpiredLike && isYoungerThanSixMonths) return 'Used';
+
+  // 3) Jika status masih aktif dan umur < 6 bulan -> "Aktif"
+  if (isActiveLike && isYoungerThanSixMonths) return 'Aktif';
+
+  // Fallback: kembalikan status asli bila tidak match aturan di atas
+  return currentStatus ?? '';
+}
 
 function formatDateToDDMMYYYY(date) { 
   if (!date) return '';
