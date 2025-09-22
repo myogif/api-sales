@@ -241,7 +241,7 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'code'],
+          required: ['name', 'code', 'price'],
           properties: {
             name: {
               type: 'string',
@@ -254,6 +254,12 @@ const options = {
               minLength: 2,
               maxLength: 50,
               example: 'APPLE-IP15PM-001',
+            },
+            price: {
+              type: 'number',
+              format: 'float',
+              minimum: 0,
+              example: 19990000,
             },
             persen: {
               type: 'integer',
@@ -622,6 +628,11 @@ const options = {
             code: {
               type: 'string',
               example: 'APPLE-IP15P-001',
+            },
+            price: {
+              type: 'number',
+              format: 'float',
+              example: 19990000,
             },
             notes: {
               type: 'string',
