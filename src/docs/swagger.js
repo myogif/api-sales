@@ -170,11 +170,21 @@ const options = {
               minLength: 10,
               maxLength: 20,
               example: '08114328888',
+        UpdatePasswordRequest: {
+          type: 'object',
+          required: ['newPassword'],
+          properties: {
+            currentPassword: {
+              type: 'string',
+              minLength: 6,
+              nullable: true,
+              example: 'oldPassword123',
             },
             newPassword: {
               type: 'string',
               minLength: 6,
               example: 'newStrongPassword123',
+              example: 'newSecurePassword123',
             },
           },
         },
@@ -352,6 +362,22 @@ const options = {
                   $ref: '#/components/schemas/User',
                 },
               },
+            },
+          },
+        },
+        UpdatePasswordResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            message: {
+              type: 'string',
+              example: 'Password updated successfully',
+            },
+            data: {
+              $ref: '#/components/schemas/User',
             },
           },
         },

@@ -5,8 +5,11 @@ const {
   login,
   forgotPasswordValidation,
   forgotPassword,
+  updatePasswordValidation,
+  updatePassword,
   handleValidationErrors,
 } = require('../controllers/auth.controller');
+const { authenticate } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -51,12 +54,19 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *     summary: Reset password by phone
  *     description: Allows an active user to reset their password using their phone number.
  *     tags: [Authentication]
+ * /api/auth/password:
+ *   put:
+ *     summary: Update current user's password
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/ForgotPasswordRequest'
+ *             $ref: '#/components/schemas/UpdatePasswordRequest'
  *     responses:
  *       200:
  *         description: Password updated successfully
@@ -66,12 +76,18 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
  *         description: User with the provided phone number was not found
+ *               $ref: '#/components/schemas/UpdatePasswordResponse'
+ *       400:
+ *         description: Validation error or incorrect current password
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *       400:
  *         description: Validation error
+
+ *       401:
+ *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
@@ -82,6 +98,13 @@ router.post(
   forgotPasswordValidation,
   handleValidationErrors,
   forgotPassword
+);
+router.put(
+  '/password',
+  authenticate,
+  updatePasswordValidation,
+  handleValidationErrors,
+  updatePassword,
 );
 
 module.exports = router;

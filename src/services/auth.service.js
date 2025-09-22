@@ -69,8 +69,42 @@ class AuthService {
 
       return user.toSafeJSON();
     } catch (error) {
-      logger.error('Password reset failed:', {
-        phone,
+        logger.error('Password Reset failed:', {
+        phone: phone,
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+}
+  async updatePassword(user, { currentPassword } = {}) {
+    try {
+      if (currentPassword) {
+        const userWithPassword = await User.scope('withPassword').findByPk(user.id);
+
+        if (!userWithPassword) {
+          const notFoundError = new Error('User not found');
+          notFoundError.statusCode = 404;
+          throw notFoundError;
+        }
+
+        const isValid = await userWithPassword.comparePassword(currentPassword);
+
+        if (!isValid) {
+          const invalidPasswordError = new Error('Current password is incorrect');
+          invalidPasswordError.statusCode = 400;
+          throw invalidPasswordError;
+        }
+      }
+
+      await user.save();
+
+      logger.info(`User ${user.id} updated password successfully`);
+
+      return user.toSafeJSON();
+    } catch (error) {
+      logger.error('Password update failed:', {
+        userId: user.id,
         error: error.message,
       });
       throw error;
