@@ -6,15 +6,13 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
 
   // Define columns
   worksheet.columns = [
-    { header: 'ID', key: 'id', width: 40 },
-    { header: 'Name', key: 'name', width: 30 },
-    { header: 'code', key: 'code', width: 20 },
-    { header: 'Store Name', key: 'storeName', width: 25 },
-    { header: 'Store Phone', key: 'storePhone', width: 15 },
-    { header: 'Creator Name', key: 'creatorName', width: 25 },
-    { header: 'Creator Phone', key: 'creatorPhone', width: 15 },
-    { header: 'Created At', key: 'createdAt', width: 20 },
-    { header: 'Updated At', key: 'updatedAt', width: 20 },
+    { header: 'Nama', key: 'name', width: 30 },
+    { header: 'Kode', key: 'code', width: 20 },
+    { header: 'Toko', key: 'storeName', width: 25 },
+    { header: 'No HP', key: 'storePhone', width: 15 },
+    { header: 'Sales', key: 'creatorName', width: 25 },
+    { header: 'Nomor Sales', key: 'creatorPhone', width: 15 },
+    { header: 'Tanggal Mulai Garansi', key: 'createdAt', width: 20 },
   ];
 
   // Style header row
@@ -28,15 +26,13 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   // Add data rows
   products.forEach((product) => {
     worksheet.addRow({
-      id: product.id,
       name: product.name,
       code: product.code,
       storeName: product.store?.name || '',
       storePhone: product.store?.phone || '',
       creatorName: product.creator?.name || '',
       creatorPhone: product.creator?.phone || '',
-      createdAt: product.createdAt?.toISOString(),
-      updatedAt: product.updatedAt?.toISOString(),
+      createdAt: formatDateToDDMMYYYY(product.createdAt),
     });
   });
 
@@ -56,6 +52,15 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   res.end();
 };
 
+
+function formatDateToDDMMYYYY(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // bulan 0-index
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}, 00:00`;
+}
 module.exports = {
   streamProductsXlsx,
 };
