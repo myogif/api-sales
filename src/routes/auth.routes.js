@@ -3,6 +3,8 @@ const {
   loginLimiter,
   loginValidation,
   login,
+  forgotPasswordValidation,
+  forgotPassword,
   handleValidationErrors,
 } = require('../controllers/auth.controller');
 
@@ -41,5 +43,45 @@ const router = express.Router();
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/login', loginLimiter, loginValidation, handleValidationErrors, login);
+
+/**
+ * @swagger
+ * /api/auth/password/forgot:
+ *   post:
+ *     summary: Reset password by phone
+ *     description: Allows an active user to reset their password using their phone number.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ForgotPasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         description: User with the provided phone number was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.post(
+  '/password/forgot',
+  forgotPasswordValidation,
+  handleValidationErrors,
+  forgotPassword
+);
 
 module.exports = router;

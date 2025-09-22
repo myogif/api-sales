@@ -161,6 +161,23 @@ const options = {
             },
           },
         },
+        ForgotPasswordRequest: {
+          type: 'object',
+          required: ['phone', 'newPassword'],
+          properties: {
+            phone: {
+              type: 'string',
+              minLength: 10,
+              maxLength: 20,
+              example: '08114328888',
+            },
+            newPassword: {
+              type: 'string',
+              minLength: 6,
+              example: 'newStrongPassword123',
+            },
+          },
+        },
         CreateSupervisorRequest: {
           type: 'object',
           required: ['phone', 'password', 'name'],
