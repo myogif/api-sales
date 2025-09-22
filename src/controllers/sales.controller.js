@@ -18,6 +18,12 @@ const createProductValidation = [
     .withMessage('Product code is required')
     .isLength({ min: 2, max: 50 })
     .withMessage('Product code must be between 2 and 50 characters'),
+  body('price')
+    .notEmpty()
+    .withMessage('Price is required')
+    .isFloat({ min: 0 })
+    .withMessage('Price must be a non-negative number')
+    .toFloat(),
   body('persen')
     .notEmpty()
     .withMessage('Persen is required'),

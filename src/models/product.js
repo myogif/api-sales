@@ -24,6 +24,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+    },
     storeId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -64,6 +72,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       {
         fields: ['name'],
+      },
+      {
+        fields: ['price'],
       },
     ],
   });
