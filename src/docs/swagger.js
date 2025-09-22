@@ -161,6 +161,23 @@ const options = {
             },
           },
         },
+        UpdatePasswordRequest: {
+          type: 'object',
+          required: ['newPassword'],
+          properties: {
+            currentPassword: {
+              type: 'string',
+              minLength: 6,
+              nullable: true,
+              example: 'oldPassword123',
+            },
+            newPassword: {
+              type: 'string',
+              minLength: 6,
+              example: 'newSecurePassword123',
+            },
+          },
+        },
         CreateSupervisorRequest: {
           type: 'object',
           required: ['phone', 'password', 'name'],
@@ -335,6 +352,22 @@ const options = {
                   $ref: '#/components/schemas/User',
                 },
               },
+            },
+          },
+        },
+        UpdatePasswordResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            message: {
+              type: 'string',
+              example: 'Password updated successfully',
+            },
+            data: {
+              $ref: '#/components/schemas/User',
             },
           },
         },
