@@ -161,6 +161,15 @@ const options = {
             },
           },
         },
+        ForgotPasswordRequest: {
+          type: 'object',
+          required: ['phone', 'newPassword'],
+          properties: {
+            phone: {
+              type: 'string',
+              minLength: 10,
+              maxLength: 20,
+              example: '08114328888',
         UpdatePasswordRequest: {
           type: 'object',
           required: ['newPassword'],
@@ -174,6 +183,7 @@ const options = {
             newPassword: {
               type: 'string',
               minLength: 6,
+              example: 'newStrongPassword123',
               example: 'newSecurePassword123',
             },
           },

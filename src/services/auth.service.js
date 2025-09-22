@@ -50,6 +50,33 @@ class AuthService {
     }
   }
 
+  async resetPassword(phone, newPassword) {
+    try {
+      const user = await User.scope('withPassword').findOne({
+        where: { phone, isActive: true },
+      });
+
+      if (!user) {
+        return null;
+      }
+
+      user.password = newPassword;
+      await user.save();
+
+      logger.info(`Password reset for user ${user.phone}`, {
+        userId: user.id,
+      });
+
+      return user.toSafeJSON();
+    } catch (error) {
+        logger.error('Password Reset failed:', {
+        phone: phone,
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+}
   async updatePassword(user, { currentPassword } = {}) {
     try {
       if (currentPassword) {

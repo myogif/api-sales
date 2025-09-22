@@ -3,6 +3,8 @@ const {
   loginLimiter,
   loginValidation,
   login,
+  forgotPasswordValidation,
+  forgotPassword,
   updatePasswordValidation,
   updatePassword,
   handleValidationErrors,
@@ -47,6 +49,11 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
 
 /**
  * @swagger
+ * /api/auth/password/forgot:
+ *   post:
+ *     summary: Reset password by phone
+ *     description: Allows an active user to reset their password using their phone number.
+ *     tags: [Authentication]
  * /api/auth/password:
  *   put:
  *     summary: Update current user's password
@@ -58,6 +65,7 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *       content:
  *         application/json:
  *           schema:
+ *             $ref: '#/components/schemas/ForgotPasswordRequest'
  *             $ref: '#/components/schemas/UpdatePasswordRequest'
  *     responses:
  *       200:
@@ -65,6 +73,9 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       404:
+ *         description: User with the provided phone number was not found
  *               $ref: '#/components/schemas/UpdatePasswordResponse'
  *       400:
  *         description: Validation error or incorrect current password
@@ -72,6 +83,9 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ *       400:
+ *         description: Validation error
+
  *       401:
  *         description: Unauthorized
  *         content:
@@ -79,6 +93,12 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+router.post(
+  '/password/forgot',
+  forgotPasswordValidation,
+  handleValidationErrors,
+  forgotPassword
+);
 router.put(
   '/password',
   authenticate,
