@@ -55,14 +55,21 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
 };
 
 
-function formatDateToDDMMYYYY(date) {
+function formatDateToDDMMYYYY(date) { 
   if (!date) return '';
   const d = new Date(date);
+
   const day = String(d.getDate()).padStart(2, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0'); // bulan 0-index
   const year = d.getFullYear();
-  return `${day}-${month}-${year}, 00:00`;
+
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  return `${day}-${month}-${year}, ${hours}:${minutes}`;
 }
+
+
 module.exports = {
   streamProductsXlsx,
 };
