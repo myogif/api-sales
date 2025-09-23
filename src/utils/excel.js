@@ -31,7 +31,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       name: product.name,
       code: product.code,
       price: product.price !== undefined && product.price !== null ? Number(product.price) : '',
-      status: deriveStatus(product.status, product.createdAt), // <-- status terhitung
+      status: deriveStatus(product.isActive, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
       storePhone: product.store?.phone || '',
       creatorName: product.creator?.name || '',
@@ -56,12 +56,17 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   res.end();
 };
 
+function deriveStatus(statusInput, createdAt) {
+  let normalizedStatus = statusInput;
 
-function deriveStatus(currentStatus, createdAt) {
-  if (!createdAt) return currentStatus ?? '';
+  if (typeof normalizedStatus === 'boolean') {
+    normalizedStatus = normalizedStatus ? 'Aktif' : 'Expired';
+  }
+
+  if (!createdAt) return normalizedStatus ?? '';
 
   const created = new Date(createdAt);
-  if (isNaN(created)) return currentStatus ?? '';
+  if (isNaN(created)) return normalizedStatus ?? '';
 
   // Tambah 6 bulan dari tanggal dibuat
   const sixMonthsAfter = new Date(created);
@@ -70,8 +75,9 @@ function deriveStatus(currentStatus, createdAt) {
   const now = new Date();
   const isYoungerThanSixMonths = now < sixMonthsAfter;
 
-  const isActiveLike  = /^(aktif|active)$/i.test((currentStatus || '').trim());
-  const isExpiredLike = /^expired$/i.test((currentStatus || '').trim());
+  const statusText = (normalizedStatus || '').toString().trim();
+  const isActiveLike  = /^(aktif|active)$/i.test(statusText);
+  const isExpiredLike = /^expired$/i.test(statusText);
 
   // Aturan:
   // 1) Jika status masih aktif tapi umur > 6 bulan -> "Expired"
@@ -84,7 +90,7 @@ function deriveStatus(currentStatus, createdAt) {
   if (isActiveLike && isYoungerThanSixMonths) return 'Aktif';
 
   // Fallback: kembalikan status asli bila tidak match aturan di atas
-  return currentStatus ?? '';
+  return normalizedStatus ?? '';
 }
 
 function formatDateToDDMMYYYY(date) { 
