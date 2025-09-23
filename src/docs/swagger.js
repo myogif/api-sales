@@ -304,6 +304,42 @@ const options = {
             },
           },
         },
+        UpdateProductRequest: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 200,
+              example: 'iPhone 15 Pro Max',
+            },
+            code: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+              example: 'APPLE-IP15PM-001-UPDATED',
+            },
+            price: {
+              type: 'number',
+              format: 'float',
+              minimum: 0,
+              example: 20990000,
+            },
+            notes: {
+              type: 'string',
+              maxLength: 1000,
+              example: 'Updated promo price available this month only.',
+            },
+            persen: {
+              type: 'integer',
+              example: 25,
+            },
+            isActive: {
+              type: 'boolean',
+              example: true,
+            },
+          },
+        },
 
         // Response Schemas
         SuccessResponse: {
