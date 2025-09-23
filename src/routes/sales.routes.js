@@ -4,6 +4,8 @@ const { requireSales } = require('../middlewares/role');
 const {
   createProductValidation,
   createProduct,
+  updateProductValidation,
+  updateProduct,
   deleteProduct,
   getProducts,
   handleValidationErrors,
@@ -37,6 +39,43 @@ router.use(authenticate, requireSales);
  *               $ref: '#/components/schemas/ProductResponse'
  */
 router.post('/products', createProductValidation, handleValidationErrors, createProduct);
+
+/**
+ * @swagger
+ * /api/sales/products/{id}:
+ *   put:
+ *     summary: Update a product (only own products)
+ *     tags: [Sales]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateProductRequest'
+ *     responses:
+ *       200:
+ *         description: Product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProductResponse'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.put('/products/:id', updateProductValidation, handleValidationErrors, updateProduct);
 
 /**
  * @swagger

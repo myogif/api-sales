@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, param } = require('express-validator');
 const salesService = require('../services/sales.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
@@ -37,7 +37,7 @@ const createProduct = async (req, res, next) => {
   try {
     const creatorId = req.user.sub;
     const storeId = req.user.store_id;
-    
+
     const product = await salesService.createProduct(creatorId, storeId, req.body);
     res.status(201).json(response.success('Product created successfully', product));
   } catch (error) {
@@ -45,13 +45,71 @@ const createProduct = async (req, res, next) => {
   }
 };
 
+const updateProductValidation = [
+  param('id')
+    .isUUID()
+    .withMessage('Product id must be a valid UUID'),
+  body('name')
+    .optional()
+    .isLength({ min: 2, max: 200 })
+    .withMessage('Product name must be between 2 and 200 characters'),
+  body('code')
+    .optional()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Product code must be between 2 and 50 characters'),
+  body('price')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Price must be a non-negative number')
+    .toFloat(),
+  body('persen')
+    .optional()
+    .isInt()
+    .withMessage('Persen must be an integer'),
+  body('isActive')
+    .optional()
+    .isBoolean()
+    .withMessage('isActive must be a boolean')
+    .toBoolean(),
+  body('notes')
+    .optional()
+    .isLength({ max: 1000 })
+    .withMessage('Notes cannot exceed 1000 characters'),
+  body()
+    .custom((value, { req }) => {
+      const allowedFields = ['name', 'code', 'price', 'notes', 'persen', 'isActive'];
+      const hasAllowedField = allowedFields.some((field) => Object.prototype.hasOwnProperty.call(req.body, field));
+
+      if (!hasAllowedField) {
+        throw new Error('At least one field must be provided for update');
+      }
+
+      return true;
+    }),
+];
+
 const deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const creatorId = req.user.sub;
-    
+
     const result = await salesService.deleteProduct(id, creatorId);
     res.json(response.success('Product deleted successfully', result));
+  } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(response.error('Product not found'));
+    }
+    next(error);
+  }
+};
+
+const updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const creatorId = req.user.sub;
+
+    const product = await salesService.updateProduct(id, creatorId, req.body);
+    res.json(response.success('Product updated successfully', product));
   } catch (error) {
     if (error.message === 'Product not found') {
       return res.status(404).json(response.error('Product not found'));
@@ -105,6 +163,8 @@ const getProducts = async (req, res, next) => {
 module.exports = {
   createProductValidation,
   createProduct,
+  updateProductValidation,
+  updateProduct,
   deleteProduct,
   getProducts,
   handleValidationErrors,
