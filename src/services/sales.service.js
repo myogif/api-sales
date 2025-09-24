@@ -1,4 +1,5 @@
-const { Product, Store, User } = require('../models');
+const { Product } = require('../models');
+const { calculatePriceWarranty } = require('../utils/product-pricing');
 const logger = require('../utils/logger');
 
 const ALLOWED_PRODUCT_UPDATES = ['name', 'code', 'price', 'notes', 'persen', 'isActive'];
@@ -6,8 +7,12 @@ const ALLOWED_PRODUCT_UPDATES = ['name', 'code', 'price', 'notes', 'persen', 'is
 class SalesService {
   async createProduct(creatorId, storeId, productData) {
     try {
+      const sanitizedData = { ...productData };
+      delete sanitizedData.priceWarranty;
+      sanitizedData.priceWarranty = calculatePriceWarranty(sanitizedData.price, sanitizedData.persen);
+
       const product = await Product.create({
-        ...productData,
+        ...sanitizedData,
         creatorId,
         storeId,
       });
@@ -74,6 +79,10 @@ class SalesService {
       });
 
       Object.assign(product, updates);
+
+      if (Object.prototype.hasOwnProperty.call(updates, 'price') || Object.prototype.hasOwnProperty.call(updates, 'persen')) {
+        product.priceWarranty = calculatePriceWarranty(product.price, product.persen);
+      }
       await product.save();
 
       logger.info('Product updated by sales user:', {

@@ -1,3 +1,5 @@
+const { calculatePriceWarranty } = require('../utils/product-pricing');
+
 module.exports = (sequelize, DataTypes) => {
   const Product = sequelize.define('Product', {
     id: {
@@ -31,6 +33,11 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         min: 0,
       },
+    },
+    priceWarranty: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
     },
     storeId: {
       type: DataTypes.UUID,
@@ -78,6 +85,18 @@ module.exports = (sequelize, DataTypes) => {
       },
     ],
   });
+
+  const applyPriceWarranty = (productInstance) => {
+    if (!productInstance) {
+      return;
+    }
+
+    const computedValue = calculatePriceWarranty(productInstance.price, productInstance.persen);
+    productInstance.setDataValue('priceWarranty', computedValue);
+  };
+
+  Product.addHook('beforeValidate', applyPriceWarranty);
+  Product.addHook('beforeSave', applyPriceWarranty);
 
   Product.associate = (models) => {
     // Product belongs to Store
