@@ -9,6 +9,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
     { header: 'Nama', key: 'name', width: 30 },
     { header: 'Kode', key: 'code', width: 20 },
     { header: 'Harga', key: 'price', width: 18 },
+    { header: 'Harga Garansi', key: 'priceWarranty', width: 18 },
     { header: 'Status', key: 'status', width: 15 },
     { header: 'Toko', key: 'storeName', width: 25 },
     { header: 'No. HP Toko', key: 'storePhone', width: 15 },
@@ -31,6 +32,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       name: product.name,
       code: product.code,
       price: product.price !== undefined && product.price !== null ? Number(product.price) : '',
+      priceWarranty: product.priceWarranty !== undefined && product.priceWarranty !== null ? Number(product.priceWarranty) : '',
       status: deriveStatus(product.isActive, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
       storePhone: product.store?.phone || '',

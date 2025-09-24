@@ -5,6 +5,7 @@ const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
 const { buildProductFilters } = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
+const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
 
 const createProductValidation = [
@@ -145,15 +146,21 @@ const getProducts = async (req, res, next) => {
         ...baseOptions,
         order: [['createdAt', 'DESC']],
       });
-      return streamProductsXlsx(res, products, `products_sales_${Date.now()}.xlsx`);
+      const formattedProducts = products.map(formatProductForOutput);
+      return streamProductsXlsx(res, formattedProducts, `products_sales_${Date.now()}.xlsx`);
     }
 
     const pageInfo = parsePaginationQuery(req.query);
     const result = await Product.findAndCountAll(
       applyPaginationToFindOptions(baseOptions, pageInfo),
     );
-    
-    const paginatedResponse = buildPaginatedResponse(result, pageInfo);
+
+    const formattedResult = {
+      count: result.count,
+      rows: result.rows.map(formatProductForOutput),
+    };
+
+    const paginatedResponse = buildPaginatedResponse(formattedResult, pageInfo);
     res.json(response.paginated('Products retrieved successfully', paginatedResponse));
   } catch (error) {
     next(error);
