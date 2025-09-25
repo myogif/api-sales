@@ -20,8 +20,7 @@ const calculatePriceWarranty = (price, persen) => {
   const normalizedPrice = toNumberOrZero(price);
   const normalizedPersen = toNumberOrZero(persen);
 
-  const discount = normalizedPrice * (normalizedPersen / 100);
-  const warrantyPrice = normalizedPrice - discount;
+  const warrantyPrice = normalizedPrice * (normalizedPersen / 100);
 
   return roundToTwoDecimals(warrantyPrice);
 };

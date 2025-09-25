@@ -7,7 +7,7 @@ module.exports = {
     });
 
     await queryInterface.sequelize.query(
-      'UPDATE products SET price_warranty = COALESCE(price, 0) - (COALESCE(price, 0) * COALESCE(persen, 0) / 100.0);'
+      'UPDATE products SET price_warranty = COALESCE(price, 0) * COALESCE(persen, 0) / 100.0;'
     );
   },
 
