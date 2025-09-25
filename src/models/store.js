@@ -36,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     tableName: 'stores',
-    paranoid: true,
   });
 
   Store.associate = (models) => {

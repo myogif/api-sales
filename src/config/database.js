@@ -11,7 +11,7 @@ module.exports = {
     logging: false,
     define: {
       timestamps: true,
-      paranoid: true,
+      paranoid: false,
       underscored: true,
     },
   },
@@ -25,7 +25,7 @@ module.exports = {
     logging: false,
     define: {
       timestamps: true,
-      paranoid: true,
+      paranoid: false,
       underscored: true,
     },
   },
@@ -45,7 +45,7 @@ module.exports = {
     },
     define: {
       timestamps: true,
-      paranoid: true,
+      paranoid: false,
       underscored: true,
     },
   },
