@@ -94,6 +94,15 @@ const options = {
           },
           description: 'Filter by store ID',
         },
+        StoreNameParam: {
+          in: 'query',
+          name: 'store_name',
+          schema: {
+            type: 'string',
+          },
+          description: 'Filter by store name (case-insensitive, partial match)',
+          example: 'Central',
+        },
         CreatedAtFromParam: {
           in: 'query',
           name: 'created_at_from',

@@ -162,6 +162,7 @@ router.get('/products/monthly-summary', getMonthlyProductSummary);
  * /api/managers/products:
  *   get:
  *     summary: Get all products
+ *     description: Retrieve products with optional filters, including partial store name matches.
  *     tags: [Manager]
  *     security:
  *       - bearerAuth: []
@@ -173,6 +174,7 @@ router.get('/products/monthly-summary', getMonthlyProductSummary);
  *       - $ref: '#/components/parameters/SearchParam'
  *       - $ref: '#/components/parameters/codeParam'
  *       - $ref: '#/components/parameters/StoreIdParam'
+ *       - $ref: '#/components/parameters/StoreNameParam'
  *       - $ref: '#/components/parameters/CreatedAtFromParam'
  *       - $ref: '#/components/parameters/CreatedAtToParam'
  *       - $ref: '#/components/parameters/CreatorIdParam'
