@@ -204,7 +204,6 @@ class ManagerService {
           [sequelize.fn('COUNT', sequelize.col('id')), 'productCount'],
         ],
         where: {
-          isActive: true,
           createdAt: {
             [Op.gte]: startOfYear,
             [Op.lt]: startOfNextYear,

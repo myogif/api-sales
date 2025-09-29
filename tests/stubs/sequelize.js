@@ -3,6 +3,7 @@ const Op = {
   iLike: Symbol('iLike'),
   gte: Symbol('gte'),
   lte: Symbol('lte'),
+  lt: Symbol('lt'),
 };
 
 class SequelizeStub {

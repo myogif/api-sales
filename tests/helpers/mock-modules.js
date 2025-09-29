@@ -8,6 +8,7 @@ const stubMap = {
   sequelize: path.resolve(__dirname, '../stubs/sequelize.js'),
   uuid: path.resolve(__dirname, '../stubs/uuid.js'),
   exceljs: path.resolve(__dirname, '../stubs/exceljs.js'),
+  winston: path.resolve(__dirname, '../stubs/winston.js'),
 };
 
 module.exports = () => {
