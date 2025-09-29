@@ -8,8 +8,8 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   worksheet.columns = [
     { header: 'Nama', key: 'name', width: 30 },
     { header: 'Kode', key: 'code', width: 20 },
-    { header: 'Harga', key: 'price', width: 18 },
-    { header: 'Harga Garansi', key: 'priceWarranty', width: 18 },
+    { header: 'Harga', key: 'price', width: 18, style: { numFmt: '"Rp" #,##0' } },
+    { header: 'Harga Garansi', key: 'priceWarranty', width: 18, style: { numFmt: '"Rp" #,##0' } },
     { header: 'Status', key: 'status', width: 15 },
     { header: 'Toko', key: 'storeName', width: 25 },
     { header: 'No. HP Toko', key: 'storePhone', width: 15 },
@@ -57,6 +57,13 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   await workbook.xlsx.write(res);
   res.end();
 };
+
+
+const formatIDR = (value) => {
+  if (value === null || value === undefined) return '';
+  return new Intl.NumberFormat('id-ID').format(value); // 100000 -> 100.000
+};
+
 
 function deriveStatus(statusInput, createdAt) {
   let normalizedStatus = statusInput;
