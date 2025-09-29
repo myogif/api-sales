@@ -17,9 +17,16 @@ const buildProductFilters = (query, user, sequelize) => {
     where.code = query.code;
   }
   
-  // Store filter
+  // Store filters
   if (query.store_id) {
     where.storeId = query.store_id;
+  }
+
+  if (typeof query.store_name === 'string') {
+    const trimmedStoreName = query.store_name.trim();
+    if (trimmedStoreName) {
+      where['$store.name$'] = { [Op.iLike]: `%${trimmedStoreName}%` };
+    }
   }
   
   // Date range filters

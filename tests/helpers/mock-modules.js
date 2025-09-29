@@ -6,6 +6,8 @@ const stubMap = {
   jsonwebtoken: path.resolve(__dirname, '../stubs/jsonwebtoken.js'),
   dotenv: path.resolve(__dirname, '../stubs/dotenv.js'),
   sequelize: path.resolve(__dirname, '../stubs/sequelize.js'),
+  uuid: path.resolve(__dirname, '../stubs/uuid.js'),
+  exceljs: path.resolve(__dirname, '../stubs/exceljs.js'),
 };
 
 module.exports = () => {

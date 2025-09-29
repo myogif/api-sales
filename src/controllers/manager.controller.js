@@ -1,4 +1,5 @@
 const { body } = require('express-validator');
+const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const managerService = require('../services/manager.service');
 const response = require('../utils/response');
@@ -187,16 +188,23 @@ const getProducts = async (req, res, next) => {
       creatorInclude.where = { supervisorId: req.query.supervisor_id };
     }
 
+    const storeInclude = {
+      model: Store,
+      as: 'store',
+      attributes: ['id', 'name', 'address', 'phone'],
+    };
+
+    if (typeof req.query.store_name === 'string') {
+      const trimmedStoreName = req.query.store_name.trim();
+      if (trimmedStoreName) {
+        storeInclude.where = { name: { [Op.iLike]: `%${trimmedStoreName}%` } };
+        storeInclude.required = true;
+      }
+    }
+
     const baseOptions = {
       where,
-      include: [
-        {
-          model: Store,
-          as: 'store',
-          attributes: ['id', 'name', 'address', 'phone'],
-        },
-        creatorInclude,
-      ],
+      include: [storeInclude, creatorInclude],
       distinct: true,
     };
 
