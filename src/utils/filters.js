@@ -50,12 +50,27 @@ const buildProductFilters = (query, user, sequelize) => {
   // Date range filters
   if (query.created_at_from || query.created_at_to) {
     const dateFilter = {};
+
     if (query.created_at_from) {
-      dateFilter[Op.gte] = query.created_at_from;
+      const fromDate = new Date(query.created_at_from);
+      if (!Number.isNaN(fromDate.getTime())) {
+        fromDate.setHours(0, 0, 1, 0);
+        dateFilter[Op.gte] = fromDate;
+      } else {
+        dateFilter[Op.gte] = query.created_at_from;
+      }
     }
+
     if (query.created_at_to) {
-      dateFilter[Op.lte] = query.created_at_to;
+      const toDate = new Date(query.created_at_to);
+      if (!Number.isNaN(toDate.getTime())) {
+        toDate.setHours(23, 59, 59, 999);
+        dateFilter[Op.lte] = toDate;
+      } else {
+        dateFilter[Op.lte] = query.created_at_to;
+      }
     }
+
     where.createdAt = dateFilter;
   }
   
