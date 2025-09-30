@@ -124,20 +124,32 @@ const getProducts = async (req, res, next) => {
     const exporting = req.query.export === 'excel';
     const where = buildProductFilters(req.query, req.user);
 
-    const baseOptions = {
-      where,
-      include: [
-        {
-          model: Store,
-          as: 'store',
-          attributes: ['id', 'name', 'address', 'phone'],
-        },
+    const storeInclude = {
+      model: Store,
+      as: 'store',
+      attributes: ['id', 'name', 'address', 'phone'],
+    };
+
+    const creatorInclude = {
+      model: User,
+      as: 'creator',
+      attributes: ['id', 'name', 'phone', 'supervisorId'],
+    };
+
+    if (exporting) {
+      creatorInclude.include = [
         {
           model: User,
-          as: 'creator',
+          as: 'supervisor',
           attributes: ['id', 'name', 'phone'],
+          required: false,
         },
-      ],
+      ];
+    }
+
+    const baseOptions = {
+      where,
+      include: [storeInclude, creatorInclude],
       distinct: true,
     };
 
