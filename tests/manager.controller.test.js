@@ -5,7 +5,7 @@ const setupModuleMocks = require('./helpers/mock-modules');
 
 const restoreModuleMocks = setupModuleMocks();
 
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 
 const controllerPath = path.resolve(__dirname, '../src/controllers/manager.controller.js');
 const modelsPath = path.resolve(__dirname, '../src/models/index.js');
@@ -83,11 +83,16 @@ test('getProducts applies store name filter to store include', async () => {
     assert.ok(captured.options, 'findAndCountAll should receive options');
     const storeInclude = captured.options.include.find((inc) => inc.as === 'store');
     assert.ok(storeInclude, 'Store include should be present');
-    assert.deepEqual(storeInclude.where, { name: { [Op.iLike]: '%Alpha Outlet%' } });
+    const expectedMatcher = where(
+      fn('LOWER', col('store.name')),
+      { [Op.like]: '%alpha outlet%' },
+    );
+
+    assert.deepEqual(storeInclude.where, expectedMatcher);
     assert.equal(storeInclude.required, true);
     assert.deepEqual(
       captured.options.where['$store.name$'],
-      { [Op.iLike]: '%Alpha Outlet%' },
+      expectedMatcher,
       'Root where clause should include store name filter',
     );
   } finally {

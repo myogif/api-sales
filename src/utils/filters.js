@@ -1,15 +1,30 @@
-const { Op } = require('sequelize');
+const { Op, fn, col, where: buildWhere } = require('sequelize');
+
+const buildCaseInsensitiveLike = (columnPath, value) => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalizedValue = value.toLowerCase();
+  const likeValue = `%${normalizedValue}%`;
+
+  return buildWhere(fn('LOWER', col(columnPath)), { [Op.like]: likeValue });
+};
 
 const buildProductFilters = (query, user, sequelize) => {
   const where = {};
-  
+
   // Text search in name, code, notes
   if (query.q) {
-    where[Op.or] = [
-      { name: { [Op.iLike]: `%${query.q}%` } },
-      { code: { [Op.iLike]: `%${query.q}%` } },
-      { notes: { [Op.iLike]: `%${query.q}%` } },
-    ];
+    const caseInsensitiveMatchers = [
+      buildCaseInsensitiveLike('name', query.q),
+      buildCaseInsensitiveLike('code', query.q),
+      buildCaseInsensitiveLike('notes', query.q),
+    ].filter(Boolean);
+
+    if (caseInsensitiveMatchers.length > 0) {
+      where[Op.or] = caseInsensitiveMatchers;
+    }
   }
   
   // Exact code match
@@ -25,7 +40,10 @@ const buildProductFilters = (query, user, sequelize) => {
   if (typeof query.store_name === 'string') {
     const trimmedStoreName = query.store_name.trim();
     if (trimmedStoreName) {
-      where['$store.name$'] = { [Op.iLike]: `%${trimmedStoreName}%` };
+      const storeNameMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
+      if (storeNameMatcher) {
+        where['$store.name$'] = storeNameMatcher;
+      }
     }
   }
   
@@ -80,4 +98,5 @@ const buildProductFilters = (query, user, sequelize) => {
 
 module.exports = {
   buildProductFilters,
+  buildCaseInsensitiveLike,
 };
