@@ -74,6 +74,17 @@ const getProducts = async (req, res, next) => {
       attributes: ['id', 'name', 'phone', 'supervisorId'],
     };
 
+    if (exporting) {
+      creatorInclude.include = [
+        {
+          model: User,
+          as: 'supervisor',
+          attributes: ['id', 'name', 'phone'],
+          required: false,
+        },
+      ];
+    }
+
     if (req.query.supervisor_id) {
       creatorInclude.where = { supervisorId: req.query.supervisor_id };
     }
