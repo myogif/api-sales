@@ -1,6 +1,7 @@
 class Worksheet {
   constructor() {
     this.columns = [];
+    this.rows = [];
   }
 
   getRow() {
@@ -10,7 +11,9 @@ class Worksheet {
     };
   }
 
-  addRow() {}
+  addRow(data) {
+    this.rows.push(data);
+  }
 }
 
 class Workbook {
@@ -19,6 +22,7 @@ class Workbook {
     this.xlsx = {
       write: async () => {},
     };
+    Workbook.__lastWorkbook = this;
   }
 
   addWorksheet() {
@@ -30,4 +34,5 @@ class Workbook {
 
 module.exports = {
   Workbook,
+  __getLastWorkbook: () => Workbook.__lastWorkbook,
 };
