@@ -9,7 +9,7 @@ class ManagerService {
         Store.count({ where: { isActive: true } }),
         User.count({ where: { role: 'SUPERVISOR', isActive: true } }),
         User.count({ where: { role: 'SALES', isActive: true } }),
-        Product.count({ where: { isActive: true } }),
+        Product.count(),
         Store.findAll({
             attributes: [
               'id',
