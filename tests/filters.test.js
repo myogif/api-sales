@@ -42,3 +42,27 @@ test('buildProductFilters creates case-insensitive search for q parameter', () =
 
   assert.deepEqual(nameMatcher, expectedMatcher);
 });
+
+test('buildProductFilters normalizes created_at_from to start of day', () => {
+  const filters = buildProductFilters({ created_at_from: '2024-01-15' }, baseUser);
+
+  const fromFilter = filters.createdAt[Op.gte];
+
+  assert.ok(fromFilter instanceof Date);
+  assert.equal(fromFilter.getHours(), 0);
+  assert.equal(fromFilter.getMinutes(), 0);
+  assert.equal(fromFilter.getSeconds(), 1);
+  assert.equal(fromFilter.getMilliseconds(), 0);
+});
+
+test('buildProductFilters normalizes created_at_to to end of day', () => {
+  const filters = buildProductFilters({ created_at_to: '2024-01-15' }, baseUser);
+
+  const toFilter = filters.createdAt[Op.lte];
+
+  assert.ok(toFilter instanceof Date);
+  assert.equal(toFilter.getHours(), 23);
+  assert.equal(toFilter.getMinutes(), 59);
+  assert.equal(toFilter.getSeconds(), 59);
+  assert.equal(toFilter.getMilliseconds(), 999);
+});
