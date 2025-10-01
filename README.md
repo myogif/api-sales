@@ -61,6 +61,7 @@
 - `DELETE /supervisors/sales/:id` - Delete sales user
 - `GET /supervisors/sales` - List sales users in supervisor's store
 - `GET /supervisors/products` - List store products (with filters, pagination, Excel export)
+- `DELETE /supervisors/products/:id` - Delete product from supervisor's store
 
 ### Sales Routes
 - `POST /sales/products` - Create product

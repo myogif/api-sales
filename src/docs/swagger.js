@@ -368,6 +368,28 @@ const options = {
             },
           },
         },
+        SupervisorDeleteProductResponse: {
+          type: 'object',
+          properties: {
+            success: {
+              type: 'boolean',
+              example: true,
+            },
+            message: {
+              type: 'string',
+              example: 'Product deleted successfully',
+            },
+            data: {
+              type: 'object',
+              properties: {
+                message: {
+                  type: 'string',
+                  example: 'Product deleted successfully',
+                },
+              },
+            },
+          },
+        },
         ErrorResponse: {
           type: 'object',
           properties: {
