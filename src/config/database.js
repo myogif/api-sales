@@ -5,7 +5,6 @@ const normalizedDialect = (config.database.dialect || '').toLowerCase();
 const isMySQLDialect = ['mysql', 'mariadb'].includes(normalizedDialect);
 
 const baseDialectOptions = {
-  useUTC: false,
   ...(isMySQLDialect
     ? {
         dateStrings: true,
