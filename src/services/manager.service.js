@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
+const storeService = require('./store.service');
 
 class ManagerService {
   async getDashboard() {
@@ -65,12 +66,13 @@ class ManagerService {
           throw new Error('Store information is required');
         }
 
-        const newStore = await Store.create({
+        const newStore = await storeService.createStore({
           id: resolvedStoreId,
-          name: storePayload.name.trim(),
+          kode_toko: storePayload.kode_toko,
+          name: storePayload.name,
           address: storePayload.address,
-          phone: storePayload.phone ? String(storePayload.phone).trim() : undefined,
-          email: storePayload.email ? String(storePayload.email).trim() : undefined,
+          phone: storePayload.phone,
+          email: storePayload.email,
           isActive: typeof storePayload.isActive === 'boolean' ? storePayload.isActive : undefined,
         }, { transaction });
 
@@ -102,7 +104,7 @@ class ManagerService {
           {
             model: Store,
             as: 'store',
-            attributes: ['id', 'name', 'address', 'phone', 'email'],
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
           },
         ],
         transaction,
@@ -260,7 +262,7 @@ class ManagerService {
           {
             model: Store,
             as: 'store',
-            attributes: ['id', 'name', 'address', 'phone'],
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
           },
         ],
         limit,
@@ -284,7 +286,7 @@ class ManagerService {
           {
             model: Store,
             as: 'store',
-            attributes: ['id', 'name', 'address', 'phone'],
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
           },
           {
             model: User,

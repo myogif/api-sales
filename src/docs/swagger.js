@@ -228,7 +228,14 @@ const options = {
             store: {
               type: 'object',
               description: 'Provide this object to create a brand new store for the supervisor. The API will generate the storeId automatically when this is supplied.',
+              required: ['name', 'kode_toko'],
               properties: {
+                kode_toko: {
+                  type: 'string',
+                  pattern: '^[A-Z0-9]+$',
+                  example: 'TOKO123',
+                  description: 'Unique uppercase alphanumeric store code without spaces.',
+                },
                 name: {
                   type: 'string',
                   minLength: 2,
@@ -697,6 +704,11 @@ const options = {
               format: 'uuid',
               example: '11111111-1111-1111-1111-111111111111',
             },
+            kode_toko: {
+              type: 'string',
+              example: 'TOKO001',
+              description: 'Unique uppercase alphanumeric code for the store.',
+            },
             name: {
               type: 'string',
               example: 'Main Store',
@@ -842,6 +854,10 @@ const options = {
       {
         name: 'Sales',
         description: 'Sales operations',
+      },
+      {
+        name: 'Store',
+        description: 'Store (Toko) operations',
       },
     ],
   },

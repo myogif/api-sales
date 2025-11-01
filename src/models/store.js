@@ -5,6 +5,28 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    kode_toko: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true,
+      set(value) {
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          this.setDataValue('kode_toko', trimmed ? trimmed.toUpperCase() : trimmed);
+        } else {
+          this.setDataValue('kode_toko', value);
+        }
+      },
+      validate: {
+        notEmpty: {
+          msg: 'Store code is required',
+        },
+        is: {
+          args: /^[A-Z0-9]+$/,
+          msg: 'Store code must contain only uppercase letters and numbers',
+        },
+      },
+    },
     name: {
       type: DataTypes.STRING(100),
       allowNull: false,
