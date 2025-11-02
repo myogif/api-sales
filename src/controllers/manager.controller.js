@@ -130,7 +130,7 @@ const createSupervisor = async (req, res, next) => {
       return res.status(400).json(response.error('Store information is required'));
     }
     if (error.code === STORE_LIMIT_ERROR_CODE) {
-      return res.status(400).json({
+      return res.status(422).json({
         status: false,
         message: 'Pembuatan Toko SUdah Mencapai Limit',
         data: null,

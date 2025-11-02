@@ -3,6 +3,30 @@ const { Store } = require('../models');
 const STORE_LIMIT = 300;
 const STORE_LIMIT_ERROR_CODE = 'STORE_LIMIT_REACHED';
 const STORE_NOT_FOUND_ERROR_CODE = 'STORE_NOT_FOUND';
+const DEFAULT_SCOPE_ATTRIBUTES = ['tenantId', 'companyId', 'ownerId'];
+
+const resolveLimitScope = (data = {}, options = {}) => {
+  const explicitScope = options.scope || options.where;
+  if (explicitScope && typeof explicitScope === 'object' && explicitScope !== null) {
+    return explicitScope;
+  }
+
+  const storeAttributes = (Store && Store.rawAttributes) || {};
+  const scope = {};
+
+  DEFAULT_SCOPE_ATTRIBUTES.forEach((attribute) => {
+    if (
+      Object.prototype.hasOwnProperty.call(storeAttributes, attribute)
+      && Object.prototype.hasOwnProperty.call(data, attribute)
+      && data[attribute] !== undefined
+      && data[attribute] !== null
+    ) {
+      scope[attribute] = data[attribute];
+    }
+  });
+
+  return scope;
+};
 
 const createStoreLimitError = () => {
   const error = new Error('Store limit reached');
@@ -78,25 +102,39 @@ class StoreService {
   }
 
   async checkLimit(options = {}) {
-    const total = await Store.count({ transaction: options.transaction });
+    const scope = options.scope && typeof options.scope === 'object' && options.scope !== null
+      ? options.scope
+      : {};
+    const total = await Store.count({ where: scope, transaction: options.transaction });
     return {
       total,
-      limit: STORE_LIMIT,
-      canCreate: total < STORE_LIMIT,
+      limit: this.limit,
+      canCreate: total < this.limit,
     };
   }
 
   async ensureWithinLimit(options = {}) {
     const { total } = await this.checkLimit(options);
-    if (total >= STORE_LIMIT) {
+    if (total >= this.limit) {
       throw createStoreLimitError();
     }
   }
 
   async createStore(data, options = {}) {
-    await this.ensureWithinLimit(options);
+    const scope = resolveLimitScope(data, options);
+    await this.ensureWithinLimit({ ...options, scope });
 
     const payload = sanitizeStorePayload(data, { includeId: true });
+    if (
+      Object.prototype.hasOwnProperty.call(payload, 'kode_toko')
+      && typeof payload.kode_toko === 'string'
+      && payload.kode_toko
+      && !/^[A-Z0-9]+$/.test(payload.kode_toko)
+    ) {
+      const error = new Error('Store code must contain only uppercase letters and numbers');
+      error.code = 'INVALID_STORE_CODE';
+      throw error;
+    }
     const store = await Store.create(payload, { transaction: options.transaction });
     return store;
   }
