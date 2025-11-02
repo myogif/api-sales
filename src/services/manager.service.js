@@ -3,7 +3,25 @@ const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
 const storeService = require('./store.service');
 
+const SUPERVISOR_LIMIT = 2;
+const SUPERVISOR_LIMIT_ERROR_CODE = 'SUPERVISOR_LIMIT_REACHED';
+const SUPERVISOR_LIMIT_MESSAGE = 'Jumlah SPV SUdah Mencapai Limit';
+
+const createSupervisorLimitError = () => {
+  const error = new Error('Supervisor limit reached');
+  error.code = SUPERVISOR_LIMIT_ERROR_CODE;
+  return error;
+};
+
 class ManagerService {
+  constructor() {
+    this.supervisorLimit = SUPERVISOR_LIMIT;
+  }
+
+  get supervisorLimitMessage() {
+    return SUPERVISOR_LIMIT_MESSAGE;
+  }
+
   async getDashboard() {
     try {
       const [totalStores, totalSupervisors, totalSales, totalProducts,topStores ] = await Promise.all([
@@ -55,6 +73,25 @@ class ManagerService {
     }
   }
 
+  async countSupervisorsForStore(storeId, options = {}) {
+    if (!storeId) {
+      return 0;
+    }
+
+    return User.count({
+      where: { role: 'SUPERVISOR', storeId },
+      transaction: options.transaction,
+    });
+  }
+
+  async ensureSupervisorWithinLimit(storeId, options = {}) {
+    const total = await this.countSupervisorsForStore(storeId, options);
+    if (total >= this.supervisorLimit) {
+      throw createSupervisorLimitError();
+    }
+    return total;
+  }
+
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
     try {
@@ -92,6 +129,8 @@ class ManagerService {
       if (!resolvedStoreId) {
         throw new Error('Store information is required');
       }
+
+      await this.ensureSupervisorWithinLimit(resolvedStoreId, { transaction });
 
       const supervisor = await User.create({
         ...userData,
@@ -309,3 +348,7 @@ class ManagerService {
 }
 
 module.exports = new ManagerService();
+module.exports.SUPERVISOR_LIMIT = SUPERVISOR_LIMIT;
+module.exports.SUPERVISOR_LIMIT_ERROR_CODE = SUPERVISOR_LIMIT_ERROR_CODE;
+module.exports.SUPERVISOR_LIMIT_MESSAGE = SUPERVISOR_LIMIT_MESSAGE;
+module.exports.createSupervisorLimitError = createSupervisorLimitError;

@@ -58,15 +58,23 @@ router.get('/dashboard', getDashboard);
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
  *       400:
- *         description: Store limit reached or invalid input
+ *         description: Invalid input
+ *       422:
+ *         description: Store or supervisor limit reached
  *         content:
  *           application/json:
  *             examples:
- *               limitReached:
+ *               storeLimitReached:
  *                 summary: Store creation limit reached
  *                 value:
  *                   status: false
  *                   message: Pembuatan Toko SUdah Mencapai Limit
+ *                   data: null
+ *               supervisorLimitReached:
+ *                 summary: Supervisor limit reached for store
+ *                 value:
+ *                   status: false
+ *                   message: Jumlah SPV SUdah Mencapai Limit
  *                   data: null
  */
 router.post('/add-supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);

@@ -21,6 +21,10 @@ const loadService = (overrides = {}) => {
   const sequelizeStub = {
     fn: (...args) => (args[0] === 'DATE_FORMAT' ? monthExpression : { fn: args }),
     col: (value) => ({ col: value }),
+    transaction: async () => ({
+      commit: async () => {},
+      rollback: async () => {},
+    }),
   };
 
   const ProductStub = {
@@ -35,14 +39,25 @@ const loadService = (overrides = {}) => {
     },
   };
 
+  require.cache[loggerPath] = {
+    id: loggerPath,
+    filename: loggerPath,
+    loaded: true,
+    exports: {
+      info: () => {},
+      error: () => {},
+      warn: () => {},
+    },
+  };
+
   require.cache[modelsPath] = {
     id: modelsPath,
     filename: modelsPath,
     loaded: true,
     exports: {
       Product: { ...ProductStub, ...(overrides.product || {}) },
-      User: {},
-      Store: {},
+      User: { ...(overrides.user || {}) },
+      Store: { ...(overrides.store || {}) },
       sequelize: overrides.sequelize || sequelizeStub,
     },
   };
@@ -96,14 +111,56 @@ test('getMonthlyProductSummary includes inactive products in counts', async () =
     cleanup();
   }
 });
-  require.cache[loggerPath] = {
-    id: loggerPath,
-    filename: loggerPath,
-    loaded: true,
-    exports: {
-      info: () => {},
-      error: () => {},
-      warn: () => {},
+
+test('createSupervisor enforces per-store supervisor limit', async () => {
+  let rollbackCalled = false;
+  let createCalled = false;
+  let countOptions;
+  const fakeTransaction = {
+    commit: async () => {
+      throw new Error('Commit should not be called when limit is reached');
+    },
+    rollback: async () => {
+      rollbackCalled = true;
     },
   };
+
+  const { managerService, cleanup } = loadService({
+    user: {
+      count: async (options) => {
+        countOptions = options;
+        return 2;
+      },
+      create: async () => {
+        createCalled = true;
+        throw new Error('Should not create supervisor when limit is reached');
+      },
+    },
+    store: {
+      findByPk: async () => ({ id: 'store-1' }),
+    },
+    sequelize: {
+      fn: (...args) => (args[0] === 'DATE_FORMAT' ? Symbol('monthExpression') : { fn: args }),
+      col: (value) => ({ col: value }),
+      transaction: async () => fakeTransaction,
+    },
+  });
+
+  try {
+    await assert.rejects(
+      managerService.createSupervisor({ storeId: 'store-1', name: 'Supervisor', phone: '0800000000', password: 'secret123' }),
+      (error) => {
+        assert.equal(error.code, managerService.SUPERVISOR_LIMIT_ERROR_CODE);
+        return true;
+      },
+    );
+
+    assert.ok(rollbackCalled, 'transaction rollback should be invoked');
+    assert.equal(createCalled, false, 'supervisor should not be created when limit is reached');
+    assert.deepEqual(countOptions.where, { role: 'SUPERVISOR', storeId: 'store-1' });
+    assert.equal(countOptions.transaction, fakeTransaction);
+  } finally {
+    cleanup();
+  }
+});
 
