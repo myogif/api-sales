@@ -58,7 +58,9 @@ router.get('/dashboard', getDashboard);
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
  *       400:
- *         description: Store limit reached or invalid input
+ *         description: Invalid input
+ *       422:
+ *         description: Store creation limit reached
  *         content:
  *           application/json:
  *             examples:
