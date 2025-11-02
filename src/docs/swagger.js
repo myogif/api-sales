@@ -938,10 +938,6 @@ const options = {
         name: 'Store',
         description: 'Store (Toko) operations',
       },
-      {
-        name: 'Product',
-        description: 'Product (Produk) operations',
-      },
     ],
   },
   apis: ['./src/routes/*.js'],

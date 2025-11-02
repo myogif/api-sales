@@ -4,7 +4,6 @@ const managerRoutes = require('./manager.routes');
 const supervisorRoutes = require('./supervisor.routes');
 const salesRoutes = require('./sales.routes');
 const storeRoutes = require('./store.routes');
-const productRoutes = require('./product.routes');
 
 const router = express.Router();
 
@@ -26,6 +25,5 @@ router.use('/managers', managerRoutes);
 router.use('/supervisors', supervisorRoutes);
 router.use('/sales', salesRoutes);
 router.use('/toko', storeRoutes);
-router.use('/produk', productRoutes);
 
 module.exports = router;
