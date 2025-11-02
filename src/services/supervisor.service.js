@@ -1,9 +1,51 @@
 const { User, Store, Product } = require('../models');
 const logger = require('../utils/logger');
 
+const SALES_LIMIT = 20;
+const SALES_LIMIT_ERROR_CODE = 'SALES_LIMIT_REACHED';
+const SALES_LIMIT_MESSAGE = 'Jumlah Sales SUdah Mencapai Limit';
+
+const createSalesLimitError = () => {
+  const error = new Error('Sales limit reached');
+  error.code = SALES_LIMIT_ERROR_CODE;
+  return error;
+};
+
 class SupervisorService {
+  constructor() {
+    this.salesLimit = SALES_LIMIT;
+  }
+
+  get salesLimitMessage() {
+    return SALES_LIMIT_MESSAGE;
+  }
+
+  async countSalesForStore(storeId, options = {}) {
+    if (!storeId) {
+      return 0;
+    }
+
+    return User.count({
+      where: {
+        role: 'SALES',
+        storeId,
+      },
+      transaction: options.transaction,
+    });
+  }
+
+  async ensureSalesWithinLimit(storeId, options = {}) {
+    const total = await this.countSalesForStore(storeId, options);
+    if (total >= this.salesLimit) {
+      throw createSalesLimitError();
+    }
+    return total;
+  }
+
   async createSalesUser(supervisorId, storeId, salesData) {
     try {
+      await this.ensureSalesWithinLimit(storeId);
+
       const salesUser = await User.create({
         ...salesData,
         role: 'SALES',
@@ -108,3 +150,7 @@ class SupervisorService {
 }
 
 module.exports = new SupervisorService();
+module.exports.SALES_LIMIT = SALES_LIMIT;
+module.exports.SALES_LIMIT_ERROR_CODE = SALES_LIMIT_ERROR_CODE;
+module.exports.SALES_LIMIT_MESSAGE = SALES_LIMIT_MESSAGE;
+module.exports.createSalesLimitError = createSalesLimitError;

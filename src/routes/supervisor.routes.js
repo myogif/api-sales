@@ -37,6 +37,17 @@ router.use(authenticate, requireSupervisor);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
+ *       422:
+ *         description: Sales creation is not allowed due to store limit
+ *         content:
+ *           application/json:
+ *             examples:
+ *               limitReached:
+ *                 summary: Sales limit reached
+ *                 value:
+ *                   status: false
+ *                   message: Jumlah Sales SUdah Mencapai Limit
+ *                   data: null
  */
 router.post('/sales', createSalesValidation, handleValidationErrors, createSalesUser);
 

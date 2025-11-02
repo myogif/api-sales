@@ -818,6 +818,7 @@ const options = {
               type: 'string',
               example: 'TOKO001-125',
               description: 'Auto-generated membership number per store.',
+              readOnly: true,
             },
             price: {
               type: 'number',
