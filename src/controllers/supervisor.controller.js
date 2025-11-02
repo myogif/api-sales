@@ -111,7 +111,7 @@ const getProducts = async (req, res, next) => {
         {
           model: Store,
           as: 'store',
-          attributes: ['id', 'name', 'address', 'phone'],
+          attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
         },
         creatorInclude,
       ],
