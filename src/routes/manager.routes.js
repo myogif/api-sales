@@ -64,11 +64,17 @@ router.get('/dashboard', getDashboard);
  *         content:
  *           application/json:
  *             examples:
- *               limitReached:
+ *               storeLimitReached:
  *                 summary: Store creation limit reached
  *                 value:
  *                   status: false
  *                   message: Pembuatan Toko SUdah Mencapai Limit
+ *                   data: null
+ *               supervisorLimitReached:
+ *                 summary: Supervisor limit reached for store
+ *                 value:
+ *                   status: false
+ *                   message: Jumlah SPV SUdah Mencapai Limit
  *                   data: null
  */
 router.post('/add-supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);

@@ -17,7 +17,9 @@ const loadService = (overrides = {}) => {
 
   const captured = {
     storeFindArgs: [],
-    productFindArgs: [],
+    sequenceFindArgs: [],
+    sequenceCreateArgs: [],
+    sequenceIncrementArgs: [],
   };
 
   const ProductStub = {
@@ -29,16 +31,6 @@ const loadService = (overrides = {}) => {
         return overrides.count();
       }
       return 0;
-    },
-    findOne: async (options) => {
-      captured.productFindArgs.push(options);
-      if (typeof overrides.findOne === 'function') {
-        return overrides.findOne(options);
-      }
-      if (overrides.lastProduct) {
-        return overrides.lastProduct;
-      }
-      return null;
     },
   };
 
@@ -55,6 +47,49 @@ const loadService = (overrides = {}) => {
     },
   };
 
+  const wrapSequenceRecord = (record) => {
+    if (!record) {
+      return record;
+    }
+
+    const originalIncrement = typeof record.increment === 'function'
+      ? record.increment.bind(record)
+      : null;
+
+    record.increment = async (field, options = {}) => {
+      captured.sequenceIncrementArgs.push({ field, options });
+      if (originalIncrement) {
+        return originalIncrement(field, options);
+      }
+      if (typeof record.nextNumber === 'number') {
+        record.nextNumber += options.by ?? 1;
+      }
+      return undefined;
+    };
+
+    return record;
+  };
+
+  const StoreProductSequenceStub = {
+    findOne: async (options) => {
+      captured.sequenceFindArgs.push(options);
+      if (typeof overrides.sequenceFindOne === 'function') {
+        return wrapSequenceRecord(await overrides.sequenceFindOne(options));
+      }
+      return wrapSequenceRecord(overrides.sequenceRecord || null);
+    },
+    create: async (values, options) => {
+      captured.sequenceCreateArgs.push({ values, options });
+      if (typeof overrides.sequenceCreate === 'function') {
+        return wrapSequenceRecord(await overrides.sequenceCreate(values, options));
+      }
+      return wrapSequenceRecord({
+        ...values,
+        nextNumber: values.nextNumber ?? 1,
+      });
+    },
+  };
+
   require.cache[modelsPath] = {
     id: modelsPath,
     filename: modelsPath,
@@ -62,6 +97,7 @@ const loadService = (overrides = {}) => {
     exports: {
       Product: ProductStub,
       Store: StoreStub,
+      StoreProductSequence: StoreProductSequenceStub,
     },
   };
 
@@ -100,12 +136,12 @@ test('ensureWithinLimit throws when product cap has been reached', async () => {
 
 test('generateNomorKepesertaan locks the store row and increments sequence', async () => {
   const storeRecord = { id: 'store-1', kode_toko: 'TOKO001' };
-  const lastProduct = { nomorKepesertaan: 'TOKO001-3' };
+  const sequenceRecord = { storeId: 'store-1', nextNumber: 4 };
   const transaction = { LOCK: { UPDATE: 'FOR UPDATE' } };
 
   const { productService, captured, cleanup } = loadService({
     storeRecord,
-    lastProduct,
+    sequenceRecord,
   });
 
   try {
@@ -115,9 +151,15 @@ test('generateNomorKepesertaan locks the store row and increments sequence', asy
     assert.equal(result.store, storeRecord);
     assert.equal(captured.storeFindArgs.length, 1);
     assert.equal(captured.storeFindArgs[0].options.lock, 'FOR UPDATE');
-    assert.equal(captured.productFindArgs.length, 1);
-    assert.equal(captured.productFindArgs[0].lock, 'FOR UPDATE');
-    assert.equal(captured.productFindArgs[0].where.storeId, 'store-1');
+    assert.equal(captured.sequenceFindArgs.length, 1);
+    assert.equal(captured.sequenceFindArgs[0].lock, 'FOR UPDATE');
+    assert.equal(captured.sequenceFindArgs[0].where.storeId, 'store-1');
+    assert.equal(captured.sequenceCreateArgs.length, 0);
+    assert.equal(captured.sequenceIncrementArgs.length, 1);
+    assert.deepEqual(captured.sequenceIncrementArgs[0], {
+      field: 'nextNumber',
+      options: { by: 1, transaction },
+    });
   } finally {
     cleanup();
   }

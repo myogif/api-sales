@@ -129,6 +129,13 @@ const createSupervisor = async (req, res, next) => {
     if (error.message === 'Store information is required') {
       return res.status(400).json(response.error('Store information is required'));
     }
+    if (error.code === managerService.SUPERVISOR_LIMIT_ERROR_CODE) {
+      return res.status(422).json({
+        status: false,
+        message: managerService.supervisorLimitMessage,
+        data: null,
+      });
+    }
     if (error.code === STORE_LIMIT_ERROR_CODE) {
       return res.status(422).json({
         status: false,

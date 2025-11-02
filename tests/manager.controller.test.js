@@ -61,6 +61,52 @@ test.after(() => {
   restoreModuleMocks();
 });
 
+test('createSupervisor returns 422 when supervisor limit reached', async () => {
+  const limitError = new Error('Supervisor limit reached');
+  limitError.code = 'SUPERVISOR_LIMIT_REACHED';
+
+  const { controller, cleanup } = loadController({
+    managerService: {
+      createSupervisor: async () => { throw limitError; },
+      SUPERVISOR_LIMIT_ERROR_CODE: 'SUPERVISOR_LIMIT_REACHED',
+      supervisorLimitMessage: 'Jumlah SPV SUdah Mencapai Limit',
+    },
+  });
+
+  try {
+    const req = { body: { name: 'Supervisor Name' } };
+    let statusCode;
+    let payload;
+    const res = {
+      status(code) {
+        statusCode = code;
+        return this;
+      },
+      json(body) {
+        payload = body;
+        return this;
+      },
+    };
+
+    let nextCalled = false;
+    const next = () => {
+      nextCalled = true;
+    };
+
+    await controller.createSupervisor(req, res, next);
+
+    assert.equal(statusCode, 422);
+    assert.deepEqual(payload, {
+      status: false,
+      message: 'Jumlah SPV SUdah Mencapai Limit',
+      data: null,
+    });
+    assert.equal(nextCalled, false);
+  } finally {
+    cleanup();
+  }
+});
+
 test('getProducts applies store name filter to store include', async () => {
   const { controller, cleanup, captured } = loadController();
 
