@@ -7,6 +7,10 @@ const { buildProductFilters } = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
 const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
+const productService = require('../services/product.service');
+const { STORE_NOT_FOUND_ERROR_CODE } = require('../services/store.service');
+
+const { PRODUCT_LIMIT_ERROR_CODE } = productService;
 
 const createProductValidation = [
   body('name')
@@ -14,6 +18,11 @@ const createProductValidation = [
     .withMessage('Product name is required')
     .isLength({ min: 2, max: 200 })
     .withMessage('Product name must be between 2 and 200 characters'),
+  body('tipe')
+    .notEmpty()
+    .withMessage('Product type is required')
+    .isLength({ max: 100 })
+    .withMessage('Product type cannot exceed 100 characters'),
   body('code')
     .notEmpty()
     .withMessage('Product code is required')
@@ -32,6 +41,20 @@ const createProductValidation = [
     .optional()
     .isLength({ max: 1000 })
     .withMessage('Notes cannot exceed 1000 characters'),
+  body('customer_name')
+    .optional()
+    .isLength({ max: 200 })
+    .withMessage('Customer name cannot exceed 200 characters'),
+  body('customer_phone')
+    .optional()
+    .isLength({ max: 50 })
+    .withMessage('Customer phone cannot exceed 50 characters'),
+  body('customer_email')
+    .optional()
+    .isEmail()
+    .withMessage('Customer email must be a valid email address')
+    .isLength({ max: 150 })
+    .withMessage('Customer email cannot exceed 150 characters'),
 ];
 
 const createProduct = async (req, res, next) => {
@@ -42,6 +65,18 @@ const createProduct = async (req, res, next) => {
     const product = await salesService.createProduct(creatorId, storeId, req.body);
     res.status(201).json(response.success('Product created successfully', product));
   } catch (error) {
+    if (error.code === PRODUCT_LIMIT_ERROR_CODE) {
+      return res.status(400).json({
+        status: false,
+        message: productService.limitReachedMessage,
+        data: null,
+      });
+    }
+
+    if (error.code === STORE_NOT_FOUND_ERROR_CODE) {
+      return res.status(404).json(response.error('Store not found'));
+    }
+
     next(error);
   }
 };
@@ -76,9 +111,38 @@ const updateProductValidation = [
     .optional()
     .isLength({ max: 1000 })
     .withMessage('Notes cannot exceed 1000 characters'),
+  body('tipe')
+    .optional()
+    .isLength({ max: 100 })
+    .withMessage('Product type cannot exceed 100 characters'),
+  body('customer_name')
+    .optional()
+    .isLength({ max: 200 })
+    .withMessage('Customer name cannot exceed 200 characters'),
+  body('customer_phone')
+    .optional()
+    .isLength({ max: 50 })
+    .withMessage('Customer phone cannot exceed 50 characters'),
+  body('customer_email')
+    .optional()
+    .isEmail()
+    .withMessage('Customer email must be a valid email address')
+    .isLength({ max: 150 })
+    .withMessage('Customer email cannot exceed 150 characters'),
   body()
     .custom((value, { req }) => {
-      const allowedFields = ['name', 'code', 'price', 'notes', 'persen', 'isActive'];
+      const allowedFields = [
+        'name',
+        'code',
+        'price',
+        'notes',
+        'persen',
+        'isActive',
+        'tipe',
+        'customer_name',
+        'customer_phone',
+        'customer_email',
+      ];
       const hasAllowedField = allowedFields.some((field) => Object.prototype.hasOwnProperty.call(req.body, field));
 
       if (!hasAllowedField) {

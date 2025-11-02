@@ -14,12 +14,91 @@ module.exports = (sequelize, DataTypes) => {
         len: [2, 200],
       },
     },
+    tipe: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      set(value) {
+        if (typeof value === 'string') {
+          this.setDataValue('tipe', value.trim());
+        } else {
+          this.setDataValue('tipe', value);
+        }
+      },
+      validate: {
+        notEmpty: {
+          msg: 'Product type is required',
+        },
+      },
+    },
     code: {
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: true,
       validate: {
         len: [2, 50],
+      },
+    },
+    customerName: {
+      type: DataTypes.STRING(200),
+      field: 'customer_name',
+      allowNull: true,
+      set(value) {
+        if (typeof value === 'string') {
+          this.setDataValue('customerName', value.trim());
+        } else {
+          this.setDataValue('customerName', value);
+        }
+      },
+    },
+    customerPhone: {
+      type: DataTypes.STRING(50),
+      field: 'customer_phone',
+      allowNull: true,
+      set(value) {
+        if (typeof value === 'string') {
+          this.setDataValue('customerPhone', value.trim());
+        } else if (value != null) {
+          this.setDataValue('customerPhone', String(value).trim());
+        } else {
+          this.setDataValue('customerPhone', value);
+        }
+      },
+    },
+    customerEmail: {
+      type: DataTypes.STRING(150),
+      field: 'customer_email',
+      allowNull: true,
+      set(value) {
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          this.setDataValue('customerEmail', trimmed ? trimmed.toLowerCase() : trimmed);
+        } else {
+          this.setDataValue('customerEmail', value);
+        }
+      },
+      validate: {
+        isEmail: {
+          msg: 'Customer email must be valid',
+        },
+      },
+    },
+    nomorKepesertaan: {
+      type: DataTypes.STRING(120),
+      field: 'nomor_kepesertaan',
+      allowNull: false,
+      unique: true,
+      set(value) {
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          this.setDataValue('nomorKepesertaan', trimmed ? trimmed.toUpperCase() : trimmed);
+        } else {
+          this.setDataValue('nomorKepesertaan', value);
+        }
+      },
+      validate: {
+        notEmpty: {
+          msg: 'Nomor kepesertaan is required',
+        },
       },
     },
     notes: {
@@ -81,6 +160,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       {
         fields: ['price'],
+      },
+      {
+        fields: ['nomor_kepesertaan'],
+        unique: true,
       },
     ],
   });

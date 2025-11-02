@@ -37,6 +37,17 @@ router.use(authenticate, requireSales);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ProductResponse'
+ *       400:
+ *         description: Product creation is not allowed due to global limit
+ *         content:
+ *           application/json:
+ *             examples:
+ *               limitReached:
+ *                 summary: Product limit reached
+ *                 value:
+ *                   status: false
+ *                   message: Jumlah produk SUdah Mencapai Limit
+ *                   data: null
  */
 router.post('/products', createProductValidation, handleValidationErrors, createProduct);
 

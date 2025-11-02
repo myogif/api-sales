@@ -293,13 +293,18 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'code', 'price'],
+          required: ['name', 'tipe', 'code', 'price', 'persen'],
           properties: {
             name: {
               type: 'string',
               minLength: 2,
               maxLength: 200,
               example: 'iPhone 15 Pro Max',
+            },
+            tipe: {
+              type: 'string',
+              maxLength: 100,
+              example: 'SMARTPHONE',
             },
             code: {
               type: 'string',
@@ -315,8 +320,32 @@ const options = {
             },
             persen: {
               type: 'integer',
-              maxLength: 1000,
               example: 30,
+            },
+            notes: {
+              type: 'string',
+              maxLength: 1000,
+              nullable: true,
+              example: 'Bundled with free screen protector.',
+            },
+            customer_name: {
+              type: 'string',
+              maxLength: 200,
+              nullable: true,
+              example: 'Adi Nugroho',
+            },
+            customer_phone: {
+              type: 'string',
+              maxLength: 50,
+              nullable: true,
+              example: '081233344455',
+            },
+            customer_email: {
+              type: 'string',
+              format: 'email',
+              maxLength: 150,
+              nullable: true,
+              example: 'adi.nugroho@example.com',
             },
           },
         },
@@ -328,6 +357,11 @@ const options = {
               minLength: 2,
               maxLength: 200,
               example: 'iPhone 15 Pro Max',
+            },
+            tipe: {
+              type: 'string',
+              maxLength: 100,
+              example: 'SMARTPHONE-PRO',
             },
             code: {
               type: 'string',
@@ -353,6 +387,22 @@ const options = {
             isActive: {
               type: 'boolean',
               example: true,
+            },
+            customer_name: {
+              type: 'string',
+              maxLength: 200,
+              example: 'Adi Nugroho',
+            },
+            customer_phone: {
+              type: 'string',
+              maxLength: 50,
+              example: '081233344455',
+            },
+            customer_email: {
+              type: 'string',
+              format: 'email',
+              maxLength: 150,
+              example: 'adi.nugroho@example.com',
             },
           },
         },
@@ -756,24 +806,53 @@ const options = {
               type: 'string',
               example: 'iPhone 15 Pro',
             },
+            tipe: {
+              type: 'string',
+              example: 'SMARTPHONE',
+            },
             code: {
               type: 'string',
               example: 'APPLE-IP15P-001',
+            },
+            nomor_kepesertaan: {
+              type: 'string',
+              example: 'TOKO001-125',
+              description: 'Auto-generated membership number per store.',
             },
             price: {
               type: 'number',
               format: 'float',
               example: 19990000,
             },
+            priceWarranty: {
+              type: 'number',
+              format: 'float',
+              example: 11994000,
+            },
+            persen: {
+              type: 'integer',
+              example: 60,
+            },
             notes: {
               type: 'string',
               nullable: true,
               example: 'Latest iPhone model with titanium design',
             },
-            createdAt: {
+            customer_name: {
               type: 'string',
-              format: 'date',
-              example: '2024-12-01',
+              nullable: true,
+              example: 'Adi Nugroho',
+            },
+            customer_phone: {
+              type: 'string',
+              nullable: true,
+              example: '081233344455',
+            },
+            customer_email: {
+              type: 'string',
+              format: 'email',
+              nullable: true,
+              example: 'adi.nugroho@example.com',
             },
             storeId: {
               type: 'string',
@@ -797,7 +876,7 @@ const options = {
             updatedAt: {
               type: 'string',
               format: 'date-time',
-              example: '2024-01-01T00:00:00.000Z',
+              example: '2024-01-05T12:34:56.000Z',
             },
             store: {
               $ref: '#/components/schemas/Store',
