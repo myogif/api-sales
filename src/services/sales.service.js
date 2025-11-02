@@ -4,7 +4,7 @@ const logger = require('../utils/logger');
 const productService = require('./product.service');
 const { STORE_NOT_FOUND_ERROR_CODE } = require('./store.service');
 
-const { PRODUCT_LIMIT_ERROR_CODE } = productService;
+const { PRODUCT_LIMIT_ERROR_CODE, MAX_SEQUENCE_ATTEMPTS } = productService;
 
 const ALLOWED_PRODUCT_UPDATES = [
   'name',
@@ -99,50 +99,78 @@ const sanitizeProductPayload = (data = {}) => {
 
 class SalesService {
   async createProduct(creatorId, storeId, productData) {
-    try {
-      const product = await sequelize.transaction(async (transaction) => {
-        const sanitizedData = sanitizeProductPayload(productData);
-        delete sanitizedData.priceWarranty;
-        delete sanitizedData.nomorKepesertaan;
+    const sanitizedData = sanitizeProductPayload(productData);
+    delete sanitizedData.priceWarranty;
+    delete sanitizedData.nomorKepesertaan;
 
-        await productService.ensureWithinLimit({ transaction });
+    const maxAttempts = typeof productService.maxSequenceAttempts === 'number'
+      ? productService.maxSequenceAttempts
+      : MAX_SEQUENCE_ATTEMPTS;
 
-        const { nomorKepesertaan } = await productService.generateNomorKepesertaan(
-          storeId,
-          { transaction },
-        );
+    let attempt = 0;
+    let lastError;
 
-        sanitizedData.priceWarranty = calculatePriceWarranty(sanitizedData.price, sanitizedData.persen);
+    while (attempt < maxAttempts) {
+      attempt += 1;
+      try {
+        const product = await sequelize.transaction(async (transaction) => {
+          await productService.ensureWithinLimit({ transaction });
 
-        const createdProduct = await Product.create({
-          ...sanitizedData,
-          nomorKepesertaan,
+          const { nomorKepesertaan } = await productService.generateNomorKepesertaan(
+            storeId,
+            { transaction },
+          );
+
+          const payload = {
+            ...sanitizedData,
+            priceWarranty: calculatePriceWarranty(sanitizedData.price, sanitizedData.persen),
+            nomorKepesertaan,
+            creatorId,
+            storeId,
+          };
+
+          const createdProduct = await Product.create(payload, { transaction });
+
+          return createdProduct;
+        });
+
+        logger.info('Product created by sales user:', {
+          productId: product.id,
           creatorId,
-          storeId,
-        }, { transaction });
+          code: product.code,
+        });
 
-        return createdProduct;
-      });
+        return product;
+      } catch (error) {
+        lastError = error;
+        const isUniqueViolation = error && error.name === 'SequelizeUniqueConstraintError';
 
-      logger.info('Product created by sales user:', {
-        productId: product.id,
-        creatorId,
-        code: product.code,
-      });
-
-      return product;
-    } catch (error) {
-      if (error.code === PRODUCT_LIMIT_ERROR_CODE || error.code === STORE_NOT_FOUND_ERROR_CODE) {
-        if (typeof logger.warn === 'function') {
-          logger.warn('Product creation warning:', error);
-        } else {
-          logger.info('Product creation warning:', { message: error.message, code: error.code });
+        if (isUniqueViolation && attempt < maxAttempts) {
+          if (typeof logger.warn === 'function') {
+            logger.warn('Retrying product creation due to nomor_kepesertaan conflict', {
+              attempt,
+              maxAttempts,
+              storeId,
+            });
+          }
+          continue;
         }
-      } else {
-        logger.error('Failed to create product:', error);
+
+        if (error.code === PRODUCT_LIMIT_ERROR_CODE || error.code === STORE_NOT_FOUND_ERROR_CODE) {
+          if (typeof logger.warn === 'function') {
+            logger.warn('Product creation warning:', error);
+          } else {
+            logger.info('Product creation warning:', { message: error.message, code: error.code });
+          }
+        } else {
+          logger.error('Failed to create product:', error);
+        }
+
+        throw error;
       }
-      throw error;
     }
+
+    throw lastError || new Error('Failed to create product after exhausting retries');
   }
 
   async deleteProduct(productId, creatorId) {
