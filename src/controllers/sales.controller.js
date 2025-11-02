@@ -66,7 +66,7 @@ const createProduct = async (req, res, next) => {
     res.status(201).json(response.success('Product created successfully', product));
   } catch (error) {
     if (error.code === PRODUCT_LIMIT_ERROR_CODE) {
-      return res.status(400).json({
+      return res.status(422).json({
         status: false,
         message: productService.limitReachedMessage,
         data: null,
