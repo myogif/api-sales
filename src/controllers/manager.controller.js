@@ -1,11 +1,11 @@
 const { body } = require('express-validator');
-const { Op } = require('sequelize');
 const { v4: uuidv4 } = require('uuid');
 const managerService = require('../services/manager.service');
+const { STORE_LIMIT_ERROR_CODE } = require('../services/store.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
-const { buildProductFilters } = require('../utils/filters');
+const { buildProductFilters, buildCaseInsensitiveLike } = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
 const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
@@ -85,6 +85,15 @@ const createSupervisorValidation = [
         throw new Error('Store name must be between 2 and 100 characters');
       }
 
+      const kodeToko = typeof store.kode_toko === 'string' ? store.kode_toko.trim() : '';
+      if (!kodeToko) {
+        throw new Error('Store code is required');
+      }
+
+      if (!/^[A-Z0-9]+$/.test(kodeToko)) {
+        throw new Error('Store code must contain only uppercase letters and numbers');
+      }
+
       if (!originalStoreId) {
         req.body.storeId = uuidv4();
       }
@@ -119,6 +128,13 @@ const createSupervisor = async (req, res, next) => {
     }
     if (error.message === 'Store information is required') {
       return res.status(400).json(response.error('Store information is required'));
+    }
+    if (error.code === STORE_LIMIT_ERROR_CODE) {
+      return res.status(422).json({
+        status: false,
+        message: 'Pembuatan Toko SUdah Mencapai Limit',
+        data: null,
+      });
     }
     next(error);
   }
@@ -202,14 +218,17 @@ const getProducts = async (req, res, next) => {
     const storeInclude = {
       model: Store,
       as: 'store',
-      attributes: ['id', 'name', 'address', 'phone'],
+      attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
     };
 
     if (typeof req.query.store_name === 'string') {
       const trimmedStoreName = req.query.store_name.trim();
       if (trimmedStoreName) {
-        storeInclude.where = { name: { [Op.iLike]: `%${trimmedStoreName}%` } };
-        storeInclude.required = true;
+        const storeNameMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
+        if (storeNameMatcher) {
+          storeInclude.where = storeNameMatcher;
+          storeInclude.required = true;
+        }
       }
     }
 

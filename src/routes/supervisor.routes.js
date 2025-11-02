@@ -5,6 +5,7 @@ const {
   createSalesValidation,
   createSalesUser,
   deleteSalesUser,
+  deleteProduct,
   getSalesUsers,
   getProducts,
   handleValidationErrors,
@@ -114,5 +115,36 @@ router.get('/sales', getSalesUsers);
  *               format: binary
  */
 router.get('/products', getProducts);
+
+/**
+ * @swagger
+ * /api/supervisors/products/{id}:
+ *   delete:
+ *     summary: Delete a product from the supervisor's store
+ *     tags: [Supervisor]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SupervisorDeleteProductResponse'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.delete('/products/:id', deleteProduct);
 
 module.exports = router;

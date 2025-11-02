@@ -57,6 +57,19 @@ router.get('/dashboard', getDashboard);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
+ *       400:
+ *         description: Invalid input
+ *       422:
+ *         description: Store creation limit reached
+ *         content:
+ *           application/json:
+ *             examples:
+ *               limitReached:
+ *                 summary: Store creation limit reached
+ *                 value:
+ *                   status: false
+ *                   message: Pembuatan Toko SUdah Mencapai Limit
+ *                   data: null
  */
 router.post('/add-supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);
 

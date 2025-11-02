@@ -164,6 +164,18 @@ const createChain = (field, location) => {
       });
       return this;
     },
+    isEmail() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      addValidator(this, (value) => {
+        if (isEmptyValue(value)) {
+          throw new Error('Value must be a valid email address');
+        }
+        if (typeof value !== 'string' || !emailRegex.test(value.trim())) {
+          throw new Error('Value must be a valid email address');
+        }
+      }, 'Invalid email address');
+      return this;
+    },
     isString() {
       addValidator(this, (value) => {
         if (typeof value !== 'string') {

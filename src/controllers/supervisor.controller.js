@@ -40,12 +40,28 @@ const deleteSalesUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const supervisorId = req.user.sub;
-    
+
     const result = await supervisorService.deleteSalesUser(id, supervisorId);
     res.json(response.success('Sales user deleted successfully', result));
   } catch (error) {
     if (error.message === 'Sales user not found') {
       return res.status(404).json(response.error('Sales user not found'));
+    }
+    next(error);
+  }
+};
+
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const supervisorId = req.user.sub;
+    const storeId = req.user.store_id;
+
+    const result = await supervisorService.deleteProduct(id, supervisorId, storeId);
+    res.json(response.success('Product deleted successfully', result));
+  } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json(response.error('Product not found'));
     }
     next(error);
   }
@@ -95,7 +111,7 @@ const getProducts = async (req, res, next) => {
         {
           model: Store,
           as: 'store',
-          attributes: ['id', 'name', 'address', 'phone'],
+          attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
         },
         creatorInclude,
       ],
@@ -132,6 +148,7 @@ module.exports = {
   createSalesValidation,
   createSalesUser,
   deleteSalesUser,
+  deleteProduct,
   getSalesUsers,
   getProducts,
   handleValidationErrors,

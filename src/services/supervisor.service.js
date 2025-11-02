@@ -27,8 +27,8 @@ class SupervisorService {
   async deleteSalesUser(salesUserId, supervisorId) {
     try {
       const salesUser = await User.findOne({
-        where: { 
-          id: salesUserId, 
+        where: {
+          id: salesUserId,
           role: 'SALES',
           supervisorId,
         },
@@ -56,7 +56,7 @@ class SupervisorService {
   async getSalesUsers(supervisorId, storeId) {
     try {
       const salesUsers = await User.findAll({
-        where: { 
+        where: {
           role: 'SALES',
           supervisorId,
           storeId,
@@ -65,7 +65,7 @@ class SupervisorService {
           {
             model: Store,
             as: 'store',
-            attributes: ['id', 'name', 'address', 'phone'],
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
           },
         ],
       });
@@ -73,6 +73,35 @@ class SupervisorService {
       return salesUsers;
     } catch (error) {
       logger.error('Failed to get sales users:', error);
+      throw error;
+    }
+  }
+
+  async deleteProduct(productId, supervisorId, storeId) {
+    try {
+      const product = await Product.findOne({
+        where: {
+          id: productId,
+          storeId,
+        },
+      });
+
+      if (!product) {
+        throw new Error('Product not found');
+      }
+
+      await product.destroy();
+
+      logger.info('Product deleted by supervisor:', {
+        productId,
+        supervisorId,
+        storeId,
+        code: product.code,
+      });
+
+      return { message: 'Product deleted successfully' };
+    } catch (error) {
+      logger.error('Failed to delete product:', error);
       throw error;
     }
   }
