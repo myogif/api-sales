@@ -32,6 +32,13 @@ const createSalesUser = async (req, res, next) => {
     const salesUser = await supervisorService.createSalesUser(supervisorId, storeId, req.body);
     res.status(201).json(response.success('Sales user created successfully', salesUser));
   } catch (error) {
+    if (error.code === supervisorService.SALES_LIMIT_ERROR_CODE) {
+      return res.status(422).json({
+        status: false,
+        message: supervisorService.salesLimitMessage,
+        data: null,
+      });
+    }
     next(error);
   }
 };
