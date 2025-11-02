@@ -60,7 +60,7 @@ router.get('/dashboard', getDashboard);
  *       400:
  *         description: Invalid input
  *       422:
- *         description: Store or supervisor limit reached
+ *         description: Store creation limit reached
  *         content:
  *           application/json:
  *             examples:
