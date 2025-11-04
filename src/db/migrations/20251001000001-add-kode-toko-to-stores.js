@@ -5,13 +5,13 @@ module.exports = {
       allowNull: true,
     });
 
-    const [stores] = await queryInterface.sequelize.query('SELECT id FROM "stores" ORDER BY created_at ASC');
+    const [stores] = await queryInterface.sequelize.query('SELECT id FROM stores ORDER BY created_at ASC');
 
     let counter = 1;
     for (const store of stores) {
       const kodeToko = `TOKO${String(counter).padStart(3, '0')}`;
       await queryInterface.sequelize.query(
-        'UPDATE "stores" SET "kode_toko" = :kode WHERE id = :id',
+        'UPDATE stores SET kode_toko = :kode WHERE id = :id',
         {
           replacements: { kode: kodeToko, id: store.id },
         },
