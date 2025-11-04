@@ -168,3 +168,29 @@ test('getProducts omits store name filter when not provided', async () => {
   }
 });
 
+test('getProducts allows service center role access', async () => {
+  const { controller, cleanup, captured } = loadController();
+
+  try {
+    const req = {
+      query: { page: '1', limit: '5' },
+      user: { role: 'SERVICE_CENTER' },
+    };
+    let responded = false;
+    const res = {
+      json: (payload) => {
+        responded = true;
+        return res;
+      },
+    };
+
+    await controller.getProducts(req, res, (err) => { throw err; });
+
+    assert.equal(responded, true);
+    assert.ok(captured.options, 'findAndCountAll should be invoked for service center role');
+    assert.equal(captured.options.where.id, undefined);
+  } finally {
+    cleanup();
+  }
+});
+

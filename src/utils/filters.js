@@ -101,6 +101,7 @@ const buildProductFilters = (query, user, sequelize) => {
       }
       break;
     case 'MANAGER':
+    case 'SERVICE_CENTER':
       // Managers can see all products (no additional filter)
       break;
     default:

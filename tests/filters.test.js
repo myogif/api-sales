@@ -66,3 +66,10 @@ test('buildProductFilters normalizes created_at_to to end of day', () => {
   assert.equal(toFilter.getSeconds(), 59);
   assert.equal(toFilter.getMilliseconds(), 999);
 });
+
+test('buildProductFilters allows service center to access all products', () => {
+  const filters = buildProductFilters({}, { role: 'SERVICE_CENTER' });
+
+  assert.equal(filters.storeId, undefined);
+  assert.equal(filters.id, undefined);
+});

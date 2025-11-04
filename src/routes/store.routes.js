@@ -1,11 +1,11 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
-const { requireManager } = require('../middlewares/role');
+const { requireManagerOrServiceCenter } = require('../middlewares/role');
 const { checkStoreLimit } = require('../controllers/store.controller');
 
 const router = express.Router();
 
-router.use(authenticate, requireManager);
+router.use(authenticate);
 
 /**
  * @swagger
@@ -33,6 +33,6 @@ router.use(authenticate, requireManager);
  *                   type: boolean
  *                   example: true
  */
-router.get('/check-limit', checkStoreLimit);
+router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
 
 module.exports = router;
