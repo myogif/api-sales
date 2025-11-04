@@ -1,11 +1,11 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
-const { requireManager } = require('../middlewares/role');
+const { requireManagerOrServiceCenter } = require('../middlewares/role');
 const { checkProductLimit } = require('../controllers/product.controller');
 
 const router = express.Router();
 
-router.use(authenticate, requireManager);
+router.use(authenticate);
 
 /**
  * @swagger
@@ -50,6 +50,6 @@ router.use(authenticate, requireManager);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:store_id/check-limit', checkProductLimit);
+router.get('/:store_id/check-limit', requireManagerOrServiceCenter, checkProductLimit);
 
 module.exports = router;

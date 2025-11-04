@@ -709,7 +709,7 @@ const options = {
             },
             role: {
               type: 'string',
-              enum: ['MANAGER', 'SUPERVISOR', 'SALES'],
+              enum: ['MANAGER', 'SUPERVISOR', 'SALES', 'SERVICE_CENTER'],
               example: 'MANAGER',
             },
             storeId: {

@@ -1,6 +1,6 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
-const { requireManager } = require('../middlewares/role');
+const { requireManager, requireManagerOrServiceCenter } = require('../middlewares/role');
 const {
   getDashboard,
   createSupervisorValidation,
@@ -15,8 +15,8 @@ const {
 
 const router = express.Router();
 
-// Apply authentication and manager role to all routes
-router.use(authenticate, requireManager);
+// Apply authentication to all routes
+router.use(authenticate);
 
 /**
  * @swagger
@@ -34,7 +34,7 @@ router.use(authenticate, requireManager);
  *             schema:
  *               $ref: '#/components/schemas/DashboardResponse'
  */
-router.get('/dashboard', getDashboard);
+router.get('/dashboard', requireManagerOrServiceCenter, getDashboard);
 
 /**
  * @swagger
@@ -77,7 +77,13 @@ router.get('/dashboard', getDashboard);
  *                   message: Jumlah SPV SUdah Mencapai Limit
  *                   data: null
  */
-router.post('/add-supervisors', createSupervisorValidation, handleValidationErrors, createSupervisor);
+router.post(
+  '/add-supervisors',
+  requireManager,
+  createSupervisorValidation,
+  handleValidationErrors,
+  createSupervisor,
+);
 
 /**
  * @swagger
@@ -102,7 +108,7 @@ router.post('/add-supervisors', createSupervisorValidation, handleValidationErro
  *             schema:
  *               $ref: '#/components/schemas/SuccessResponse'
  */
-router.delete('/supervisors/:id', deleteSupervisor);
+router.delete('/supervisors/:id', requireManager, deleteSupervisor);
 
 /**
  * @swagger
@@ -125,7 +131,7 @@ router.delete('/supervisors/:id', deleteSupervisor);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedUsersResponse'
  */
-router.get('/supervisors', getSupervisors);
+router.get('/supervisors', requireManagerOrServiceCenter, getSupervisors);
 
 /**
  * @swagger
@@ -148,7 +154,7 @@ router.get('/supervisors', getSupervisors);
  *             schema:
  *               $ref: '#/components/schemas/PaginatedUsersResponse'
  */
-router.get('/sales', getSalesUsers);
+router.get('/sales', requireManagerOrServiceCenter, getSalesUsers);
 
 /**
  * @swagger
@@ -174,7 +180,7 @@ router.get('/sales', getSalesUsers);
  *             schema:
  *               $ref: '#/components/schemas/MonthlyProductSummaryResponse'
  */
-router.get('/products/monthly-summary', getMonthlyProductSummary);
+router.get('/products/monthly-summary', requireManagerOrServiceCenter, getMonthlyProductSummary);
 
 /**
  * @swagger
@@ -210,6 +216,6 @@ router.get('/products/monthly-summary', getMonthlyProductSummary);
  *               type: string
  *               format: binary
  */
-router.get('/products', getProducts);
+router.get('/products', requireManagerOrServiceCenter, getProducts);
 
 module.exports = router;

@@ -43,6 +43,10 @@
 - Phone: `080000000001`
 - Password: `admin123`
 
+**Service Center Account:**
+- Phone: `080000000007`
+- Password: `admin123`
+
 ## API Endpoints
 
 ### Authentication
