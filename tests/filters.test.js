@@ -80,13 +80,6 @@ test('buildProductFilters normalizes role casing before applying restrictions', 
   assert.equal(filters.id, undefined);
 });
 
-test('buildProductFilters trims role before normalization', () => {
-  const filters = buildProductFilters({}, { role: ' supervisor ' });
-
-  assert.equal(filters.id, undefined);
-  assert.equal(filters.storeId, undefined);
-});
-
 test('buildProductFilters does not force store filter when user store is missing', () => {
   const filters = buildProductFilters({}, { role: 'SUPERVISOR', store_id: null });
 

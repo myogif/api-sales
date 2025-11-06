@@ -15,7 +15,7 @@ const buildProductFilters = (query, user, sequelize) => {
   const where = {};
 
   const normalizedRole = typeof user?.role === 'string'
-    ? user.role.trim().toUpperCase()
+    ? user.role.toUpperCase()
     : undefined;
 
   // Text search in name, code, notes
