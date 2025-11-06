@@ -14,6 +14,10 @@ const buildCaseInsensitiveLike = (columnPath, value) => {
 const buildProductFilters = (query, user, sequelize) => {
   const where = {};
 
+  const normalizedRole = typeof user?.role === 'string'
+    ? user.role.trim().toUpperCase()
+    : undefined;
+
   // Text search in name, code, notes
   if (query.q) {
     const caseInsensitiveMatchers = [
@@ -84,19 +88,21 @@ const buildProductFilters = (query, user, sequelize) => {
   }
 
   // Mine filter (only for SALES role)
-  if (query.mine === 'true' && user.role === 'SALES') {
+  if (query.mine === 'true' && normalizedRole === 'SALES' && user?.sub) {
     where.creatorId = user.sub;
   }
-  
+
   // Role-based access control
-  switch (user.role) {
+  switch (normalizedRole) {
     case 'SUPERVISOR':
       // Supervisors can only see products from their store
-      where.storeId = user.store_id;
+      if (user?.store_id) {
+        where.storeId = user.store_id;
+      }
       break;
     case 'SALES':
       // Sales can see products from their store unless using "mine" filter
-      if (query.mine !== 'true') {
+      if (query.mine !== 'true' && user?.store_id) {
         where.storeId = user.store_id;
       }
       break;

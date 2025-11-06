@@ -73,3 +73,28 @@ test('buildProductFilters allows service center to access all products', () => {
   assert.equal(filters.storeId, undefined);
   assert.equal(filters.id, undefined);
 });
+
+test('buildProductFilters normalizes role casing before applying restrictions', () => {
+  const filters = buildProductFilters({}, { role: 'manager' });
+
+  assert.equal(filters.id, undefined);
+});
+
+test('buildProductFilters trims role before normalization', () => {
+  const filters = buildProductFilters({}, { role: ' supervisor ' });
+
+  assert.equal(filters.id, undefined);
+  assert.equal(filters.storeId, undefined);
+});
+
+test('buildProductFilters does not force store filter when user store is missing', () => {
+  const filters = buildProductFilters({}, { role: 'SUPERVISOR', store_id: null });
+
+  assert.equal(filters.storeId, undefined);
+});
+
+test('buildProductFilters keeps sales results unrestricted when store is missing and mine flag absent', () => {
+  const filters = buildProductFilters({}, { role: 'SALES', store_id: undefined });
+
+  assert.equal(filters.storeId, undefined);
+});

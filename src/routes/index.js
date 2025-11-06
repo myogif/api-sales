@@ -3,6 +3,7 @@ const authRoutes = require('./auth.routes');
 const managerRoutes = require('./manager.routes');
 const supervisorRoutes = require('./supervisor.routes');
 const salesRoutes = require('./sales.routes');
+const productRoutes = require('./product.routes');
 const storeRoutes = require('./store.routes');
 
 const router = express.Router();
@@ -24,6 +25,7 @@ router.use('/auth', authRoutes);
 router.use('/managers', managerRoutes);
 router.use('/supervisors', supervisorRoutes);
 router.use('/sales', salesRoutes);
+router.use('/produk', productRoutes);
 router.use('/toko', storeRoutes);
 
 module.exports = router;
