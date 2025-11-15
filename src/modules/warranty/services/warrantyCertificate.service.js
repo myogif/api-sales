@@ -45,7 +45,6 @@ const prepareWarrantyCertificate = (id) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
     doc.info = {
-      ...doc.info,
       Title: `Kartu Garansi + - ${displayData.nomor}`,
       Author: 'Garansi+',
       Creator: 'Garansi+ Certificate Service',

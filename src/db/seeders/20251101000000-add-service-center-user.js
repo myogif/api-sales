@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.bulkInsert('users', [
       {
         id: 'abababab-abab-abab-abab-abababababab',
-        phone: '080000000007',
+        phone: '08214189423',
         password,
         name: 'Service Center User',
         role: 'SERVICE_CENTER',
