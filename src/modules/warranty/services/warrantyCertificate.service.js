@@ -1,4 +1,5 @@
 const PDFDocument = require('pdfkit');
+const { PassThrough } = require('stream');
 const generateWarrantyPdf = require('../pdf/warrantyPdfGenerator');
 const warrantyRepository = require('../repositories/warranty.repository');
 const {
@@ -43,6 +44,7 @@ const prepareWarrantyCertificate = (id) => {
 
   const streamTo = (response) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const stream = new PassThrough();
 
     doc.info = {
       Title: `Kartu Garansi + - ${displayData.nomor}`,
@@ -50,18 +52,55 @@ const prepareWarrantyCertificate = (id) => {
       Creator: 'Garansi+ Certificate Service',
     };
 
-    doc.on('error', (error) => {
+    const handleStreamError = (error) => {
+      if (!stream.destroyed) {
+        stream.destroy(error);
+      }
+
+      if (!doc.destroyed) {
+        doc.destroy(error);
+      }
+
       logger.error('Failed to stream warranty certificate', error);
+
       if (!response.headersSent) {
         response.status(500).json({ message: 'Failed to generate certificate' });
-      } else {
-        response.end();
+      } else if (!response.writableEnded) {
+        response.destroy(error);
       }
+    };
+
+    doc.once('error', handleStreamError);
+    stream.once('error', handleStreamError);
+
+    const handleResponseClose = () => {
+      if (!response.writableEnded) {
+        if (!stream.destroyed) {
+          stream.destroy();
+        }
+
+        if (!doc.destroyed) {
+          doc.destroy();
+        }
+      }
+    };
+
+    response.once('close', handleResponseClose);
+    response.once('finish', () => {
+      response.removeListener('close', handleResponseClose);
+      stream.removeListener('error', handleStreamError);
+      doc.removeListener('error', handleStreamError);
     });
 
-    doc.pipe(response);
-    generateWarrantyPdf(doc, displayData);
-    doc.end();
+    stream.pipe(response);
+    doc.pipe(stream);
+
+    try {
+      generateWarrantyPdf(doc, displayData);
+      doc.end();
+    } catch (error) {
+      handleStreamError(error);
+    }
   };
 
   return {
