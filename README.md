@@ -72,6 +72,14 @@
 - `DELETE /sales/products/:id` - Delete product
 - `GET /sales/products` - List products (with filters, pagination, ?mine=true, Excel export)
 
+### Warranty Routes
+- `GET /warranties/:id/certificate` - Download Garansi+ warranty card as PDF (streamed response)
+
+#### Example
+```bash
+curl -X GET "http://localhost:3000/api/warranties/123/certificate" -o kartu-garansi-123.pdf
+```
+
 ## Excel Export
 
 Add `?export=excel` to any GET /products endpoint to download Excel file:
