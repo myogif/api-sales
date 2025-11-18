@@ -1,39 +1,57 @@
-const warranties = [
-  {
-    id: '123',
-    nomor: 'GAR-123-2025',
-    nama: 'Adi Nugroho',
-    email: 'adi.nugroho@example.com',
-    nomorTelepon: '+62 812-3456-7890',
-    tanggalPembelian: '2025-10-08T00:00:00.000Z',
-    biayaGaransi: 100000,
-    periodeMulai: '2025-10-08T00:00:00.000Z',
-    periodeSelesai: '2026-04-08T00:00:00.000Z',
-    periodeDurasiBulan: 6,
-    merek: 'Samsung',
-    tipe: 'Smart TV Neo QLED 55"',
-    kodeProduk: 'SMTV-NEO55',
-    harga: 7100000,
-  },
-  {
-    id: '456',
-    nomor: 'GAR-456-2025',
-    nama: 'Sinta Dewi',
-    email: 'sinta.dewi@example.com',
-    nomorTelepon: '+62 813-2222-1111',
-    tanggalPembelian: '2025-09-12T00:00:00.000Z',
-    biayaGaransi: 150000,
-    periodeMulai: '2025-09-12T00:00:00.000Z',
-    periodeSelesai: '2026-03-12T00:00:00.000Z',
-    periodeDurasiBulan: 6,
-    merek: 'LG',
-    tipe: 'Washer TurboWash 10.5Kg',
-    kodeProduk: 'LGW-105TW',
-    harga: 9200000,
-  },
-];
+const { Product } = require('../../../models');
+const {
+  calculatePriceWarranty,
+  calculateWarrantyDurationMonths,
+} = require('../../../utils/product-pricing');
 
-const findById = (id) => warranties.find((warranty) => String(warranty.id) === String(id)) || null;
+const addMonths = (date, months) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+};
+
+const toDateOrNull = (value) => {
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const findById = async (id) => {
+  const product = await Product.findByPk(id);
+
+  if (!product) {
+    return null;
+  }
+
+  const plainProduct = product.get({ plain: true });
+  const harga = Number(plainProduct.price) || 0;
+  const persen = plainProduct.persen;
+  const biayaGaransi = calculatePriceWarranty(harga, persen);
+  const periodeDurasiBulan = calculateWarrantyDurationMonths(persen);
+  const tanggalPembelian = toDateOrNull(plainProduct.createdAt) || new Date();
+  const periodeMulai = tanggalPembelian;
+  const periodeSelesai = addMonths(periodeMulai, periodeDurasiBulan);
+
+  return {
+    id: plainProduct.id,
+    nomor: plainProduct.nomorKepesertaan,
+    nama: plainProduct.customerName,
+    email: plainProduct.customerEmail,
+    nomorTelepon: plainProduct.customerPhone,
+    tanggalPembelian,
+    biayaGaransi,
+    periodeMulai,
+    periodeSelesai,
+    periodeDurasiBulan,
+    merek: plainProduct.name,
+    tipe: plainProduct.tipe,
+    kodeProduk: plainProduct.code,
+    harga,
+  };
+};
 
 module.exports = {
   findById,
