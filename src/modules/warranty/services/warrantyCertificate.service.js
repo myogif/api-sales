@@ -152,7 +152,7 @@ const renderWarrantyCertificate = async (displayData) => {
 };
 
 const prepareWarrantyCertificate = async (id) => {
-  const warranty = warrantyRepository.findById(id);
+  const warranty = await warrantyRepository.findById(id);
   if (!warranty) {
     return null;
   }
