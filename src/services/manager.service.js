@@ -33,6 +33,7 @@ class ManagerService {
             attributes: [
               'id',
               'name',
+              'address'
             ],
             include: [
               {
