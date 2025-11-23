@@ -55,7 +55,7 @@ router.post('/products', createProductValidation, handleValidationErrors, create
  * @swagger
  * /api/sales/products/{id}:
  *   put:
- *     summary: Update a product (only own products)
+ *     summary: Deactivate a product (only own products)
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []

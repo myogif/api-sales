@@ -49,6 +49,16 @@ const createProductValidation = [
     .optional()
     .isLength({ max: 50 })
     .withMessage('Customer phone cannot exceed 50 characters'),
+  body()
+    .custom((value, { req }) => {
+      const phone = req.body.customer_phone ?? req.body.customerPhone;
+
+      if (phone === undefined || phone === null || String(phone).trim() === '') {
+        throw new Error('Customer phone is required');
+      }
+
+      return true;
+    }),
   body('customer_email')
     .optional()
     .isEmail()
@@ -87,66 +97,25 @@ const updateProductValidation = [
   param('id')
     .isUUID()
     .withMessage('Product id must be a valid UUID'),
-  body('name')
-    .optional()
-    .isLength({ min: 2, max: 200 })
-    .withMessage('Product name must be between 2 and 200 characters'),
-  body('code')
-    .optional()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Product code must be between 2 and 50 characters'),
-  body('price')
-    .optional()
-    .isFloat({ min: 0 })
-    .withMessage('Price must be a non-negative number')
-    .toFloat(),
-  body('persen')
-    .optional()
-    .isInt()
-    .withMessage('Persen must be an integer'),
   body('isActive')
-    .optional()
+    .exists()
+    .withMessage('isActive is required')
     .isBoolean()
     .withMessage('isActive must be a boolean')
-    .toBoolean(),
-  body('notes')
-    .optional()
-    .isLength({ max: 1000 })
-    .withMessage('Notes cannot exceed 1000 characters'),
-  body('tipe')
-    .optional()
-    .isLength({ max: 100 })
-    .withMessage('Product type cannot exceed 100 characters'),
-  body('customer_name')
-    .optional()
-    .isLength({ max: 200 })
-    .withMessage('Customer name cannot exceed 200 characters'),
-  body('customer_phone')
-    .optional()
-    .isLength({ max: 50 })
-    .withMessage('Customer phone cannot exceed 50 characters'),
-  body('customer_email')
-    .optional()
-    .isLength({ max: 150 })
-    .withMessage('Customer email cannot exceed 150 characters'),
+    .toBoolean()
+    .custom((value) => {
+      if (value !== false) {
+        throw new Error('Products can only be deactivated (isActive must be false)');
+      }
+      return true;
+    }),
   body()
     .custom((value, { req }) => {
-      const allowedFields = [
-        'name',
-        'code',
-        'price',
-        'notes',
-        'persen',
-        'isActive',
-        'tipe',
-        'customer_name',
-        'customer_phone',
-        'customer_email',
-      ];
-      const hasAllowedField = allowedFields.some((field) => Object.prototype.hasOwnProperty.call(req.body, field));
+      const allowedFields = ['isActive'];
+      const invalidFields = Object.keys(req.body).filter((field) => !allowedFields.includes(field));
 
-      if (!hasAllowedField) {
-        throw new Error('At least one field must be provided for update');
+      if (invalidFields.length > 0) {
+        throw new Error('Only isActive can be updated for a product');
       }
 
       return true;

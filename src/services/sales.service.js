@@ -6,18 +6,7 @@ const { STORE_NOT_FOUND_ERROR_CODE } = require('./store.service');
 
 const { PRODUCT_LIMIT_ERROR_CODE, MAX_SEQUENCE_ATTEMPTS } = productService;
 
-const ALLOWED_PRODUCT_UPDATES = [
-  'name',
-  'code',
-  'price',
-  'notes',
-  'persen',
-  'isActive',
-  'tipe',
-  'customerName',
-  'customerPhone',
-  'customerEmail',
-];
+const ALLOWED_PRODUCT_UPDATES = ['isActive'];
 
 const mapNullableString = (value) => {
   if (value === null || value === undefined) {
@@ -118,6 +107,7 @@ class SalesService {
 
           const { nomorKepesertaan } = await productService.generateNomorKepesertaan(
             storeId,
+            sanitizedData.customerPhone,
             { transaction },
           );
 
@@ -216,15 +206,20 @@ class SalesService {
 
       const updates = sanitizeProductPayload(changes);
 
+      if (!Object.prototype.hasOwnProperty.call(updates, 'isActive')) {
+        throw new Error('Only isActive can be updated for a product');
+      }
+
+      if (updates.isActive !== false) {
+        throw new Error('Product updates only support setting isActive to false');
+      }
+
       ALLOWED_PRODUCT_UPDATES.forEach((field) => {
         if (Object.prototype.hasOwnProperty.call(updates, field)) {
           product[field] = updates[field];
         }
       });
 
-      if (Object.prototype.hasOwnProperty.call(updates, 'price') || Object.prototype.hasOwnProperty.call(updates, 'persen')) {
-        product.priceWarranty = calculatePriceWarranty(product.price, product.persen);
-      }
       await product.save();
 
       logger.info('Product updated by sales user:', {

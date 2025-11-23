@@ -293,7 +293,9 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'tipe', 'code', 'price', 'persen'],
+          required: ['name', 'tipe', 'code', 'price', 'persen', 'customer_phone'],
+          description:
+            'Customer phone is required and used to generate nomor_kepesertaan (store code + last three digits of the phone).',
           properties: {
             name: {
               type: 'string',
@@ -337,7 +339,9 @@ const options = {
             customer_phone: {
               type: 'string',
               maxLength: 50,
-              nullable: true,
+              nullable: false,
+              description:
+                'Required. Digits are sanitized and the last three numbers are used with the store code to form nomor_kepesertaan.',
               example: '081233344455',
             },
             customer_email: {
@@ -351,58 +355,12 @@ const options = {
         },
         UpdateProductRequest: {
           type: 'object',
+          required: ['isActive'],
           properties: {
-            name: {
-              type: 'string',
-              minLength: 2,
-              maxLength: 200,
-              example: 'iPhone 15 Pro Max',
-            },
-            tipe: {
-              type: 'string',
-              maxLength: 100,
-              example: 'SMARTPHONE-PRO',
-            },
-            code: {
-              type: 'string',
-              minLength: 2,
-              maxLength: 50,
-              example: 'APPLE-IP15PM-001-UPDATED',
-            },
-            price: {
-              type: 'number',
-              format: 'float',
-              minimum: 0,
-              example: 20990000,
-            },
-            notes: {
-              type: 'string',
-              maxLength: 1000,
-              example: 'Updated promo price available this month only.',
-            },
-            persen: {
-              type: 'integer',
-              example: 25,
-            },
             isActive: {
               type: 'boolean',
-              example: true,
-            },
-            customer_name: {
-              type: 'string',
-              maxLength: 200,
-              example: 'Adi Nugroho',
-            },
-            customer_phone: {
-              type: 'string',
-              maxLength: 50,
-              example: '081233344455',
-            },
-            customer_email: {
-              type: 'string',
-              format: 'email',
-              maxLength: 150,
-              example: 'adi.nugroho@example.com',
+              description: 'Set to false to deactivate the product. No other fields can be updated.',
+              example: false,
             },
           },
         },

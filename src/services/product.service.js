@@ -1,9 +1,10 @@
-const { Product, Store, StoreProductSequence } = require('../models');
+const { Product, Store } = require('../models');
 const storeService = require('./store.service');
 
 const PRODUCT_LIMIT = 10_000_000;
 const PRODUCT_LIMIT_ERROR_CODE = 'PRODUCT_LIMIT_REACHED';
 const MAX_SEQUENCE_ATTEMPTS = 3;
+const CUSTOMER_PHONE_REQUIRED_ERROR_CODE = 'CUSTOMER_PHONE_REQUIRED';
 
 const {
   createStoreNotFoundError,
@@ -24,8 +25,30 @@ const resolveLockOption = (transaction, shouldLock = false) => {
   return transaction.LOCK.UPDATE || transaction.LOCK.SHARE || transaction.LOCK.KEY_SHARE;
 };
 
-const buildNomorKepesertaan = (kodeToko, sequenceNumber) => {
-  return `${kodeToko}-${sequenceNumber}`;
+const extractLastThreeDigits = (phone) => {
+  if (phone === null || phone === undefined) {
+    return null;
+  }
+
+  const digits = String(phone).replace(/\D/g, '');
+  if (!digits) {
+    return null;
+  }
+
+  const suffix = digits.slice(-3);
+  return suffix.padStart(3, '0');
+};
+
+const buildNomorKepesertaan = (kodeToko, customerPhone) => {
+  const lastDigits = extractLastThreeDigits(customerPhone);
+
+  if (!lastDigits) {
+    const error = new Error('Customer phone is required to generate nomor kepesertaan');
+    error.code = CUSTOMER_PHONE_REQUIRED_ERROR_CODE;
+    throw error;
+  }
+
+  return `${kodeToko}-${lastDigits}`;
 };
 
 class ProductService {
@@ -68,35 +91,7 @@ class ProductService {
     return store;
   }
 
-  async getOrCreateSequence(storeId, transaction) {
-    const lock = resolveLockOption(transaction, true);
-    let sequence = await StoreProductSequence.findOne({
-      where: { storeId },
-      transaction,
-      lock,
-    });
-
-    if (!sequence) {
-      sequence = await StoreProductSequence.create({
-        storeId,
-        nextNumber: 1,
-      }, { transaction });
-    }
-
-    return sequence;
-  }
-
-  async reserveNextSequence(store, options = {}) {
-    const { transaction } = options;
-    const sequence = await this.getOrCreateSequence(store.id, transaction);
-
-    const reservedNumber = sequence.nextNumber;
-    await sequence.increment('nextNumber', { by: 1, transaction });
-
-    return buildNomorKepesertaan(store.kode_toko, reservedNumber);
-  }
-
-  async generateNomorKepesertaan(storeId, options = {}) {
+  async generateNomorKepesertaan(storeId, customerPhone, options = {}) {
     const transaction = options.transaction;
     const store = await this.ensureStoreExists(storeId, { transaction, lock: true });
 
@@ -106,7 +101,7 @@ class ProductService {
       throw error;
     }
 
-    const nomorKepesertaan = await this.reserveNextSequence(store, { transaction });
+    const nomorKepesertaan = buildNomorKepesertaan(store.kode_toko, customerPhone);
 
     return { nomorKepesertaan, store };
   }
@@ -120,3 +115,5 @@ module.exports.resolveLockOption = resolveLockOption;
 module.exports.STORE_NOT_FOUND_ERROR_CODE = STORE_NOT_FOUND_ERROR_CODE;
 module.exports.MAX_SEQUENCE_ATTEMPTS = MAX_SEQUENCE_ATTEMPTS;
 module.exports.buildNomorKepesertaan = buildNomorKepesertaan;
+module.exports.CUSTOMER_PHONE_REQUIRED_ERROR_CODE = CUSTOMER_PHONE_REQUIRED_ERROR_CODE;
+module.exports.extractLastThreeDigits = extractLastThreeDigits;
