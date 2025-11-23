@@ -60,6 +60,25 @@ const createChain = (field, location) => {
     _validators: [],
     _optional: false,
     _optionalOptions: {},
+    exists(options = {}) {
+      addValidator(this, (value, { req }) => {
+        const data = getLocationContainer(req, this._location);
+        const hasField = Object.prototype.hasOwnProperty.call(data, this._field);
+
+        if (!hasField) {
+          throw new Error('Value must exist');
+        }
+
+        if (options.checkFalsy && !value) {
+          throw new Error('Value must exist');
+        }
+
+        if (options.checkNull === false && value === null) {
+          throw new Error('Value must exist');
+        }
+      }, 'Value must exist');
+      return this;
+    },
     optional(options = {}) {
       this._optional = true;
       this._optionalOptions = options;
