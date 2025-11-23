@@ -223,7 +223,6 @@ class SalesService {
 
       logger.info('Product updated by sales user:', {
         productId: product.id,
-        creatorId,
         code: product.code,
       });
 
