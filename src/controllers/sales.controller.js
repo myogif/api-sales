@@ -63,7 +63,9 @@ const createProduct = async (req, res, next) => {
     const storeId = req.user.store_id;
 
     const product = await salesService.createProduct(creatorId, storeId, req.body);
-    res.status(201).json(response.success('Product created successfully', product));
+    res.status(201).json(
+      response.success('Product created successfully', formatProductForOutput(product)),
+    );
   } catch (error) {
     if (error.code === PRODUCT_LIMIT_ERROR_CODE) {
       return res.status(422).json({
@@ -174,7 +176,7 @@ const updateProduct = async (req, res, next) => {
     const creatorId = req.user.sub;
 
     const product = await salesService.updateProduct(id, creatorId, req.body);
-    res.json(response.success('Product updated successfully', product));
+    res.json(response.success('Product updated successfully', formatProductForOutput(product)));
   } catch (error) {
     if (error.message === 'Product not found') {
       return res.status(404).json(response.error('Product not found'));

@@ -16,6 +16,7 @@ const servicePath = path.resolve(__dirname, '../src/services/sales.service.js');
 const modelsPath = path.resolve(__dirname, '../src/models/index.js');
 const loggerPath = path.resolve(__dirname, '../src/utils/logger.js');
 const excelPath = path.resolve(__dirname, '../src/utils/excel.js');
+const { formatProductForOutput } = require('../src/utils/product-pricing');
 
 const loadController = (serviceMock) => {
   delete require.cache[controllerPath];
@@ -124,7 +125,7 @@ test('updateProduct controller returns success response with updated product', a
     assert.equal(statusCode, undefined);
     assert.ok(jsonPayload.success);
     assert.equal(jsonPayload.message, 'Product updated successfully');
-    assert.equal(jsonPayload.data, updatedProduct);
+    assert.deepEqual(jsonPayload.data, formatProductForOutput(updatedProduct));
     assert.equal(nextCalled, false);
   } finally {
     cleanup();

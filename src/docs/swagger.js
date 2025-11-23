@@ -830,6 +830,12 @@ const options = {
               format: 'float',
               example: 11994000,
             },
+            status: {
+              type: 'string',
+              example: 'Aktif',
+              description: 'Computed product warranty status based on activation and age.',
+              readOnly: true,
+            },
             persen: {
               type: 'integer',
               example: 60,
