@@ -34,7 +34,7 @@ router.use(authenticate);
  *                   items:
  *                     $ref: '#/components/schemas/Store'
  */
-router.get('/', requireManagerOrServiceCenter, getAllStores);
+router.get('/', getAllStores);
 
 /**
  * @swagger
