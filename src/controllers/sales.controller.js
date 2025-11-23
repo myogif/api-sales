@@ -127,8 +127,6 @@ const updateProductValidation = [
     .withMessage('Customer phone cannot exceed 50 characters'),
   body('customer_email')
     .optional()
-    .isEmail()
-    .withMessage('Customer email must be a valid email address')
     .isLength({ max: 150 })
     .withMessage('Customer email cannot exceed 150 characters'),
   body()
