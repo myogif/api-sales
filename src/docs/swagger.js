@@ -293,7 +293,9 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'tipe', 'code', 'price', 'persen'],
+          required: ['name', 'tipe', 'code', 'price', 'persen', 'customer_phone'],
+          description:
+            'Customer phone is required and used to generate nomor_kepesertaan (store code + last three digits of the phone).',
           properties: {
             name: {
               type: 'string',
@@ -337,7 +339,9 @@ const options = {
             customer_phone: {
               type: 'string',
               maxLength: 50,
-              nullable: true,
+              nullable: false,
+              description:
+                'Required. Digits are sanitized and the last three numbers are used with the store code to form nomor_kepesertaan.',
               example: '081233344455',
             },
             customer_email: {

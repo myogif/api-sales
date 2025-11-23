@@ -118,6 +118,7 @@ class SalesService {
 
           const { nomorKepesertaan } = await productService.generateNomorKepesertaan(
             storeId,
+            sanitizedData.customerPhone,
             { transaction },
           );
 

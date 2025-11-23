@@ -49,6 +49,16 @@ const createProductValidation = [
     .optional()
     .isLength({ max: 50 })
     .withMessage('Customer phone cannot exceed 50 characters'),
+  body()
+    .custom((value, { req }) => {
+      const phone = req.body.customer_phone ?? req.body.customerPhone;
+
+      if (phone === undefined || phone === null || String(phone).trim() === '') {
+        throw new Error('Customer phone is required');
+      }
+
+      return true;
+    }),
   body('customer_email')
     .optional()
     .isEmail()
