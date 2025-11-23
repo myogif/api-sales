@@ -12,6 +12,7 @@ const {
   getMonthlyProductSummary,
   handleValidationErrors,
 } = require('../controllers/manager.controller');
+const { getStoresPaginated, createStore } = require('../controllers/store.controller');
 
 const router = express.Router();
 
@@ -35,6 +36,104 @@ router.use(authenticate);
  *               $ref: '#/components/schemas/DashboardResponse'
  */
 router.get('/dashboard', requireManagerOrServiceCenter, getDashboard);
+
+/**
+ * @swagger
+ * /api/managers/stores:
+ *   get:
+ *     summary: Get stores with pagination
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Search by store name or kode_toko
+ *     responses:
+ *       200:
+ *         description: Stores retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Stores retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Store'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ */
+router.get('/stores', requireManagerOrServiceCenter, getStoresPaginated);
+
+/**
+ * @swagger
+ * /api/managers/stores:
+ *   post:
+ *     summary: Create a new store
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - kode_toko
+ *               - name
+ *             properties:
+ *               kode_toko:
+ *                 type: string
+ *                 example: TOKO001
+ *               name:
+ *                 type: string
+ *                 example: Main Store
+ *               address:
+ *                 type: string
+ *                 example: "123 Main Street, City Center"
+ *               phone:
+ *                 type: string
+ *                 example: "080111111111"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: main@store.com
+ *               isActive:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       201:
+ *         description: Store created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Store created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Store'
+ */
+router.post('/stores', requireManager, createStore);
 
 /**
  * @swagger

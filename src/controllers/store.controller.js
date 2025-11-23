@@ -1,4 +1,7 @@
 const storeService = require('../services/store.service');
+const response = require('../utils/response');
+const logger = require('../utils/logger');
+const { parsePaginationQuery, buildPaginatedResponse } = require('../utils/pagination');
 
 const checkStoreLimit = async (req, res, next) => {
   try {
@@ -13,6 +16,57 @@ const checkStoreLimit = async (req, res, next) => {
   }
 };
 
+const getStoresPaginated = async (req, res, next) => {
+  try {
+    const pageInfo = parsePaginationQuery(req.query);
+    const { q } = req.query;
+
+    const result = await storeService.getPaginatedStores({
+      limit: pageInfo.limit,
+      offset: pageInfo.offset,
+      sortBy: pageInfo.sortBy,
+      sortOrder: pageInfo.sortOrder,
+      search: q,
+    });
+
+    const paginatedResponse = buildPaginatedResponse(result, pageInfo);
+    res.json(response.paginated('Stores retrieved successfully', paginatedResponse));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllStores = async (req, res, next) => {
+  try {
+    const stores = await storeService.getAllStores();
+    res.json(response.success('Stores fetched successfully', stores));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createStore = async (req, res, next) => {
+  try {
+    const store = await storeService.createStore(req.body);
+
+    logger.info('Store created:', { storeId: store.id, storeName: store.name });
+
+    res.status(201).json(response.success('Store created successfully', store));
+  } catch (error) {
+    if (error.code === storeService.STORE_LIMIT_ERROR_CODE) {
+      return res.status(422).json({
+        status: false,
+        message: storeService.limitReachedMessage,
+        data: null,
+      });
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   checkStoreLimit,
+  getStoresPaginated,
+  getAllStores,
+  createStore,
 };
