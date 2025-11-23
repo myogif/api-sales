@@ -164,6 +164,7 @@ const basePayload = {
   code: 'MBR-001',
   price: 1000000,
   persen: 10,
+  customer_phone: '08123456789',
 };
 
 describe('Product creation limits and numbering', () => {
@@ -194,7 +195,7 @@ describe('Product creation limits and numbering', () => {
       message: 'Product created successfully',
     });
     expect(Product.create).toHaveBeenCalledTimes(1);
-    expect(Product.__records[0].nomorKepesertaan).toBe('MS-1');
+    expect(Product.__records[0].nomorKepesertaan).toBe('MS-789');
   });
 
   test('returns 422 with the exact message when the global cap is reached', async () => {
@@ -215,12 +216,20 @@ describe('Product creation limits and numbering', () => {
 
   test('generates sequential nomor_kepesertaan per store under concurrent requests', async () => {
     const [firstProduct, secondProduct] = await Promise.all([
-      salesService.createProduct('sales-user-1', 'store-1', { ...basePayload, code: 'MBR-001' }),
-      salesService.createProduct('sales-user-2', 'store-1', { ...basePayload, code: 'MBR-002' }),
+      salesService.createProduct('sales-user-1', 'store-1', {
+        ...basePayload,
+        code: 'MBR-001',
+        customer_phone: '08123456789',
+      }),
+      salesService.createProduct('sales-user-2', 'store-1', {
+        ...basePayload,
+        code: 'MBR-002',
+        customer_phone: '08567890123',
+      }),
     ]);
 
     const nomorSet = new Set([firstProduct.nomorKepesertaan, secondProduct.nomorKepesertaan]);
-    expect(nomorSet).toEqual(new Set(['MS-1', 'MS-2']));
+    expect(nomorSet).toEqual(new Set(['MS-789', 'MS-123']));
     expect(Product.__records).toHaveLength(2);
   });
 });

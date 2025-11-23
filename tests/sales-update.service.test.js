@@ -55,15 +55,16 @@ const withServiceMocks = (productFindOne) => {
   return { salesService, infoLogs, errorLogs, cleanup };
 };
 
-test('updateProduct applies allowed updates and logs the action', async () => {
+test('updateProduct only deactivates the product and logs the action', async () => {
   const saved = { value: false };
   const productRecord = {
     id: 'product-123',
     creatorId: 'sales-1',
     code: 'P-001',
-    name: 'Old Name',
+    name: 'Original Name',
     price: 100,
     notes: 'Initial note',
+    isActive: true,
     save: async () => {
       saved.value = true;
     },
@@ -73,17 +74,15 @@ test('updateProduct applies allowed updates and logs the action', async () => {
 
   try {
     const result = await salesService.updateProduct('product-123', 'sales-1', {
-      name: 'Updated Name',
-      price: 150,
-      notes: 'Updated note',
-      unknownField: 'ignored',
+      isActive: false,
+      name: 'Attempted change',
     });
 
     assert.equal(result, productRecord);
-    assert.equal(productRecord.name, 'Updated Name');
-    assert.equal(productRecord.price, 150);
-    assert.equal(productRecord.notes, 'Updated note');
-    assert.equal(productRecord.unknownField, undefined);
+    assert.equal(productRecord.isActive, false);
+    assert.equal(productRecord.name, 'Original Name');
+    assert.equal(productRecord.price, 100);
+    assert.equal(productRecord.notes, 'Initial note');
     assert.ok(saved.value, 'product.save should be called');
     assert.equal(errorLogs.length, 0);
     assert.ok(infoLogs.length > 0);
@@ -100,6 +99,24 @@ test('updateProduct throws when product is not found and logs the error', async 
     await assert.rejects(
       salesService.updateProduct('missing', 'sales-1', { name: 'Nope' }),
       /Product not found/,
+    );
+    assert.ok(errorLogs.length > 0);
+    assert.equal(errorLogs[0][0], 'Failed to update product:');
+  } finally {
+    cleanup();
+  }
+});
+
+test('updateProduct rejects updates that do not deactivate the product', async () => {
+  const { salesService, errorLogs, cleanup } = withServiceMocks(async () => ({
+    id: 'product-123',
+    creatorId: 'sales-1',
+  }));
+
+  try {
+    await assert.rejects(
+      salesService.updateProduct('product-123', 'sales-1', { isActive: true }),
+      /isActive to false/,
     );
     assert.ok(errorLogs.length > 0);
     assert.equal(errorLogs[0][0], 'Failed to update product:');

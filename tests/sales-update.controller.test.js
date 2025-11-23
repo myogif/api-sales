@@ -98,7 +98,7 @@ test('updateProduct controller returns success response with updated product', a
   try {
     const req = {
       params: { id: 'product-123' },
-      body: { name: 'Updated Name' },
+      body: { isActive: false },
       user: { sub: 'sales-1' },
     };
 
@@ -143,7 +143,7 @@ test('updateProduct controller converts missing product to 404 error', async () 
   try {
     const req = {
       params: { id: 'product-unknown' },
-      body: { name: 'Does not matter' },
+      body: { isActive: false },
       user: { sub: 'sales-1' },
     };
 
@@ -190,7 +190,7 @@ test('updateProductValidation flags missing fields and invalid id', async () => 
     assert.equal(result.isEmpty(), false);
     const messages = result.array().map((error) => error.msg);
     assert.ok(messages.includes('Product id must be a valid UUID'));
-    assert.ok(messages.includes('At least one field must be provided for update'));
+    assert.ok(messages.includes('isActive is required'));
   } finally {
     cleanup();
   }
