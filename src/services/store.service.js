@@ -1,4 +1,6 @@
+const { Op } = require('sequelize');
 const { Store } = require('../models');
+const { buildCaseInsensitiveLike } = require('../utils/filters');
 
 const STORE_LIMIT = 300;
 const STORE_LIMIT_ERROR_CODE = 'STORE_LIMIT_REACHED';
@@ -152,6 +154,40 @@ class StoreService {
     await store.save({ transaction: options.transaction });
 
     return store;
+  }
+
+  async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', search } = {}) {
+    const where = {};
+
+    if (search) {
+      const matchers = [
+        buildCaseInsensitiveLike('name', search),
+        buildCaseInsensitiveLike('kode_toko', search),
+      ].filter(Boolean);
+
+      if (matchers.length > 0) {
+        where[Op.or] = matchers;
+      }
+    }
+
+    return Store.findAndCountAll({
+      attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email', 'isActive'],
+      where,
+      limit,
+      offset,
+      order: [[sortBy, sortOrder.toUpperCase()]],
+      distinct: true,
+    });
+  }
+
+  async getAllStores(options = {}) {
+    const where = options.where || {};
+
+    return Store.findAll({
+      attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email', 'isActive'],
+      where,
+      order: options.order || [['name', 'ASC']],
+    });
   }
 }
 

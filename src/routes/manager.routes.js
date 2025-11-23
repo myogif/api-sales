@@ -12,6 +12,7 @@ const {
   getMonthlyProductSummary,
   handleValidationErrors,
 } = require('../controllers/manager.controller');
+const { getStoresPaginated } = require('../controllers/store.controller');
 
 const router = express.Router();
 
@@ -35,6 +36,48 @@ router.use(authenticate);
  *               $ref: '#/components/schemas/DashboardResponse'
  */
 router.get('/dashboard', requireManagerOrServiceCenter, getDashboard);
+
+/**
+ * @swagger
+ * /api/managers/stores:
+ *   get:
+ *     summary: Get stores with pagination
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Search by store name or kode_toko
+ *     responses:
+ *       200:
+ *         description: Stores retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Stores retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Store'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ */
+router.get('/stores', requireManager, getStoresPaginated);
 
 /**
  * @swagger

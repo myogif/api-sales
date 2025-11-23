@@ -1,11 +1,40 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
-const { requireManagerOrServiceCenter } = require('../middlewares/role');
-const { checkStoreLimit } = require('../controllers/store.controller');
+const { requireManager, requireManagerOrServiceCenter } = require('../middlewares/role');
+const { checkStoreLimit, getAllStores, createStore } = require('../controllers/store.controller');
 
 const router = express.Router();
 
 router.use(authenticate);
+
+/**
+ * @swagger
+ * /api/toko:
+ *   get:
+ *     summary: Get all stores without pagination
+ *     tags: [Store]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Stores fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Stores fetched successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Store'
+ */
+router.get('/', getAllStores);
 
 /**
  * @swagger
@@ -34,5 +63,61 @@ router.use(authenticate);
  *                   example: true
  */
 router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
+
+/**
+ * @swagger
+ * /api/toko:
+ *   post:
+ *     summary: Create a new store
+ *     tags: [Store]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - kode_toko
+ *               - name
+ *             properties:
+ *               kode_toko:
+ *                 type: string
+ *                 example: TOKO001
+ *               name:
+ *                 type: string
+ *                 example: Main Store
+ *               address:
+ *                 type: string
+ *                 example: "123 Main Street, City Center"
+ *               phone:
+ *                 type: string
+ *                 example: "080111111111"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: main@store.com
+ *               isActive:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       201:
+ *         description: Store created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Store created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Store'
+ */
+router.post('/', requireManager, createStore);
 
 module.exports = router;
