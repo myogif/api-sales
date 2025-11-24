@@ -127,16 +127,6 @@ class StoreService {
     await this.ensureWithinLimit({ ...options, scope });
 
     const payload = sanitizeStorePayload(data, { includeId: true });
-    if (
-      Object.prototype.hasOwnProperty.call(payload, 'kode_toko')
-      && typeof payload.kode_toko === 'string'
-      && payload.kode_toko
-      && !/^[A-Z0-9]+$/.test(payload.kode_toko)
-    ) {
-      const error = new Error('Store code must contain only uppercase letters and numbers');
-      error.code = 'INVALID_STORE_CODE';
-      throw error;
-    }
     const store = await Store.create(payload, { transaction: options.transaction });
     return store;
   }
@@ -154,6 +144,18 @@ class StoreService {
     await store.save({ transaction: options.transaction });
 
     return store;
+  }
+
+  async deleteStore(storeId, options = {}) {
+    const store = await Store.findByPk(storeId, { transaction: options.transaction });
+
+    if (!store) {
+      throw createStoreNotFoundError();
+    }
+
+    await store.destroy({ transaction: options.transaction });
+
+    return { message: 'Store deleted successfully' };
   }
 
   async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', search } = {}) {

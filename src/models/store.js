@@ -21,10 +21,6 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: {
           msg: 'Store code is required',
         },
-        is: {
-          args: /^[A-Z0-9]+$/,
-          msg: 'Store code must contain only uppercase letters and numbers',
-        },
       },
     },
     name: {
