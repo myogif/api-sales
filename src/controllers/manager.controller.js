@@ -90,10 +90,6 @@ const createSupervisorValidation = [
         throw new Error('Store code is required');
       }
 
-      if (!/^[A-Z0-9]+$/.test(kodeToko)) {
-        throw new Error('Store code must contain only uppercase letters and numbers');
-      }
-
       if (!originalStoreId) {
         req.body.storeId = uuidv4();
       }
