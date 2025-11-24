@@ -2,8 +2,6 @@
 node_modules/
 !node_modules/
 node_modules/*
-!node_modules/pdf-lib/
-!node_modules/pdf-lib/index.js
 
 # Environment variables
 .env

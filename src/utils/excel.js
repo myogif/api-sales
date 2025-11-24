@@ -95,7 +95,7 @@ function deriveStatus(statusInput, createdAt) {
   // 2) Jika status masih expired tapi umur < 6 bulan -> "Used"
   if (isExpiredLike && isYoungerThanSixMonths) return 'Used';
 
-  // 3) Jika status masih aktif dan umur < 6 bulan -> "Aktif"
+// 3) Jika status masih aktif dan umur < 6 bulan -> "Aktif"
   if (isActiveLike && isYoungerThanSixMonths) return 'Aktif';
 
   // Fallback: kembalikan status asli bila tidak match aturan di atas
