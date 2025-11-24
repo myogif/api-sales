@@ -146,6 +146,18 @@ class StoreService {
     return store;
   }
 
+  async deleteStore(storeId, options = {}) {
+    const store = await Store.findByPk(storeId, { transaction: options.transaction });
+
+    if (!store) {
+      throw createStoreNotFoundError();
+    }
+
+    await store.destroy({ transaction: options.transaction });
+
+    return { message: 'Store deleted successfully' };
+  }
+
   async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', search } = {}) {
     const where = {};
 

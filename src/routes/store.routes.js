@@ -1,7 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
 const { requireManager, requireManagerOrServiceCenter } = require('../middlewares/role');
-const { checkStoreLimit, getAllStores, createStore } = require('../controllers/store.controller');
+const { checkStoreLimit, getAllStores, createStore, deleteStore } = require('../controllers/store.controller');
 
 const router = express.Router();
 
@@ -118,6 +118,46 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  *                 data:
  *                   $ref: '#/components/schemas/Store'
  */
-router.post('/', requireManager, createStore);
+ router.post('/', requireManager, createStore);
+
+/**
+ * @swagger
+ * /api/toko/{id}:
+ *   delete:
+ *     summary: Delete a store
+ *     tags: [Store]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Store deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Store deleted successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: Store deleted successfully
+ *       404:
+ *         description: Store not found
+ */
+router.delete('/:id', requireManager, deleteStore);
 
 module.exports = router;

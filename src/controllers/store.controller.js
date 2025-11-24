@@ -64,9 +64,24 @@ const createStore = async (req, res, next) => {
   }
 };
 
+const deleteStore = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await storeService.deleteStore(id);
+
+    res.json(response.success('Store deleted successfully', result));
+  } catch (error) {
+    if (error.code === storeService.STORE_NOT_FOUND_ERROR_CODE) {
+      return res.status(404).json(response.error('Store not found'));
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   checkStoreLimit,
   getStoresPaginated,
   getAllStores,
   createStore,
+  deleteStore,
 };
