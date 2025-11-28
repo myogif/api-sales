@@ -94,63 +94,49 @@ class ManagerService {
 
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
+
     try {
-      const { storeIds, storeId, ...userData } = supervisorData;
-      const requestedStoreIds = Array.isArray(storeIds) ? storeIds : [];
-      if (storeId) {
-        requestedStoreIds.push(storeId);
+      const { storeId, ...userData } = supervisorData;
+
+      // Pastikan ada storeId (toko sudah dibuat lebih dulu via API Create Toko)
+      if (!storeId) {
+        throw new Error('Store ID is required');
       }
 
-      const uniqueStoreIds = [...new Set(requestedStoreIds.filter(Boolean))];
+      // Cek limit supervisor per toko
+      await this.ensureSupervisorWithinLimit(storeId, { transaction });
 
-      if (uniqueStoreIds.length === 0) {
-        throw new Error('Store information is required');
-      }
-
-      const stores = typeof Store.findAll === 'function'
-        ? await Store.findAll({ where: { id: uniqueStoreIds }, transaction })
-        : await Promise.all(uniqueStoreIds.map(async (id) => Store.findByPk(id, { transaction })));
-
-      if (!stores.every(Boolean) || stores.length !== uniqueStoreIds.length) {
-        throw new Error('Store not found');
-      }
-
-      for (const id of uniqueStoreIds) {
-        await this.ensureSupervisorWithinLimit(id, { transaction });
-      }
-
-      const createdSupervisors = [];
-
-      for (const id of uniqueStoreIds) {
-        const supervisor = await User.create({
+      // Buat user supervisor saja, TANPA membuat / mengubah data Store
+      const supervisor = await User.create(
+        {
           ...userData,
-          storeId: id,
+          storeId,
           role: 'SUPERVISOR',
-        }, { transaction });
+        },
+        { transaction }
+      );
 
-        await supervisor.reload({
-          include: [
-            {
-              model: Store,
-              as: 'store',
-              attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
-            },
-          ],
-          transaction,
-        });
-
-        createdSupervisors.push(supervisor.toSafeJSON());
-
-        logger.info('Supervisor created by manager:', {
-          supervisorId: supervisor.id,
-          phone: supervisor.phone,
-          storeId: supervisor.storeId,
-        });
-      }
+      // Reload untuk include relasi store (hanya baca, bukan create)
+      await supervisor.reload({
+        include: [
+          {
+            model: Store,
+            as: 'store',
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
+          },
+        ],
+        transaction,
+      });
 
       await transaction.commit();
 
-      return uniqueStoreIds.length === 1 ? createdSupervisors[0] : createdSupervisors;
+      logger.info('Supervisor created by manager:', {
+        supervisorId: supervisor.id,
+        phone: supervisor.phone,
+        storeId: supervisor.storeId,
+      });
+
+      return supervisor.toSafeJSON();
     } catch (error) {
       try {
         await transaction.rollback();
