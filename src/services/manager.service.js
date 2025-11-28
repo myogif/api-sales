@@ -117,6 +117,7 @@ class ManagerService {
         role: 'SUPERVISOR',
       }, { transaction });
 
+      // Reload untuk include relasi store (hanya baca, bukan create)
       await supervisor.reload({
         include: [
           {
