@@ -56,43 +56,7 @@ const createSupervisorValidation = [
   body('storeId')
     .optional({ checkFalsy: true })
     .isUUID()
-    .withMessage('Store ID must be a valid UUID'),
-  body('storeIds')
-    .optional()
-    .custom((value) => {
-      if (!Array.isArray(value)) {
-        throw new Error('Store IDs must be a non-empty array');
-      }
-      if (value.length === 0) {
-        throw new Error('Store IDs must be a non-empty array');
-      }
-      return true;
-    }),
-  body('storeIds.*')
-    .optional({ nullable: true })
-    .isUUID()
-    .withMessage('Each store ID must be a valid UUID'),
-  body().custom((_, { req }) => {
-    const { storeId, storeIds } = req.body;
-
-    if (req.body.store) {
-      throw new Error('Store creation is no longer supported in this endpoint');
-    }
-
-    if (!storeId && !storeIds) {
-      throw new Error('Either storeId or storeIds must be provided');
-    }
-
-    if (storeId && storeIds) {
-      throw new Error('Provide either storeId or storeIds, not both');
-    }
-
-    if (storeIds && (!Array.isArray(storeIds) || storeIds.length === 0)) {
-      throw new Error('Store IDs must be a non-empty array');
-    }
-
-    return true;
-  }),
+    .withMessage('Store ID must be a valid UUID')
 ];
 
 const createSupervisor = async (req, res, next) => {
