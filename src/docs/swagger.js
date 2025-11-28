@@ -206,7 +206,7 @@ const options = {
         },
         CreateSupervisorRequest: {
           type: 'object',
-          required: ['phone', 'password', 'name'],
+          required: ['phone', 'password', 'name', 'storeId'],
           properties: {
             phone: {
               type: 'string',
@@ -225,46 +225,10 @@ const options = {
               maxLength: 100,
               example: 'John Supervisor',
             },
-            store: {
-              type: 'object',
-              description: 'Provide this object to create a brand new store for the supervisor. The API will generate the storeId automatically when this is supplied.',
-              required: ['name', 'kode_toko'],
-              properties: {
-                kode_toko: {
-                  type: 'string',
-                  pattern: '^[A-Z0-9]+$',
-                  example: 'TOKO123',
-                  description: 'Unique uppercase alphanumeric store code without spaces.',
-                },
-                name: {
-                  type: 'string',
-                  minLength: 2,
-                  maxLength: 100,
-                  example: 'Central Store',
-                },
-                address: {
-                  type: 'string',
-                  nullable: true,
-                  example: '123 Main Street, City Center',
-                },
-                phone: {
-                  type: 'string',
-                  nullable: true,
-                  minLength: 10,
-                  maxLength: 20,
-                  example: '080123456789',
-                },
-                email: {
-                  type: 'string',
-                  nullable: true,
-                  example: 'central@store.com',
-                },
-                isActive: {
-                  type: 'boolean',
-                  nullable: true,
-                  example: true,
-                },
-              },
+            storeId: {
+              type: 'string',
+              format: 'uuid',
+              description: 'Existing store ID to attach the supervisor to.',
             },
           },
         },

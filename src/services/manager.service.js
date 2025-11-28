@@ -1,7 +1,6 @@
 const { Op } = require('sequelize');
 const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
-const storeService = require('./store.service');
 
 const SUPERVISOR_LIMIT = 2;
 const SUPERVISOR_LIMIT_ERROR_CODE = 'SUPERVISOR_LIMIT_REACHED';
@@ -96,46 +95,25 @@ class ManagerService {
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
     try {
-      const { store: storePayload, storeId, ...userData } = supervisorData;
-      let resolvedStoreId = storeId;
+      const { storeId, ...userData } = supervisorData;
 
-      if (storePayload) {
-        if (!resolvedStoreId) {
-          throw new Error('Store information is required');
-        }
-
-        const newStore = await storeService.createStore({
-          id: resolvedStoreId,
-          kode_toko: storePayload.kode_toko,
-          name: storePayload.name,
-          address: storePayload.address,
-          phone: storePayload.phone,
-          email: storePayload.email,
-          isActive: typeof storePayload.isActive === 'boolean' ? storePayload.isActive : undefined,
-        }, { transaction });
-
-        resolvedStoreId = newStore.id;
-
-        logger.info('Store created for supervisor:', {
-          storeId: newStore.id,
-          storeName: newStore.name,
-        });
-      } else if (resolvedStoreId) {
-        const existingStore = await Store.findByPk(resolvedStoreId, { transaction });
-        if (!existingStore) {
-          throw new Error('Store not found');
-        }
-      }
-
-      if (!resolvedStoreId) {
+      if (!storeId) {
         throw new Error('Store information is required');
       }
 
-      await this.ensureSupervisorWithinLimit(resolvedStoreId, { transaction });
+      const store = typeof Store.findByPk === 'function'
+        ? await Store.findByPk(storeId, { transaction })
+        : await Store.findByPk(storeId, { transaction });
+
+      if (!store) {
+        throw new Error('Store not found');
+      }
+
+      await this.ensureSupervisorWithinLimit(storeId, { transaction });
 
       const supervisor = await User.create({
         ...userData,
-        storeId: resolvedStoreId,
+        storeId,
         role: 'SUPERVISOR',
       }, { transaction });
 
