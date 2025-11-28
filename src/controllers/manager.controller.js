@@ -1,7 +1,5 @@
 const { body } = require('express-validator');
-const { v4: uuidv4 } = require('uuid');
 const managerService = require('../services/manager.service');
-const { STORE_LIMIT_ERROR_CODE } = require('../services/store.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
@@ -59,55 +57,38 @@ const createSupervisorValidation = [
     .optional({ checkFalsy: true })
     .isUUID()
     .withMessage('Store ID must be a valid UUID'),
+  body('storeIds')
+    .optional()
+    .custom((value) => {
+      if (!Array.isArray(value)) {
+        throw new Error('Store IDs must be a non-empty array');
+      }
+      if (value.length === 0) {
+        throw new Error('Store IDs must be a non-empty array');
+      }
+      return true;
+    }),
+  body('storeIds.*')
+    .optional({ nullable: true })
+    .isUUID()
+    .withMessage('Each store ID must be a valid UUID'),
   body().custom((_, { req }) => {
-    const originalStoreId = req.body.storeId;
-    const { store } = req.body;
+    const { storeId, storeIds } = req.body;
 
-    if (!originalStoreId && !store) {
-      throw new Error('Either storeId or store details must be provided');
+    if (req.body.store) {
+      throw new Error('Store creation is no longer supported in this endpoint');
     }
 
-    if (originalStoreId && store) {
-      throw new Error('Provide either storeId or store details, not both');
+    if (!storeId && !storeIds) {
+      throw new Error('Either storeId or storeIds must be provided');
     }
 
-    if (store) {
-      if (typeof store !== 'object' || Array.isArray(store)) {
-        throw new Error('Store must be an object');
-      }
+    if (storeId && storeIds) {
+      throw new Error('Provide either storeId or storeIds, not both');
+    }
 
-      const name = typeof store.name === 'string' ? store.name.trim() : '';
-      if (!name) {
-        throw new Error('Store name is required');
-      }
-
-      if (name.length < 2 || name.length > 100) {
-        throw new Error('Store name must be between 2 and 100 characters');
-      }
-
-      const kodeToko = typeof store.kode_toko === 'string' ? store.kode_toko.trim() : '';
-      if (!kodeToko) {
-        throw new Error('Store code is required');
-      }
-
-      if (!originalStoreId) {
-        req.body.storeId = uuidv4();
-      }
-
-      if (store.phone) {
-        const phone = String(store.phone);
-        if (phone.length < 10 || phone.length > 20) {
-          throw new Error('Store phone must be between 10 and 20 characters');
-        }
-      }
-
-      if (store.email) {
-        const email = String(store.email).trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-          throw new Error('Store email must be a valid email address');
-        }
-      }
+    if (storeIds && (!Array.isArray(storeIds) || storeIds.length === 0)) {
+      throw new Error('Store IDs must be a non-empty array');
     }
 
     return true;
@@ -129,13 +110,6 @@ const createSupervisor = async (req, res, next) => {
       return res.status(422).json({
         status: false,
         message: managerService.supervisorLimitMessage,
-        data: null,
-      });
-    }
-    if (error.code === STORE_LIMIT_ERROR_CODE) {
-      return res.status(422).json({
-        status: false,
-        message: 'Pembuatan Toko SUdah Mencapai Limit',
         data: null,
       });
     }
