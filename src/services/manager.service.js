@@ -1,7 +1,6 @@
 const { Op } = require('sequelize');
 const { User, Store, Product, sequelize } = require('../models');
 const logger = require('../utils/logger');
-const storeService = require('./store.service');
 
 const SUPERVISOR_LIMIT = 2;
 const SUPERVISOR_LIMIT_ERROR_CODE = 'SUPERVISOR_LIMIT_REACHED';
@@ -96,69 +95,62 @@ class ManagerService {
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
     try {
-      const { store: storePayload, storeId, ...userData } = supervisorData;
-      let resolvedStoreId = storeId;
-
-      if (storePayload) {
-        if (!resolvedStoreId) {
-          throw new Error('Store information is required');
-        }
-
-        const newStore = await storeService.createStore({
-          id: resolvedStoreId,
-          kode_toko: storePayload.kode_toko,
-          name: storePayload.name,
-          address: storePayload.address,
-          phone: storePayload.phone,
-          email: storePayload.email,
-          isActive: typeof storePayload.isActive === 'boolean' ? storePayload.isActive : undefined,
-        }, { transaction });
-
-        resolvedStoreId = newStore.id;
-
-        logger.info('Store created for supervisor:', {
-          storeId: newStore.id,
-          storeName: newStore.name,
-        });
-      } else if (resolvedStoreId) {
-        const existingStore = await Store.findByPk(resolvedStoreId, { transaction });
-        if (!existingStore) {
-          throw new Error('Store not found');
-        }
+      const { storeIds, storeId, ...userData } = supervisorData;
+      const requestedStoreIds = Array.isArray(storeIds) ? storeIds : [];
+      if (storeId) {
+        requestedStoreIds.push(storeId);
       }
 
-      if (!resolvedStoreId) {
+      const uniqueStoreIds = [...new Set(requestedStoreIds.filter(Boolean))];
+
+      if (uniqueStoreIds.length === 0) {
         throw new Error('Store information is required');
       }
 
-      await this.ensureSupervisorWithinLimit(resolvedStoreId, { transaction });
+      const stores = typeof Store.findAll === 'function'
+        ? await Store.findAll({ where: { id: uniqueStoreIds }, transaction })
+        : await Promise.all(uniqueStoreIds.map(async (id) => Store.findByPk(id, { transaction })));
 
-      const supervisor = await User.create({
-        ...userData,
-        storeId: resolvedStoreId,
-        role: 'SUPERVISOR',
-      }, { transaction });
+      if (!stores.every(Boolean) || stores.length !== uniqueStoreIds.length) {
+        throw new Error('Store not found');
+      }
 
-      await supervisor.reload({
-        include: [
-          {
-            model: Store,
-            as: 'store',
-            attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
-          },
-        ],
-        transaction,
-      });
+      for (const id of uniqueStoreIds) {
+        await this.ensureSupervisorWithinLimit(id, { transaction });
+      }
+
+      const createdSupervisors = [];
+
+      for (const id of uniqueStoreIds) {
+        const supervisor = await User.create({
+          ...userData,
+          storeId: id,
+          role: 'SUPERVISOR',
+        }, { transaction });
+
+        await supervisor.reload({
+          include: [
+            {
+              model: Store,
+              as: 'store',
+              attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
+            },
+          ],
+          transaction,
+        });
+
+        createdSupervisors.push(supervisor.toSafeJSON());
+
+        logger.info('Supervisor created by manager:', {
+          supervisorId: supervisor.id,
+          phone: supervisor.phone,
+          storeId: supervisor.storeId,
+        });
+      }
 
       await transaction.commit();
 
-      logger.info('Supervisor created by manager:', {
-        supervisorId: supervisor.id,
-        phone: supervisor.phone,
-        storeId: supervisor.storeId,
-      });
-
-      return supervisor.toSafeJSON();
+      return uniqueStoreIds.length === 1 ? createdSupervisors[0] : createdSupervisors;
     } catch (error) {
       try {
         await transaction.rollback();

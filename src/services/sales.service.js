@@ -191,11 +191,12 @@ class SalesService {
     }
   }
 
-  async updateProduct(productId, changes) {
+  async updateProduct(productId, creatorId, changes) {
     try {
       const product = await Product.findOne({
         where: {
           id: productId,
+          creatorId,
         },
       });
 

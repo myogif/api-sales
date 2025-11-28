@@ -142,7 +142,7 @@ const updateProduct = async (req, res, next) => {
     const { id } = req.params;
     const creatorId = req.user.sub;
 
-    const product = await salesService.updateProduct(id,req.body);
+    const product = await salesService.updateProduct(id, creatorId, req.body);
     res.json(response.success('Product updated successfully', formatProductForOutput(product)));
   } catch (error) {
     if (error.message === 'Product not found') {
