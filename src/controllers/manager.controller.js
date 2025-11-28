@@ -54,9 +54,21 @@ const createSupervisorValidation = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Name must be between 2 and 100 characters'),
   body('storeId')
-    .optional({ checkFalsy: true })
+    .notEmpty()
+    .withMessage('Store ID is required')
     .isUUID()
-    .withMessage('Store ID must be a valid UUID')
+    .withMessage('Store ID must be a valid UUID'),
+  body().custom((_, { req }) => {
+    if (req.body.store) {
+      throw new Error('Store creation is no longer supported in this endpoint');
+    }
+
+    if (typeof req.body.storeIds !== 'undefined') {
+      throw new Error('storeIds is no longer supported; provide a single storeId instead');
+    }
+
+    return true;
+  }),
 ];
 
 const createSupervisor = async (req, res, next) => {

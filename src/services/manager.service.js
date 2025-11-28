@@ -94,27 +94,28 @@ class ManagerService {
 
   async createSupervisor(supervisorData) {
     const transaction = await sequelize.transaction();
-
     try {
       const { storeId, ...userData } = supervisorData;
 
-      // Pastikan ada storeId (toko sudah dibuat lebih dulu via API Create Toko)
       if (!storeId) {
-        throw new Error('Store ID is required');
+        throw new Error('Store information is required');
       }
 
-      // Cek limit supervisor per toko
+      const store = typeof Store.findByPk === 'function'
+        ? await Store.findByPk(storeId, { transaction })
+        : await Store.findByPk(storeId, { transaction });
+
+      if (!store) {
+        throw new Error('Store not found');
+      }
+
       await this.ensureSupervisorWithinLimit(storeId, { transaction });
 
-      // Buat user supervisor saja, TANPA membuat / mengubah data Store
-      const supervisor = await User.create(
-        {
-          ...userData,
-          storeId,
-          role: 'SUPERVISOR',
-        },
-        { transaction }
-      );
+      const supervisor = await User.create({
+        ...userData,
+        storeId,
+        role: 'SUPERVISOR',
+      }, { transaction });
 
       // Reload untuk include relasi store (hanya baca, bukan create)
       await supervisor.reload({

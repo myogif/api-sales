@@ -206,7 +206,7 @@ const options = {
         },
         CreateSupervisorRequest: {
           type: 'object',
-          required: ['phone', 'password', 'name', 'storeIds'],
+          required: ['phone', 'password', 'name', 'storeId'],
           properties: {
             phone: {
               type: 'string',
@@ -228,17 +228,7 @@ const options = {
             storeId: {
               type: 'string',
               format: 'uuid',
-              nullable: true,
-              description: 'Backward compatibility for single store creation. Use storeIds for multiple stores.',
-            },
-            storeIds: {
-              type: 'array',
-              minItems: 1,
-              items: {
-                type: 'string',
-                format: 'uuid',
-              },
-              description: 'One or more existing store IDs to attach supervisors to. No new stores will be created.',
+              description: 'Existing store ID to attach the supervisor to.',
             },
           },
         },
