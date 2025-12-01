@@ -3,7 +3,7 @@ const supervisorService = require('../services/supervisor.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
-const { buildProductFilters } = require('../utils/filters');
+const { buildProductFilters, buildCaseInsensitiveLike } = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
 const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
@@ -112,16 +112,26 @@ const getProducts = async (req, res, next) => {
       creatorInclude.where = { supervisorId: req.query.supervisor_id };
     }
 
+    const storeInclude = {
+      model: Store,
+      as: 'store',
+      attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
+    };
+
+    if (typeof req.query.store_name === 'string') {
+      const trimmedStoreName = req.query.store_name.trim();
+      if (trimmedStoreName) {
+        const storeNameMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
+        if (storeNameMatcher) {
+          storeInclude.where = storeNameMatcher;
+          storeInclude.required = true;
+        }
+      }
+    }
+
     const baseOptions = {
       where,
-      include: [
-        {
-          model: Store,
-          as: 'store',
-          attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
-        },
-        creatorInclude,
-      ],
+      include: [storeInclude, creatorInclude],
       distinct: true,
     };
 

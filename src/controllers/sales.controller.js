@@ -3,7 +3,7 @@ const salesService = require('../services/sales.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
-const { buildProductFilters } = require('../utils/filters');
+const { buildProductFilters, buildCaseInsensitiveLike } = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
 const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
@@ -162,6 +162,17 @@ const getProducts = async (req, res, next) => {
       as: 'store',
       attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
     };
+
+    if (typeof req.query.store_name === 'string') {
+      const trimmedStoreName = req.query.store_name.trim();
+      if (trimmedStoreName) {
+        const storeNameMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
+        if (storeNameMatcher) {
+          storeInclude.where = storeNameMatcher;
+          storeInclude.required = true;
+        }
+      }
+    }
 
     const creatorInclude = {
       model: User,
