@@ -1,8 +1,9 @@
-const { Store } = require('../models');
+const { Store, Product } = require('../models');
 
 const STORE_LIMIT = 300;
 const STORE_LIMIT_ERROR_CODE = 'STORE_LIMIT_REACHED';
 const STORE_NOT_FOUND_ERROR_CODE = 'STORE_NOT_FOUND';
+const STORE_HAS_PRODUCTS_ERROR_CODE = 'STORE_HAS_PRODUCTS';
 const DEFAULT_SCOPE_ATTRIBUTES = ['tenantId', 'companyId', 'ownerId'];
 
 const resolveLimitScope = (data = {}, options = {}) => {
@@ -37,6 +38,12 @@ const createStoreLimitError = () => {
 const createStoreNotFoundError = () => {
   const error = new Error('Store not found');
   error.code = STORE_NOT_FOUND_ERROR_CODE;
+  return error;
+};
+
+const createStoreHasProductsError = () => {
+  const error = new Error('Cannot delete store because products exist under this store.');
+  error.code = STORE_HAS_PRODUCTS_ERROR_CODE;
   return error;
 };
 
@@ -151,9 +158,18 @@ class StoreService {
       throw createStoreNotFoundError();
     }
 
+    const productCount = await Product.count({
+      where: { storeId },
+      transaction: options.transaction,
+    });
+
+    if (productCount > 0) {
+      throw createStoreHasProductsError();
+    }
+
     await store.destroy({ transaction: options.transaction });
 
-    return { message: 'Store deleted successfully' };
+    return { message: 'Deleted successfully' };
   }
 
   async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', where = {} } = {}) {
@@ -182,6 +198,8 @@ module.exports = new StoreService();
 module.exports.STORE_LIMIT = STORE_LIMIT;
 module.exports.STORE_LIMIT_ERROR_CODE = STORE_LIMIT_ERROR_CODE;
 module.exports.STORE_NOT_FOUND_ERROR_CODE = STORE_NOT_FOUND_ERROR_CODE;
+module.exports.STORE_HAS_PRODUCTS_ERROR_CODE = STORE_HAS_PRODUCTS_ERROR_CODE;
 module.exports.createStoreLimitError = createStoreLimitError;
 module.exports.createStoreNotFoundError = createStoreNotFoundError;
+module.exports.createStoreHasProductsError = createStoreHasProductsError;
 module.exports.sanitizeStorePayload = sanitizeStorePayload;

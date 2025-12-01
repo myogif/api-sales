@@ -49,7 +49,7 @@ const deleteSalesUser = async (req, res, next) => {
     const supervisorId = req.user.sub;
 
     const result = await supervisorService.deleteSalesUser(id, supervisorId);
-    res.json(response.success('Sales user deleted successfully', result));
+    res.json(response.success('Deleted successfully', result));
   } catch (error) {
     if (error.message === 'Sales user not found') {
       return res.status(404).json(response.error('Sales user not found'));
