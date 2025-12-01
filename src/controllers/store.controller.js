@@ -2,6 +2,7 @@ const storeService = require('../services/store.service');
 const response = require('../utils/response');
 const logger = require('../utils/logger');
 const { parsePaginationQuery, buildPaginatedResponse } = require('../utils/pagination');
+const { buildStoreFilters } = require('../utils/filters');
 
 const checkStoreLimit = async (req, res, next) => {
   try {
@@ -19,14 +20,14 @@ const checkStoreLimit = async (req, res, next) => {
 const getStoresPaginated = async (req, res, next) => {
   try {
     const pageInfo = parsePaginationQuery(req.query);
-    const { q } = req.query;
+    const where = buildStoreFilters(req.query, req.user);
 
     const result = await storeService.getPaginatedStores({
       limit: pageInfo.limit,
       offset: pageInfo.offset,
       sortBy: pageInfo.sortBy,
       sortOrder: pageInfo.sortOrder,
-      search: q,
+      where,
     });
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);

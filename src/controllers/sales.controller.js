@@ -170,6 +170,7 @@ const getProducts = async (req, res, next) => {
         if (storeNameMatcher) {
           storeInclude.where = storeNameMatcher;
           storeInclude.required = true;
+          where['$store.name$'] = storeNameMatcher;
         }
       }
     }

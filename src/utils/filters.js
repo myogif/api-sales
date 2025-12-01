@@ -120,7 +120,134 @@ const buildProductFilters = (query, user, sequelize) => {
   return where;
 };
 
+const buildSupervisorFilters = (query, user, sequelize) => {
+  const where = { role: 'SUPERVISOR' };
+
+  const normalizedRole = typeof user?.role === 'string'
+    ? user.role.toUpperCase()
+    : undefined;
+
+  if (query.q) {
+    const searchMatchers = [
+      buildCaseInsensitiveLike('User.name', query.q),
+      buildCaseInsensitiveLike('User.phone', query.q),
+      buildCaseInsensitiveLike('store.name', query.q),
+    ].filter(Boolean);
+
+    if (searchMatchers.length) {
+      where[Op.or] = searchMatchers;
+    }
+  }
+
+  if (query.store_id) {
+    where.storeId = query.store_id;
+  }
+
+  switch (normalizedRole) {
+    case 'MANAGER':
+    case 'SERVICE_CENTER':
+      break;
+    case 'SUPERVISOR':
+      if (user?.store_id) {
+        where.storeId = user.store_id;
+      } else {
+        where.id = null;
+      }
+      break;
+    default:
+      where.id = null;
+  }
+
+  return where;
+};
+
+const buildSalesFilters = (query, user, sequelize) => {
+  const where = { role: 'SALES' };
+
+  const normalizedRole = typeof user?.role === 'string'
+    ? user.role.toUpperCase()
+    : undefined;
+
+  if (query.q) {
+    const searchMatchers = [
+      buildCaseInsensitiveLike('User.name', query.q),
+      buildCaseInsensitiveLike('User.phone', query.q),
+      buildCaseInsensitiveLike('store.name', query.q),
+    ].filter(Boolean);
+
+    if (searchMatchers.length) {
+      where[Op.or] = searchMatchers;
+    }
+  }
+
+  if (query.store_id) {
+    where.storeId = query.store_id;
+  }
+
+  if (query.supervisor_id) {
+    where.supervisorId = query.supervisor_id;
+  }
+
+  if (query.mine === 'true' && normalizedRole === 'SALES' && user?.sub) {
+    where.id = user.sub;
+  }
+
+  switch (normalizedRole) {
+    case 'MANAGER':
+    case 'SERVICE_CENTER':
+      break;
+    case 'SUPERVISOR':
+      if (user?.store_id) {
+        where.storeId = user.store_id;
+      } else {
+        where.id = null;
+      }
+      break;
+    case 'SALES':
+      if (query.mine === 'true' && user?.sub) {
+        where.id = user.sub;
+      } else if (user?.store_id) {
+        where.storeId = user.store_id;
+      } else {
+        where.id = null;
+      }
+      break;
+    default:
+      where.id = null;
+  }
+
+  return where;
+};
+
+const buildStoreFilters = (query, user, sequelize) => {
+  const where = {};
+
+  if (query.q) {
+    const searchMatchers = [
+      buildCaseInsensitiveLike('Store.name', query.q),
+      buildCaseInsensitiveLike('Store.kode_toko', query.q),
+    ].filter(Boolean);
+
+    if (searchMatchers.length) {
+      where[Op.or] = searchMatchers;
+    }
+  }
+
+  if (query.store_id) {
+    where.id = query.store_id;
+  }
+
+  if (query.creator_id) {
+    where.creatorId = query.creator_id;
+  }
+
+  return where;
+};
+
 module.exports = {
   buildProductFilters,
+  buildSupervisorFilters,
+  buildSalesFilters,
+  buildStoreFilters,
   buildCaseInsensitiveLike,
 };
