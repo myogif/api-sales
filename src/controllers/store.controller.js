@@ -70,10 +70,16 @@ const deleteStore = async (req, res, next) => {
     const { id } = req.params;
     const result = await storeService.deleteStore(id);
 
-    res.json(response.success('Store deleted successfully', result));
+    res.json(response.success('Deleted successfully', result));
   } catch (error) {
     if (error.code === storeService.STORE_NOT_FOUND_ERROR_CODE) {
       return res.status(404).json(response.error('Store not found'));
+    }
+    if (error.code === storeService.STORE_HAS_PRODUCTS_ERROR_CODE) {
+      return res.json({
+        success: false,
+        message: 'Cannot delete store because products exist under this store.',
+      });
     }
     next(error);
   }

@@ -163,21 +163,8 @@ class ManagerService {
         throw new Error('Supervisor not found');
       }
 
-      const activeSalesCount = await User.count({
-        where: { supervisorId, role: 'SALES' },
-        transaction,
-      });
-
-      if (activeSalesCount > 0) {
-        throw new Error('Cannot delete supervisor with active sales');
-      }
-
       const supervisorPhone = supervisor.phone;
       await supervisor.destroy({ force: true, transaction });
-
-      if (storeId) {
-        await Store.destroy({ where: { id: storeId }, force: true, transaction });
-      }
 
       await transaction.commit();
 
@@ -187,7 +174,7 @@ class ManagerService {
         storeId,
       });
 
-      return { message: 'Supervisor permanently deleted successfully' };
+      return { message: 'Deleted successfully' };
     } catch (error) {
       if (!transaction.finished) {
         try {

@@ -72,7 +72,6 @@ class SupervisorService {
         where: {
           id: salesUserId,
           role: 'SALES',
-          supervisorId,
         },
       });
 
@@ -88,7 +87,7 @@ class SupervisorService {
         phone: salesUser.phone,
       });
 
-      return { message: 'Sales user deleted successfully' };
+      return { message: 'Deleted successfully' };
     } catch (error) {
       logger.error('Failed to delete sales user:', error);
       throw error;

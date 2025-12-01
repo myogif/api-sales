@@ -102,7 +102,7 @@ const deleteSupervisor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await managerService.deleteSupervisor(id);
-    res.json(response.success('Supervisor deleted successfully', result));
+    res.json(response.success('Deleted successfully', result));
   } catch (error) {
     if (error.message === 'Supervisor not found') {
       return res.status(404).json(response.error('Supervisor not found'));
