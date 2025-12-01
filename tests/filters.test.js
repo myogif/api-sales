@@ -21,13 +21,14 @@ test('buildProductFilters adds store name condition when provided', () => {
     { [Op.like]: '%central%' },
   );
 
-  assert.deepEqual(filters['$store.name$'], expectedMatcher);
+  assert.ok(Array.isArray(filters[Op.and]));
+  assert.deepEqual(filters[Op.and][0], expectedMatcher);
 });
 
 test('buildProductFilters ignores blank store name', () => {
   const filters = buildProductFilters({ store_name: '   ' }, baseUser);
 
-  assert.equal(filters['$store.name$'], undefined);
+  assert.equal(filters[Op.and], undefined);
 });
 
 test('buildProductFilters creates case-insensitive search for q parameter', () => {
@@ -36,7 +37,7 @@ test('buildProductFilters creates case-insensitive search for q parameter', () =
   assert.ok(Array.isArray(filters[Op.or]));
   const [nameMatcher] = filters[Op.or];
   const expectedMatcher = where(
-    fn('LOWER', col('name')),
+    fn('LOWER', col('Product.name')),
     { [Op.like]: '%test%' },
   );
 
