@@ -273,15 +273,18 @@ class ManagerService {
     }
   }
 
-  async getSupervisors(page, limit, offset, sortBy, sortOrder) {
+  async getSupervisors(page, limit, offset, sortBy, sortOrder, filters = {}) {
     try {
+      const { userWhere, storeWhere } = filters;
+
       const result = await User.findAndCountAll({
-        where: { role: 'SUPERVISOR' },
+        where: userWhere ?? { role: 'SUPERVISOR' },
         include: [
           {
             model: Store,
             as: 'store',
             attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
+            where: storeWhere,
           },
         ],
         limit,
@@ -297,15 +300,18 @@ class ManagerService {
     }
   }
 
-  async getSalesUsers(page, limit, offset, sortBy, sortOrder) {
+  async getSalesUsers(page, limit, offset, sortBy, sortOrder, filters = {}) {
     try {
+      const { userWhere, storeWhere } = filters;
+
       const result = await User.findAndCountAll({
-        where: { role: 'SALES' },
+        where: userWhere ?? { role: 'SALES' },
         include: [
           {
             model: Store,
             as: 'store',
             attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
+            where: storeWhere,
           },
           {
             model: User,

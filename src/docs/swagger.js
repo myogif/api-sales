@@ -103,6 +103,24 @@ const options = {
           description: 'Filter by store name (case-insensitive, partial match)',
           example: 'Central',
         },
+        UserNameParam: {
+          in: 'query',
+          name: 'name',
+          schema: {
+            type: 'string',
+          },
+          description: 'Filter by user name (case-insensitive, partial match)',
+          example: 'Budi',
+        },
+        UserPhoneParam: {
+          in: 'query',
+          name: 'phone',
+          schema: {
+            type: 'string',
+          },
+          description: 'Filter by user phone number (partial match)',
+          example: '0811',
+        },
         CreatedAtFromParam: {
           in: 'query',
           name: 'created_at_from',

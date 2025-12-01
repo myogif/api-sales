@@ -222,6 +222,10 @@ router.delete('/supervisors/:id', requireManager, deleteSupervisor);
  *       - $ref: '#/components/parameters/LimitParam'
  *       - $ref: '#/components/parameters/SortByParam'
  *       - $ref: '#/components/parameters/SortOrderParam'
+ *       - $ref: '#/components/parameters/UserNameParam'
+ *       - $ref: '#/components/parameters/UserPhoneParam'
+ *       - $ref: '#/components/parameters/StoreIdParam'
+ *       - $ref: '#/components/parameters/StoreNameParam'
  *     responses:
  *       200:
  *         description: Supervisors retrieved successfully
@@ -245,6 +249,10 @@ router.get('/supervisors', requireManagerOrServiceCenter, getSupervisors);
  *       - $ref: '#/components/parameters/LimitParam'
  *       - $ref: '#/components/parameters/SortByParam'
  *       - $ref: '#/components/parameters/SortOrderParam'
+ *       - $ref: '#/components/parameters/UserNameParam'
+ *       - $ref: '#/components/parameters/UserPhoneParam'
+ *       - $ref: '#/components/parameters/StoreIdParam'
+ *       - $ref: '#/components/parameters/StoreNameParam'
  *     responses:
  *       200:
  *         description: Sales users retrieved successfully

@@ -109,6 +109,8 @@ router.get('/sales', getSalesUsers);
  *       - $ref: '#/components/parameters/SortOrderParam'
  *       - $ref: '#/components/parameters/SearchParam'
  *       - $ref: '#/components/parameters/codeParam'
+ *       - $ref: '#/components/parameters/StoreIdParam'
+ *       - $ref: '#/components/parameters/StoreNameParam'
  *       - $ref: '#/components/parameters/CreatedAtFromParam'
  *       - $ref: '#/components/parameters/CreatedAtToParam'
  *       - $ref: '#/components/parameters/CreatorIdParam'
