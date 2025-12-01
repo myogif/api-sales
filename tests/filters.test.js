@@ -5,7 +5,12 @@ const setupModuleMocks = require('./helpers/mock-modules');
 const restoreModuleMocks = setupModuleMocks();
 
 const { Op, fn, col, where } = require('sequelize');
-const { buildProductFilters } = require('../src/utils/filters');
+const {
+  buildProductFilters,
+  buildSupervisorFilters,
+  buildSalesFilters,
+  buildStoreFilters,
+} = require('../src/utils/filters');
 
 const baseUser = { role: 'MANAGER' };
 
@@ -91,4 +96,87 @@ test('buildProductFilters keeps sales results unrestricted when store is missing
   const filters = buildProductFilters({}, { role: 'SALES', store_id: undefined });
 
   assert.equal(filters.storeId, undefined);
+});
+
+test('buildSupervisorFilters applies q to supervisor and store fields', () => {
+  const filters = buildSupervisorFilters({ q: 'Central' }, baseUser);
+
+  const [nameMatcher, phoneMatcher, storeMatcher] = filters[Op.or];
+
+  const expectedNameMatcher = where(
+    fn('LOWER', col('User.name')),
+    { [Op.like]: '%central%' },
+  );
+
+  const expectedPhoneMatcher = where(
+    fn('LOWER', col('User.phone')),
+    { [Op.like]: '%central%' },
+  );
+
+  const expectedStoreMatcher = where(
+    fn('LOWER', col('store.name')),
+    { [Op.like]: '%central%' },
+  );
+
+  assert.equal(filters.role, 'SUPERVISOR');
+  assert.deepEqual(nameMatcher, expectedNameMatcher);
+  assert.deepEqual(phoneMatcher, expectedPhoneMatcher);
+  assert.deepEqual(storeMatcher, expectedStoreMatcher);
+});
+
+test('buildSupervisorFilters limits supervisors to their store when requester is supervisor', () => {
+  const filters = buildSupervisorFilters({}, { role: 'SUPERVISOR', store_id: 'store-123' });
+
+  assert.equal(filters.storeId, 'store-123');
+});
+
+test('buildSalesFilters builds case-insensitive matchers for q', () => {
+  const filters = buildSalesFilters({ q: 'Agent' }, baseUser);
+
+  const [nameMatcher, phoneMatcher, storeMatcher] = filters[Op.or];
+
+  const expectedNameMatcher = where(
+    fn('LOWER', col('User.name')),
+    { [Op.like]: '%agent%' },
+  );
+
+  const expectedPhoneMatcher = where(
+    fn('LOWER', col('User.phone')),
+    { [Op.like]: '%agent%' },
+  );
+
+  const expectedStoreMatcher = where(
+    fn('LOWER', col('store.name')),
+    { [Op.like]: '%agent%' },
+  );
+
+  assert.equal(filters.role, 'SALES');
+  assert.deepEqual(nameMatcher, expectedNameMatcher);
+  assert.deepEqual(phoneMatcher, expectedPhoneMatcher);
+  assert.deepEqual(storeMatcher, expectedStoreMatcher);
+});
+
+test('buildSalesFilters applies mine flag for sales user', () => {
+  const filters = buildSalesFilters({ mine: 'true' }, { role: 'SALES', sub: 'user-1' });
+
+  assert.equal(filters.id, 'user-1');
+});
+
+test('buildStoreFilters builds search matchers for store name and code', () => {
+  const filters = buildStoreFilters({ q: 'Outlet' }, baseUser);
+
+  const [nameMatcher, codeMatcher] = filters[Op.or];
+
+  const expectedNameMatcher = where(
+    fn('LOWER', col('Store.name')),
+    { [Op.like]: '%outlet%' },
+  );
+
+  const expectedCodeMatcher = where(
+    fn('LOWER', col('Store.kode_toko')),
+    { [Op.like]: '%outlet%' },
+  );
+
+  assert.deepEqual(nameMatcher, expectedNameMatcher);
+  assert.deepEqual(codeMatcher, expectedCodeMatcher);
 });

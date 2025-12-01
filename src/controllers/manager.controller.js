@@ -3,11 +3,15 @@ const managerService = require('../services/manager.service');
 const response = require('../utils/response');
 const { handleValidationErrors } = require('../middlewares/validate');
 const { parsePaginationQuery, applyPaginationToFindOptions, buildPaginatedResponse } = require('../utils/pagination');
-const { buildProductFilters, buildCaseInsensitiveLike } = require('../utils/filters');
+const {
+  buildProductFilters,
+  buildCaseInsensitiveLike,
+  buildSupervisorFilters,
+  buildSalesFilters,
+} = require('../utils/filters');
 const { streamProductsXlsx } = require('../utils/excel');
 const { formatProductForOutput } = require('../utils/product-pricing');
 const { Product, Store, User } = require('../models');
-const { Op } = require('sequelize');
 
 const getDashboard = async (req, res, next) => {
   try {
@@ -107,59 +111,17 @@ const deleteSupervisor = async (req, res, next) => {
   }
 };
 
-const buildUserFilters = (query, role) => {
-  const where = { role };
-
-  const andConditions = [];
-
-  if (typeof query.name === 'string' && query.name.trim()) {
-    const matcher = buildCaseInsensitiveLike('User.name', query.name.trim());
-    if (matcher) {
-      andConditions.push(matcher);
-    }
-  }
-
-  if (typeof query.phone === 'string' && query.phone.trim()) {
-    const matcher = buildCaseInsensitiveLike('User.phone', query.phone.trim());
-    if (matcher) {
-      andConditions.push(matcher);
-    }
-  }
-
-  if (andConditions.length > 0) {
-    where[Op.and] = andConditions;
-  }
-
-  const storeFilters = {};
-
-  if (typeof query.store_name === 'string') {
-    const trimmedStoreName = query.store_name.trim();
-    if (trimmedStoreName) {
-      const storeMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
-      if (storeMatcher) {
-        storeFilters[Op.and] = [...(storeFilters[Op.and] || []), storeMatcher];
-      }
-    }
-  }
-
-  if (typeof query.store_id === 'string' && query.store_id.trim()) {
-    storeFilters.id = query.store_id.trim();
-  }
-
-  return { userWhere: where, storeWhere: Object.keys(storeFilters).length ? storeFilters : undefined };
-};
-
 const getSupervisors = async (req, res, next) => {
   try {
     const pageInfo = parsePaginationQuery(req.query);
-    const filters = buildUserFilters(req.query, 'SUPERVISOR');
+    const where = buildSupervisorFilters(req.query, req.user);
     const result = await managerService.getSupervisors(
       pageInfo.page,
       pageInfo.limit,
       pageInfo.offset,
       pageInfo.sortBy,
       pageInfo.sortOrder,
-      filters,
+      where,
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
@@ -172,14 +134,14 @@ const getSupervisors = async (req, res, next) => {
 const getSalesUsers = async (req, res, next) => {
   try {
     const pageInfo = parsePaginationQuery(req.query);
-    const filters = buildUserFilters(req.query, 'SALES');
+    const where = buildSalesFilters(req.query, req.user);
     const result = await managerService.getSalesUsers(
       pageInfo.page,
       pageInfo.limit,
       pageInfo.offset,
       pageInfo.sortBy,
       pageInfo.sortOrder,
-      filters,
+      where,
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
@@ -228,6 +190,7 @@ const getProducts = async (req, res, next) => {
         if (storeNameMatcher) {
           storeInclude.where = storeNameMatcher;
           storeInclude.required = true;
+          where['$store.name$'] = storeNameMatcher;
         }
       }
     }
