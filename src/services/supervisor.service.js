@@ -109,6 +109,11 @@ class SupervisorService {
             as: 'store',
             attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
           },
+          {
+            model: User,
+            as: 'supervisor',
+            attributes: ['id', 'name', 'phone'],
+          },
         ],
       });
 
