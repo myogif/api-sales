@@ -21,9 +21,9 @@ const buildProductFilters = (query, user, sequelize) => {
   // Text search in name, code, notes
   if (query.q) {
     const caseInsensitiveMatchers = [
-      buildCaseInsensitiveLike('name', query.q),
-      buildCaseInsensitiveLike('code', query.q),
-      buildCaseInsensitiveLike('notes', query.q),
+      buildCaseInsensitiveLike('Product.name', query.q),
+      buildCaseInsensitiveLike('Product.code', query.q),
+      buildCaseInsensitiveLike('Product.notes', query.q),
     ].filter(Boolean);
 
     if (caseInsensitiveMatchers.length > 0) {
@@ -46,7 +46,9 @@ const buildProductFilters = (query, user, sequelize) => {
     if (trimmedStoreName) {
       const storeNameMatcher = buildCaseInsensitiveLike('store.name', trimmedStoreName);
       if (storeNameMatcher) {
-        where['$store.name$'] = storeNameMatcher;
+        const andConditions = where[Op.and] || [];
+        andConditions.push(storeNameMatcher);
+        where[Op.and] = andConditions;
       }
     }
   }
