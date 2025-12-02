@@ -44,7 +44,7 @@ router.use(authenticate);
  *                   type: boolean
  *                   example: true
  *       404:
- *         description: Store not found
+ *         description: Toko tidak ditemukan
  *         content:
  *           application/json:
  *             schema:

@@ -4,10 +4,10 @@ const logger = require('../utils/logger');
 
 const SUPERVISOR_LIMIT = 2;
 const SUPERVISOR_LIMIT_ERROR_CODE = 'SUPERVISOR_LIMIT_REACHED';
-const SUPERVISOR_LIMIT_MESSAGE = 'Jumlah SPV SUdah Mencapai Limit';
+const SUPERVISOR_LIMIT_MESSAGE = 'Jumlah supervisor sudah mencapai batas';
 
 const createSupervisorLimitError = () => {
-  const error = new Error('Supervisor limit reached');
+  const error = new Error('Batas supervisor telah tercapai');
   error.code = SUPERVISOR_LIMIT_ERROR_CODE;
   return error;
 };
@@ -98,7 +98,7 @@ class ManagerService {
       const { storeId, ...userData } = supervisorData;
 
       if (!storeId) {
-        throw new Error('Store information is required');
+        throw new Error('Informasi toko wajib diisi');
       }
 
       const store = typeof Store.findByPk === 'function'
@@ -106,7 +106,7 @@ class ManagerService {
         : await Store.findByPk(storeId, { transaction });
 
       if (!store) {
-        throw new Error('Store not found');
+        throw new Error('Toko tidak ditemukan');
       }
 
       await this.ensureSupervisorWithinLimit(storeId, { transaction });
@@ -160,7 +160,7 @@ class ManagerService {
       const storeId = supervisor ? supervisor.storeId : null;
 
       if (!supervisor) {
-        throw new Error('Supervisor not found');
+        throw new Error('Supervisor tidak ditemukan');
       }
 
       const supervisorPhone = supervisor.phone;
@@ -174,7 +174,7 @@ class ManagerService {
         storeId,
       });
 
-      return { message: 'Deleted successfully' };
+      return { message: 'Supervisor berhasil dihapus' };
     } catch (error) {
       if (!transaction.finished) {
         try {

@@ -42,7 +42,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 app.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'Server is healthy',
+    message: 'Server dalam kondisi baik',
     data: {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
@@ -58,7 +58,7 @@ app.use('/api', routes);
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'Rute tidak ditemukan',
     data: null,
   });
 });

@@ -7,7 +7,7 @@ const authenticate = async (req, res, next) => {
     const { authorization } = req.headers;
     
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      return res.status(401).json(response.error('Access token required'));
+      return res.status(401).json(response.error('Token akses wajib disertakan'));
     }
     
     const token = authorization.split(' ')[1];
@@ -17,7 +17,7 @@ const authenticate = async (req, res, next) => {
     const user = await User.findByPk(decoded.sub);
     
     if (!user || !user.isActive) {
-      return res.status(401).json(response.error('Invalid or expired token'));
+      return res.status(401).json(response.error('Token tidak valid atau kedaluwarsa'));
     }
     
     // Attach user and token payload to request
@@ -27,12 +27,12 @@ const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json(response.error('Invalid token'));
+      return res.status(401).json(response.error('Token tidak valid'));
     }
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json(response.error('Token expired'));
+      return res.status(401).json(response.error('Token kedaluwarsa'));
     }
-    return res.status(500).json(response.error('Authentication error'));
+    return res.status(500).json(response.error('Kesalahan autentikasi'));
   }
 };
 

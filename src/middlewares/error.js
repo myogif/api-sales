@@ -17,41 +17,41 @@ const errorHandler = (err, req, res, next) => {
   // Sequelize validation error
   if (err.name === 'SequelizeValidationError') {
     const errors = err.errors.map((error) => error.message);
-    return res.status(400).json(response.error('Validation failed', errors));
+    return res.status(400).json(response.error('Validasi gagal', errors));
   }
 
   // Sequelize unique constraint error
   if (err.name === 'SequelizeUniqueConstraintError') {
     const field = err.errors[0]?.path;
-    const message = field ? `${field} already exists` : 'Duplicate entry';
+    const message = field ? `${field} sudah ada` : 'Entri duplikat';
     return res.status(409).json(response.error(message));
   }
 
   // Sequelize foreign key constraint error
   if (err.name === 'SequelizeForeignKeyConstraintError') {
-    return res.status(400).json(response.error('Invalid reference to related record'));
+    return res.status(400).json(response.error('Referensi ke data terkait tidak valid'));
   }
 
   // Sequelize database connection error
   if (err.name === 'SequelizeConnectionError') {
-    return res.status(503).json(response.error('Database connection error'));
+    return res.status(503).json(response.error('Kesalahan koneksi basis data'));
   }
 
   // JWT errors (handled in auth middleware but just in case)
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json(response.error('Invalid token'));
+    return res.status(401).json(response.error('Token tidak valid'));
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json(response.error('Token expired'));
+    return res.status(401).json(response.error('Token kedaluwarsa'));
   }
 
   // Default to 500 server error
   res.status(err.statusCode || 500).json(
     response.error(
-      process.env.NODE_ENV === 'production' 
-        ? 'Internal server error' 
-        : error.message || 'Something went wrong',
+      process.env.NODE_ENV === 'production'
+        ? 'Terjadi kesalahan pada server'
+        : error.message || 'Terjadi kesalahan',
     ),
   );
 };

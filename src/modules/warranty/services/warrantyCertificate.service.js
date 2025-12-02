@@ -22,7 +22,7 @@ const loadTemplate = async () => {
     return cachedTemplate;
   } catch (error) {
     logger.error('Failed to load warranty template', error);
-    throw new Error('Template file not found');
+    throw new Error('Berkas template tidak ditemukan');
   }
 };
 

@@ -11,17 +11,17 @@ const { Product, Store, User } = require('../models');
 const createSalesValidation = [
   body('phone')
     .notEmpty()
-    .withMessage('Phone number is required')
+    .withMessage('Nomor telepon wajib diisi')
     .isLength({ min: 10, max: 20 })
-    .withMessage('Phone number must be between 10 and 20 characters'),
+    .withMessage('Nomor telepon harus antara 10 hingga 20 karakter'),
   body('password')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .withMessage('Kata sandi harus memiliki minimal 6 karakter'),
   body('name')
     .notEmpty()
-    .withMessage('Name is required')
+    .withMessage('Nama wajib diisi')
     .isLength({ min: 2, max: 100 })
-    .withMessage('Name must be between 2 and 100 characters'),
+    .withMessage('Nama harus antara 2 hingga 100 karakter'),
 ];
 
 const createSalesUser = async (req, res, next) => {
@@ -30,7 +30,7 @@ const createSalesUser = async (req, res, next) => {
     const storeId = req.user.store_id;
     
     const salesUser = await supervisorService.createSalesUser(supervisorId, storeId, req.body);
-    res.status(201).json(response.success('Sales user created successfully', salesUser));
+    res.status(201).json(response.success('Sales berhasil dibuat', salesUser));
   } catch (error) {
     if (error.code === supervisorService.SALES_LIMIT_ERROR_CODE) {
       return res.status(422).json({
@@ -49,10 +49,10 @@ const deleteSalesUser = async (req, res, next) => {
     const supervisorId = req.user.sub;
 
     const result = await supervisorService.deleteSalesUser(id, supervisorId);
-    res.json(response.success('Deleted successfully', result));
+    res.json(response.success('Sales berhasil dihapus', result));
   } catch (error) {
-    if (error.message === 'Sales user not found') {
-      return res.status(404).json(response.error('Sales user not found'));
+    if (error.message === 'Sales tidak ditemukan') {
+      return res.status(404).json(response.error('Sales tidak ditemukan'));
     }
     next(error);
   }
@@ -65,10 +65,10 @@ const deleteProduct = async (req, res, next) => {
     const storeId = req.user.store_id;
 
     const result = await supervisorService.deleteProduct(id, supervisorId, storeId);
-    res.json(response.success('Product deleted successfully', result));
+    res.json(response.success('Produk berhasil dihapus', result));
   } catch (error) {
-    if (error.message === 'Product not found') {
-      return res.status(404).json(response.error('Product not found'));
+    if (error.message === 'Produk tidak ditemukan') {
+      return res.status(404).json(response.error('Produk tidak ditemukan'));
     }
     next(error);
   }
@@ -80,7 +80,7 @@ const getSalesUsers = async (req, res, next) => {
     const storeId = req.user.store_id;
     
     const salesUsers = await supervisorService.getSalesUsers(supervisorId, storeId);
-    res.json(response.success('Sales users retrieved successfully', salesUsers));
+    res.json(response.success('Data sales berhasil diambil', salesUsers));
   } catch (error) {
     next(error);
   }
@@ -156,7 +156,7 @@ const getProducts = async (req, res, next) => {
     };
 
     const paginatedResponse = buildPaginatedResponse(formattedResult, pageInfo);
-    res.json(response.paginated('Products retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Produk berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }

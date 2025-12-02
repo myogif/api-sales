@@ -13,7 +13,7 @@ const router = express.Router();
 router.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'API is healthy',
+    message: 'API dalam kondisi baik',
     data: {
       timestamp: new Date().toISOString(),
       version: '1.0.0',

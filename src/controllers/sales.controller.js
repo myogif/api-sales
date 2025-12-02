@@ -15,49 +15,49 @@ const { PRODUCT_LIMIT_ERROR_CODE } = productService;
 const createProductValidation = [
   body('name')
     .notEmpty()
-    .withMessage('Product name is required')
+    .withMessage('Nama produk wajib diisi')
     .isLength({ min: 2, max: 200 })
-    .withMessage('Product name must be between 2 and 200 characters'),
+    .withMessage('Nama produk harus antara 2 hingga 200 karakter'),
   body('tipe')
     .notEmpty()
-    .withMessage('Product type is required')
+    .withMessage('Tipe produk wajib diisi')
     .isLength({ max: 100 })
-    .withMessage('Product type cannot exceed 100 characters'),
+    .withMessage('Tipe produk tidak boleh lebih dari 100 karakter'),
   body('code')
     .notEmpty()
-    .withMessage('Product code is required')
+    .withMessage('Kode produk wajib diisi')
     .isLength({ min: 2, max: 50 })
-    .withMessage('Product code must be between 2 and 50 characters'),
+    .withMessage('Kode produk harus antara 2 hingga 50 karakter'),
   body('price')
     .notEmpty()
-    .withMessage('Price is required')
+    .withMessage('Harga wajib diisi')
     .isFloat({ min: 0 })
-    .withMessage('Price must be a non-negative number')
+    .withMessage('Harga harus berupa angka tidak negatif')
     .toFloat(),
   body('persen')
     .notEmpty()
-    .withMessage('Persen is required')
+    .withMessage('Persen wajib diisi')
     .isFloat({ gt: 0 })
-    .withMessage('Persen must be a positive number')
+    .withMessage('Persen harus berupa angka positif')
     .toFloat(),
   body('notes')
     .optional()
     .isLength({ max: 1000 })
-    .withMessage('Notes cannot exceed 1000 characters'),
+    .withMessage('Catatan tidak boleh lebih dari 1000 karakter'),
   body('customer_name')
     .optional()
     .isLength({ max: 200 })
-    .withMessage('Customer name cannot exceed 200 characters'),
+    .withMessage('Nama pelanggan tidak boleh lebih dari 200 karakter'),
   body('customer_phone')
     .optional()
     .isLength({ max: 50 })
-    .withMessage('Customer phone cannot exceed 50 characters'),
+    .withMessage('Nomor telepon pelanggan tidak boleh lebih dari 50 karakter'),
   body()
     .custom((value, { req }) => {
       const phone = req.body.customer_phone ?? req.body.customerPhone;
 
       if (phone === undefined || phone === null || String(phone).trim() === '') {
-        throw new Error('Customer phone is required');
+        throw new Error('Nomor telepon pelanggan wajib diisi');
       }
 
       return true;
@@ -65,23 +65,23 @@ const createProductValidation = [
   body('customer_email')
     .optional()
     .isEmail()
-    .withMessage('Customer email must be a valid email address')
+    .withMessage('Email pelanggan harus berupa alamat email yang valid')
     .isLength({ max: 150 })
-    .withMessage('Customer email cannot exceed 150 characters'),
+    .withMessage('Email pelanggan tidak boleh lebih dari 150 karakter'),
   body('invoice_number')
     .notEmpty()
-    .withMessage('Invoice number is required')
+    .withMessage('Nomor nota wajib diisi')
     .isString()
-    .withMessage('Invoice number must be a string'),
+    .withMessage('Nomor nota harus berupa string'),
   body('warranty_months')
     .notEmpty()
-    .withMessage('Warranty months is required')
+    .withMessage('Lama garansi (bulan) wajib diisi')
     .isInt({ gt: 0 })
-    .withMessage('Warranty months must be a positive integer'),
+    .withMessage('Lama garansi (bulan) harus berupa bilangan bulat positif'),
   body('price_warranty')
     .optional()
     .isFloat({ min: 0 })
-    .withMessage('Price warranty must be a non-negative number')
+    .withMessage('Harga garansi harus berupa angka tidak negatif')
     .toFloat(),
 ];
 
@@ -92,7 +92,7 @@ const createProduct = async (req, res, next) => {
 
     const product = await salesService.createProduct(creatorId, storeId, req.body);
     res.status(201).json(
-      response.success('Product created successfully', formatProductForOutput(product)),
+      response.success('Produk berhasil dibuat', formatProductForOutput(product)),
     );
   } catch (error) {
     if (error.code === PRODUCT_LIMIT_ERROR_CODE) {
@@ -104,7 +104,7 @@ const createProduct = async (req, res, next) => {
     }
 
     if (error.code === STORE_NOT_FOUND_ERROR_CODE) {
-      return res.status(404).json(response.error('Store not found'));
+      return res.status(404).json(response.error('Toko tidak ditemukan'));
     }
 
     next(error);
@@ -114,16 +114,16 @@ const createProduct = async (req, res, next) => {
 const updateProductValidation = [
   param('id')
     .isUUID()
-    .withMessage('Product id must be a valid UUID'),
+    .withMessage('ID produk harus berupa UUID yang valid'),
   body('isActive')
     .exists()
-    .withMessage('isActive is required')
+    .withMessage('isActive wajib diisi')
     .isBoolean()
-    .withMessage('isActive must be a boolean')
+    .withMessage('isActive harus berupa boolean')
     .toBoolean()
     .custom((value) => {
       if (value !== false) {
-        throw new Error('Products can only be deactivated (isActive must be false)');
+        throw new Error('Produk hanya dapat dinonaktifkan (isActive harus bernilai false)');
       }
       return true;
     }),
@@ -133,7 +133,7 @@ const updateProductValidation = [
       const invalidFields = Object.keys(req.body).filter((field) => !allowedFields.includes(field));
 
       if (invalidFields.length > 0) {
-        throw new Error('Only isActive can be updated for a product');
+        throw new Error('Hanya isActive yang dapat diperbarui untuk produk');
       }
 
       return true;
@@ -146,10 +146,10 @@ const deleteProduct = async (req, res, next) => {
     const creatorId = req.user.sub;
 
     const result = await salesService.deleteProduct(id, creatorId);
-    res.json(response.success('Product deleted successfully', result));
+    res.json(response.success('Produk berhasil dihapus', result));
   } catch (error) {
-    if (error.message === 'Product not found') {
-      return res.status(404).json(response.error('Product not found'));
+    if (error.message === 'Produk tidak ditemukan') {
+      return res.status(404).json(response.error('Produk tidak ditemukan'));
     }
     next(error);
   }
@@ -161,10 +161,10 @@ const updateProduct = async (req, res, next) => {
     const creatorId = req.user.sub;
 
     const product = await salesService.updateProduct(id, creatorId, req.body);
-    res.json(response.success('Product updated successfully', formatProductForOutput(product)));
+    res.json(response.success('Produk berhasil diperbarui', formatProductForOutput(product)));
   } catch (error) {
-    if (error.message === 'Product not found') {
-      return res.status(404).json(response.error('Product not found'));
+    if (error.message === 'Produk tidak ditemukan') {
+      return res.status(404).json(response.error('Produk tidak ditemukan'));
     }
     next(error);
   }
@@ -236,7 +236,7 @@ const getProducts = async (req, res, next) => {
     };
 
     const paginatedResponse = buildPaginatedResponse(formattedResult, pageInfo);
-    res.json(response.paginated('Products retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Produk berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }
