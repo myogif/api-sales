@@ -43,6 +43,23 @@ const sanitizeProductPayload = (data = {}) => {
     sanitized.persen = data.persen;
   }
 
+  const invoiceNumberValue = Object.prototype.hasOwnProperty.call(data, 'invoiceNumber')
+    ? data.invoiceNumber
+    : data.invoice_number;
+  if (invoiceNumberValue !== undefined) {
+    sanitized.invoiceNumber = mapNullableString(invoiceNumberValue);
+  }
+
+  const warrantyMonthsValue = Object.prototype.hasOwnProperty.call(data, 'warrantyMonths')
+    ? data.warrantyMonths
+    : data.warranty_months;
+  if (warrantyMonthsValue !== undefined) {
+    const numericWarrantyMonths = Number(warrantyMonthsValue);
+    sanitized.warrantyMonths = Number.isNaN(numericWarrantyMonths)
+      ? warrantyMonthsValue
+      : numericWarrantyMonths;
+  }
+
   if (Object.prototype.hasOwnProperty.call(data, 'isActive')) {
     sanitized.isActive = data.isActive;
   }

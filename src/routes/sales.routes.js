@@ -21,6 +21,7 @@ router.use(authenticate, requireSales);
  * /api/sales/products:
  *   post:
  *     summary: Create a product
+ *     description: The warranty_months value must be supplied by the client (e.g. 3% -> 6 months). The backend only validates and stores the provided value.
  *     tags: [Sales]
  *     security:
  *       - bearerAuth: []
