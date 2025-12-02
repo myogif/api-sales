@@ -18,13 +18,13 @@ class AuthService {
       });
 
       if (!user) {
-        throw new Error('Invalid credentials');
+        throw new Error('Kredensial tidak valid');
       }
 
       // Check password
       const isValidPassword = await user.comparePassword(password);
       if (!isValidPassword) {
-        throw new Error('Invalid credentials');
+        throw new Error('Kredensial tidak valid');
       }
 
       // Generate token
@@ -82,7 +82,7 @@ class AuthService {
         const userWithPassword = await User.scope('withPassword').findByPk(user.id);
 
         if (!userWithPassword) {
-          const notFoundError = new Error('User not found');
+          const notFoundError = new Error('Pengguna tidak ditemukan');
           notFoundError.statusCode = 404;
           throw notFoundError;
         }
@@ -90,7 +90,7 @@ class AuthService {
         const isValid = await userWithPassword.comparePassword(currentPassword);
 
         if (!isValid) {
-          const invalidPasswordError = new Error('Current password is incorrect');
+          const invalidPasswordError = new Error('Kata sandi saat ini tidak benar');
           invalidPasswordError.statusCode = 400;
           throw invalidPasswordError;
         }

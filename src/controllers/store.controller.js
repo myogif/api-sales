@@ -31,7 +31,7 @@ const getStoresPaginated = async (req, res, next) => {
     });
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
-    res.json(response.paginated('Stores retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Data toko berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }
@@ -40,7 +40,7 @@ const getStoresPaginated = async (req, res, next) => {
 const getAllStores = async (req, res, next) => {
   try {
     const stores = await storeService.getAllStores();
-    res.json(response.success('Stores fetched successfully', stores));
+    res.json(response.success('Data toko berhasil diambil', stores));
   } catch (error) {
     next(error);
   }
@@ -52,7 +52,7 @@ const createStore = async (req, res, next) => {
 
     logger.info('Store created:', { storeId: store.id, storeName: store.name });
 
-    res.status(201).json(response.success('Store created successfully', store));
+    res.status(201).json(response.success('Toko berhasil dibuat', store));
   } catch (error) {
     if (error.code === storeService.STORE_LIMIT_ERROR_CODE) {
       return res.status(422).json({
@@ -70,15 +70,15 @@ const deleteStore = async (req, res, next) => {
     const { id } = req.params;
     const result = await storeService.deleteStore(id);
 
-    res.json(response.success('Deleted successfully', result));
+    res.json(response.success('Toko berhasil dihapus', result));
   } catch (error) {
     if (error.code === storeService.STORE_NOT_FOUND_ERROR_CODE) {
-      return res.status(404).json(response.error('Store not found'));
+      return res.status(404).json(response.error('Toko tidak ditemukan'));
     }
     if (error.code === storeService.STORE_HAS_PRODUCTS_ERROR_CODE) {
       return res.json({
         success: false,
-        message: 'Cannot delete store because products exist under this store.',
+        message: 'Tidak dapat menghapus toko karena masih ada produk yang terdaftar pada toko ini.',
       });
     }
     next(error);

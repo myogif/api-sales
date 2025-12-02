@@ -383,7 +383,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Operation successful',
+              example: 'Operasi berhasil',
             },
             data: {
               type: 'object',
@@ -400,14 +400,14 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Product deleted successfully',
+              example: 'Produk berhasil dihapus',
             },
             data: {
               type: 'object',
               properties: {
                 message: {
                   type: 'string',
-                  example: 'Product deleted successfully',
+                  example: 'Produk berhasil dihapus',
                 },
               },
             },
@@ -422,7 +422,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'An error occurred',
+              example: 'Terjadi kesalahan',
             },
             errors: {
               type: 'array',
@@ -446,7 +446,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Login successful',
+              example: 'Login berhasil',
             },
             data: {
               type: 'object',
@@ -471,7 +471,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Password updated successfully',
+              example: 'Kata sandi berhasil diperbarui',
             },
             data: {
               $ref: '#/components/schemas/User',
@@ -487,7 +487,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Dashboard data retrieved successfully',
+              example: 'Data dashboard berhasil diambil',
             },
             data: {
               type: 'object',
@@ -521,7 +521,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Monthly product summary retrieved successfully',
+              example: 'Ringkasan produk bulanan berhasil diambil',
             },
             data: {
               type: 'object',
@@ -559,7 +559,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'User retrieved successfully',
+              example: 'Data pengguna berhasil diambil',
             },
             data: {
               $ref: '#/components/schemas/User',
@@ -575,7 +575,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Users retrieved successfully',
+              example: 'Data pengguna berhasil diambil',
             },
             data: {
               type: 'array',
@@ -594,7 +594,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Users retrieved successfully',
+              example: 'Data pengguna berhasil diambil',
             },
             data: {
               type: 'object',
@@ -621,7 +621,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Product retrieved successfully',
+              example: 'Produk berhasil diambil',
             },
             data: {
               $ref: '#/components/schemas/Product',
@@ -637,7 +637,7 @@ const options = {
             },
             message: {
               type: 'string',
-              example: 'Products retrieved successfully',
+              example: 'Produk berhasil diambil',
             },
             data: {
               type: 'object',

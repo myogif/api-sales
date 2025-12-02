@@ -3,10 +3,10 @@ const logger = require('../utils/logger');
 
 const SALES_LIMIT = 20;
 const SALES_LIMIT_ERROR_CODE = 'SALES_LIMIT_REACHED';
-const SALES_LIMIT_MESSAGE = 'Jumlah Sales SUdah Mencapai Limit';
+const SALES_LIMIT_MESSAGE = 'Jumlah sales sudah mencapai batas';
 
 const createSalesLimitError = () => {
-  const error = new Error('Sales limit reached');
+  const error = new Error('Batas sales telah tercapai');
   error.code = SALES_LIMIT_ERROR_CODE;
   return error;
 };
@@ -76,7 +76,7 @@ class SupervisorService {
       });
 
       if (!salesUser) {
-        throw new Error('Sales user not found');
+        throw new Error('Sales tidak ditemukan');
       }
 
       await salesUser.destroy();
@@ -87,7 +87,7 @@ class SupervisorService {
         phone: salesUser.phone,
       });
 
-      return { message: 'Deleted successfully' };
+      return { message: 'Sales berhasil dihapus' };
     } catch (error) {
       logger.error('Failed to delete sales user:', error);
       throw error;
@@ -133,7 +133,7 @@ class SupervisorService {
       });
 
       if (!product) {
-        throw new Error('Product not found');
+        throw new Error('Produk tidak ditemukan');
       }
 
       await product.destroy();
@@ -145,7 +145,7 @@ class SupervisorService {
         code: product.code,
       });
 
-      return { message: 'Product deleted successfully' };
+      return { message: 'Produk berhasil dihapus' };
     } catch (error) {
       logger.error('Failed to delete product:', error);
       throw error;

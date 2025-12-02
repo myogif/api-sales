@@ -32,7 +32,7 @@ router.use(authenticate, requireSupervisor);
  *             $ref: '#/components/schemas/CreateSalesRequest'
  *     responses:
  *       201:
- *         description: Sales user created successfully
+ *         description: Sales berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -68,7 +68,7 @@ router.post('/sales', createSalesValidation, handleValidationErrors, createSales
  *           format: uuid
  *     responses:
  *       200:
- *         description: Sales user deleted successfully
+ *         description: Sales berhasil dihapus
  *         content:
  *           application/json:
  *             schema:
@@ -86,7 +86,7 @@ router.delete('/sales/:id', deleteSalesUser);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Sales users retrieved successfully
+ *         description: Data sales berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -117,7 +117,7 @@ router.get('/sales', getSalesUsers);
  *       - $ref: '#/components/parameters/ExportParam'
  *     responses:
  *       200:
- *         description: Products retrieved successfully
+ *         description: Produk berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -146,13 +146,13 @@ router.get('/products', getProducts);
  *           format: uuid
  *     responses:
  *       200:
- *         description: Product deleted successfully
+ *         description: Produk berhasil dihapus
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/SupervisorDeleteProductResponse'
  *       404:
- *         description: Product not found
+ *         description: Produk tidak ditemukan
  *         content:
  *           application/json:
  *             schema:

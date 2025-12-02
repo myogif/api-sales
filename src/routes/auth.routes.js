@@ -27,13 +27,13 @@ const router = express.Router();
  *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Login berhasil
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/LoginResponse'
  *       401:
- *         description: Invalid credentials
+ *         description: Kredensial tidak valid
  *         content:
  *           application/json:
  *             schema:
@@ -63,7 +63,7 @@ router.post('/login', loginLimiter, loginValidation, handleValidationErrors, log
  *             $ref: '#/components/schemas/UpdatePasswordRequest'
  *     responses:
  *       200:
- *         description: Password updated successfully
+ *         description: Kata sandi berhasil diperbarui
  *         content:
  *           application/json:
  *             schema:
@@ -103,13 +103,13 @@ router.put(
  *             $ref: '#/components/schemas/ForgotPasswordRequest'
  *     responses:
  *       200:
- *         description: Password updated successfully
+ *         description: Kata sandi berhasil diperbarui
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/SuccessResponse'
  *       404:
- *         description: User with the provided phone number was not found
+ *         description: Pengguna dengan nomor telepon tersebut tidak ditemukan
  *         content:
  *           application/json:
  *             schema:

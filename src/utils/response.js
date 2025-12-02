@@ -1,17 +1,17 @@
-const success = (message = 'Success', data = null) => ({
+const success = (message = 'Berhasil', data = null) => ({
   success: true,
   message,
   data,
 });
 
-const error = (message = 'An error occurred', errors = null) => ({
+const error = (message = 'Terjadi kesalahan', errors = null) => ({
   success: false,
   message,
   errors,
   data: null,
 });
 
-const paginated = (message = 'Data retrieved successfully', data) => ({
+const paginated = (message = 'Data berhasil diambil', data) => ({
   success: true,
   message,
   data,
@@ -19,7 +19,7 @@ const paginated = (message = 'Data retrieved successfully', data) => ({
 
 const validation = (errors) => ({
   success: false,
-  message: 'Validation failed',
+  message: 'Validasi gagal',
   errors: errors.map((err) => err.msg),
   data: null,
 });

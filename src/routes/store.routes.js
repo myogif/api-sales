@@ -11,13 +11,13 @@ router.use(authenticate);
  * @swagger
  * /api/toko:
  *   get:
- *     summary: Get all stores without pagination
+ *     summary: Ambil semua toko tanpa pagination
  *     tags: [Store]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Stores fetched successfully
+ *         description: Data toko berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -28,7 +28,7 @@ router.use(authenticate);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Stores fetched successfully
+ *                   example: Data toko berhasil diambil
  *                 data:
  *                   type: array
  *                   items:
@@ -40,7 +40,7 @@ router.get('/', getAllStores);
  * @swagger
  * /api/toko/check-limit:
  *   get:
- *     summary: Check toko creation limit
+ *     summary: Periksa batas pembuatan toko
  *     tags: [Store]
  *     security:
  *       - bearerAuth: []
@@ -68,7 +68,7 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  * @swagger
  * /api/toko:
  *   post:
- *     summary: Create a new store
+ *     summary: Buat toko baru
  *     tags: [Store]
  *     security:
  *       - bearerAuth: []
@@ -103,7 +103,7 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  *                 example: true
  *     responses:
  *       201:
- *         description: Store created successfully
+ *         description: Toko berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -114,7 +114,7 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Store created successfully
+ *                   example: Toko berhasil dibuat
  *                 data:
  *                   $ref: '#/components/schemas/Store'
  */
@@ -124,7 +124,7 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  * @swagger
  * /api/toko/{id}:
  *   delete:
- *     summary: Delete a store
+ *     summary: Hapus toko
  *     tags: [Store]
  *     security:
  *       - bearerAuth: []
@@ -137,7 +137,7 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  *           format: uuid
  *     responses:
  *       200:
- *         description: Store deleted successfully
+ *         description: Toko berhasil dihapus
  *         content:
  *           application/json:
  *             schema:
@@ -148,15 +148,15 @@ router.get('/check-limit', requireManagerOrServiceCenter, checkStoreLimit);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Store deleted successfully
+ *                   example: Toko berhasil dihapus
  *                 data:
  *                   type: object
  *                   properties:
  *                     message:
  *                       type: string
- *                       example: Store deleted successfully
+ *                       example: Toko berhasil dihapus
  *       404:
- *         description: Store not found
+ *         description: Toko tidak ditemukan
  */
 router.delete('/:id', requireManager, deleteStore);
 

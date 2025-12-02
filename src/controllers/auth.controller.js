@@ -11,7 +11,7 @@ const loginLimiter = rateLimit({
   max: config.rateLimit.max,
   message: {
     success: false,
-    message: 'Too many login attempts, please try again later',
+    message: 'Terlalu banyak percobaan masuk, silakan coba lagi nanti',
     data: null,
   },
   standardHeaders: true,
@@ -21,35 +21,35 @@ const loginLimiter = rateLimit({
 const loginValidation = [
   body('phone')
     .notEmpty()
-    .withMessage('Phone number is required')
+    .withMessage('Nomor telepon wajib diisi')
     .isLength({ min: 10, max: 20 })
-    .withMessage('Phone number must be between 10 and 20 characters'),
+    .withMessage('Nomor telepon harus antara 10 hingga 20 karakter'),
   body('password')
     .notEmpty()
-    .withMessage('Password is required')
+    .withMessage('Kata sandi wajib diisi')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .withMessage('Kata sandi harus memiliki minimal 6 karakter'),
 ];
 
 const forgotPasswordValidation = [
   body('phone')
     .notEmpty()
-    .withMessage('Phone number is required')
+    .withMessage('Nomor telepon wajib diisi')
     .isLength({ min: 10, max: 20 })
-    .withMessage('Phone number must be between 10 and 20 characters'),
-  ];
+    .withMessage('Nomor telepon harus antara 10 hingga 20 karakter'),
+];
 const updatePasswordValidation = [
   body('newPassword')
     .notEmpty()
-    .withMessage('New password is required')
+    .withMessage('Kata sandi baru wajib diisi')
     .isLength({ min: 6 })
-    .withMessage('New password must be at least 6 characters'),
+    .withMessage('Kata sandi baru harus memiliki minimal 6 karakter'),
   body('currentPassword')
     .optional()
     .isString()
-    .withMessage('Current password must be a string')
+    .withMessage('Kata sandi saat ini harus berupa string')
     .isLength({ min: 6 })
-    .withMessage('Current password must be at least 6 characters'),
+    .withMessage('Kata sandi saat ini harus memiliki minimal 6 karakter'),
 ];
 
 const login = async (req, res, next) => {
@@ -58,10 +58,10 @@ const login = async (req, res, next) => {
 
     const result = await authService.login(phone, password);
 
-    res.json(response.success('Login successful', result));
+    res.json(response.success('Login berhasil', result));
   } catch (error) {
-    if (error.message === 'Invalid credentials') {
-      return res.status(401).json(response.error('Invalid phone number or password'));
+    if (error.message === 'Kredensial tidak valid') {
+      return res.status(401).json(response.error('Nomor telepon atau kata sandi tidak valid'));
     }
     next(error);
   }
@@ -76,10 +76,10 @@ const forgotPassword = async (req, res, next) => {
     if (!user) {
       return res
         .status(404)
-        .json(response.error('Active user with the provided phone number was not found'));
+        .json(response.error('Pengguna aktif dengan nomor telepon tersebut tidak ditemukan'));
     }
 
-    return res.json(response.success('Password updated successfully', user));
+    return res.json(response.success('Kata sandi berhasil diperbarui', user));
   } catch (error) {
      if (error.statusCode) {
       return res.status(error.statusCode).json(response.error(error.message));
@@ -96,7 +96,7 @@ const updatePassword = async (req, res, next) => {
 
     const updatedUser = await authService.updatePassword(req.currentUser, { currentPassword });
 
-    res.json(response.success('Password updated successfully', updatedUser));
+    res.json(response.success('Kata sandi berhasil diperbarui', updatedUser));
   } catch (error) {
     if (error.statusCode) {
       return res.status(error.statusCode).json(response.error(error.message));

@@ -29,7 +29,7 @@ router.use(authenticate);
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Dashboard data retrieved successfully
+ *         description: Data dashboard berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -55,7 +55,7 @@ router.get('/dashboard', requireManagerOrServiceCenter, getDashboard);
  *         description: Search by store name or kode_toko
  *     responses:
  *       200:
- *         description: Stores retrieved successfully
+ *         description: Data toko berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -66,7 +66,7 @@ router.get('/dashboard', requireManagerOrServiceCenter, getDashboard);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Stores retrieved successfully
+ *                   example: Data toko berhasil diambil
  *                 data:
  *                   type: object
  *                   properties:
@@ -83,7 +83,7 @@ router.get('/stores', requireManagerOrServiceCenter, getStoresPaginated);
  * @swagger
  * /api/managers/stores:
  *   post:
- *     summary: Create a new store
+ *     summary: Buat toko baru
  *     tags: [Manager]
  *     security:
  *       - bearerAuth: []
@@ -118,7 +118,7 @@ router.get('/stores', requireManagerOrServiceCenter, getStoresPaginated);
  *                 example: true
  *     responses:
  *       201:
- *         description: Store created successfully
+ *         description: Toko berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -129,7 +129,7 @@ router.get('/stores', requireManagerOrServiceCenter, getStoresPaginated);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Store created successfully
+ *                   example: Toko berhasil dibuat
  *                 data:
  *                   $ref: '#/components/schemas/Store'
  */
@@ -139,7 +139,7 @@ router.post('/stores', requireManager, createStore);
  * @swagger
  * /api/managers/add-supervisors:
  *   post:
- *     summary: Create a supervisor
+ *     summary: Buat supervisor
  *     tags: [Manager]
  *     security:
  *       - bearerAuth: []
@@ -151,13 +151,13 @@ router.post('/stores', requireManager, createStore);
  *             $ref: '#/components/schemas/CreateSupervisorRequest'
  *     responses:
  *       201:
- *         description: Supervisor created successfully
+ *         description: Supervisor berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserResponse'
  *       400:
- *         description: Invalid input
+ *         description: Input tidak valid
  *       422:
  *         description: Store creation limit reached
  *         content:
@@ -201,7 +201,7 @@ router.post(
  *           format: uuid
  *     responses:
  *       200:
- *         description: Supervisor deleted successfully
+ *         description: Supervisor berhasil dihapus
  *         content:
  *           application/json:
  *             schema:
@@ -228,7 +228,7 @@ router.delete('/supervisors/:id', requireManager, deleteSupervisor);
  *       - $ref: '#/components/parameters/StoreNameParam'
  *     responses:
  *       200:
- *         description: Supervisors retrieved successfully
+ *         description: Data supervisor berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -255,7 +255,7 @@ router.get('/supervisors', requireManagerOrServiceCenter, getSupervisors);
  *       - $ref: '#/components/parameters/StoreNameParam'
  *     responses:
  *       200:
- *         description: Sales users retrieved successfully
+ *         description: Data sales berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -281,7 +281,7 @@ router.get('/sales', requireManagerOrServiceCenter, getSalesUsers);
  *         description: Year to summarise. Defaults to the current year when omitted.
  *     responses:
  *       200:
- *         description: Monthly product summary retrieved successfully
+ *         description: Ringkasan produk bulanan berhasil diambil
  *         content:
  *           application/json:
  *             schema:
@@ -313,7 +313,7 @@ router.get('/products/monthly-summary', requireManagerOrServiceCenter, getMonthl
  *       - $ref: '#/components/parameters/ExportParam'
  *     responses:
  *       200:
- *         description: Products retrieved successfully
+ *         description: Produk berhasil diambil
  *         content:
  *           application/json:
  *             schema:

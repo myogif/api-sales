@@ -16,7 +16,7 @@ const { Product, Store, User } = require('../models');
 const getDashboard = async (req, res, next) => {
   try {
     const dashboard = await managerService.getDashboard();
-    res.json(response.success('Dashboard data retrieved successfully', dashboard));
+    res.json(response.success('Data dashboard berhasil diambil', dashboard));
   } catch (error) {
     next(error);
   }
@@ -32,13 +32,13 @@ const getMonthlyProductSummary = async (req, res, next) => {
     if (typeof yearQuery !== 'undefined' && yearQuery !== '') {
       const parsedYear = Number(yearQuery);
       if (!Number.isInteger(parsedYear) || parsedYear < 1900 || parsedYear > 9999) {
-        return res.status(400).json(response.error('Year must be an integer between 1900 and 9999'));
+        return res.status(400).json(response.error('Tahun harus berupa bilangan bulat antara 1900 dan 9999'));
       }
       year = parsedYear;
     }
 
     const summary = await managerService.getMonthlyProductSummary(year);
-    res.json(response.success('Monthly product summary retrieved successfully', summary));
+    res.json(response.success('Ringkasan produk bulanan berhasil diambil', summary));
   } catch (error) {
     next(error);
   }
@@ -47,29 +47,29 @@ const getMonthlyProductSummary = async (req, res, next) => {
 const createSupervisorValidation = [
   body('phone')
     .notEmpty()
-    .withMessage('Phone number is required')
+    .withMessage('Nomor telepon wajib diisi')
     .isLength({ min: 10, max: 20 })
-    .withMessage('Phone number must be between 10 and 20 characters'),
+    .withMessage('Nomor telepon harus antara 10 hingga 20 karakter'),
   body('password')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .withMessage('Kata sandi harus memiliki minimal 6 karakter'),
   body('name')
     .notEmpty()
-    .withMessage('Name is required')
+    .withMessage('Nama wajib diisi')
     .isLength({ min: 2, max: 100 })
-    .withMessage('Name must be between 2 and 100 characters'),
+    .withMessage('Nama harus antara 2 hingga 100 karakter'),
   body('storeId')
     .notEmpty()
-    .withMessage('Store ID is required')
+    .withMessage('ID toko wajib diisi')
     .isUUID()
-    .withMessage('Store ID must be a valid UUID'),
+    .withMessage('ID toko harus berupa UUID yang valid'),
   body().custom((_, { req }) => {
     if (req.body.store) {
-      throw new Error('Store creation is no longer supported in this endpoint');
+      throw new Error('Pembuatan toko tidak lagi didukung pada endpoint ini');
     }
 
     if (typeof req.body.storeIds !== 'undefined') {
-      throw new Error('storeIds is no longer supported; provide a single storeId instead');
+      throw new Error('storeIds tidak lagi didukung; gunakan satu storeId sebagai gantinya');
     }
 
     return true;
@@ -79,13 +79,13 @@ const createSupervisorValidation = [
 const createSupervisor = async (req, res, next) => {
   try {
     const supervisor = await managerService.createSupervisor(req.body);
-    res.status(201).json(response.success('Supervisor created successfully', supervisor));
+    res.status(201).json(response.success('Supervisor berhasil dibuat', supervisor));
   } catch (error) {
-    if (error.message === 'Store not found') {
-      return res.status(404).json(response.error('Store not found'));
+    if (error.message === 'Toko tidak ditemukan') {
+      return res.status(404).json(response.error('Toko tidak ditemukan'));
     }
-    if (error.message === 'Store information is required') {
-      return res.status(400).json(response.error('Store information is required'));
+    if (error.message === 'Informasi toko wajib diisi') {
+      return res.status(400).json(response.error('Informasi toko wajib diisi'));
     }
     if (error.code === managerService.SUPERVISOR_LIMIT_ERROR_CODE) {
       return res.status(422).json({
@@ -102,10 +102,10 @@ const deleteSupervisor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await managerService.deleteSupervisor(id);
-    res.json(response.success('Deleted successfully', result));
+    res.json(response.success('Supervisor berhasil dihapus', result));
   } catch (error) {
-    if (error.message === 'Supervisor not found') {
-      return res.status(404).json(response.error('Supervisor not found'));
+    if (error.message === 'Supervisor tidak ditemukan') {
+      return res.status(404).json(response.error('Supervisor tidak ditemukan'));
     }
     next(error);
   }
@@ -125,7 +125,7 @@ const getSupervisors = async (req, res, next) => {
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
-    res.json(response.paginated('Supervisors retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Data supervisor berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }
@@ -145,7 +145,7 @@ const getSalesUsers = async (req, res, next) => {
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
-    res.json(response.paginated('Sales users retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Data sales berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }
@@ -221,7 +221,7 @@ const getProducts = async (req, res, next) => {
     };
 
     const paginatedResponse = buildPaginatedResponse(formattedResult, pageInfo);
-    res.json(response.paginated('Products retrieved successfully', paginatedResponse));
+    res.json(response.paginated('Produk berhasil diambil', paginatedResponse));
   } catch (error) {
     next(error);
   }

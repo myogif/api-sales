@@ -33,7 +33,7 @@ router.use(authenticate, requireSales);
  *             $ref: '#/components/schemas/CreateProductRequest'
  *     responses:
  *       201:
- *         description: Product created successfully
+ *         description: Produk berhasil dibuat
  *         content:
  *           application/json:
  *             schema:
@@ -75,13 +75,13 @@ router.post('/products', createProductValidation, handleValidationErrors, create
  *             $ref: '#/components/schemas/UpdateProductRequest'
  *     responses:
  *       200:
- *         description: Product updated successfully
+ *         description: Produk berhasil diperbarui
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ProductResponse'
  *       404:
- *         description: Product not found
+ *         description: Produk tidak ditemukan
  *         content:
  *           application/json:
  *             schema:
@@ -106,7 +106,7 @@ router.put('/products/:id', updateProductValidation, handleValidationErrors, upd
  *           format: uuid
  *     responses:
  *       200:
- *         description: Product deleted successfully
+ *         description: Produk berhasil dihapus
  *         content:
  *           application/json:
  *             schema:
@@ -137,7 +137,7 @@ router.delete('/products/:id', deleteProduct);
  *       - $ref: '#/components/parameters/ExportParam'
  *     responses:
  *       200:
- *         description: Products retrieved successfully
+ *         description: Produk berhasil diambil
  *         content:
  *           application/json:
  *             schema:

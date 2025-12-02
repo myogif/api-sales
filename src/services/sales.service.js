@@ -177,7 +177,7 @@ class SalesService {
       }
     }
 
-    throw lastError || new Error('Failed to create product after exhausting retries');
+    throw lastError || new Error('Gagal membuat produk setelah seluruh percobaan habis');
   }
 
   async deleteProduct(productId, creatorId) {
@@ -190,7 +190,7 @@ class SalesService {
       });
 
       if (!product) {
-        throw new Error('Product not found');
+        throw new Error('Produk tidak ditemukan');
       }
 
       await product.destroy();
@@ -201,7 +201,7 @@ class SalesService {
         code: product.code,
       });
 
-      return { message: 'Product deleted successfully' };
+      return { message: 'Produk berhasil dihapus' };
     } catch (error) {
       logger.error('Failed to delete product:', error);
       throw error;
@@ -218,17 +218,17 @@ class SalesService {
       });
 
       if (!product) {
-        throw new Error('Product not found');
+        throw new Error('Produk tidak ditemukan');
       }
 
       const updates = sanitizeProductPayload(changes);
 
       if (!Object.prototype.hasOwnProperty.call(updates, 'isActive')) {
-        throw new Error('Only isActive can be updated for a product');
+        throw new Error('Hanya isActive yang dapat diperbarui untuk produk');
       }
 
       if (updates.isActive !== false) {
-        throw new Error('Product updates only support setting isActive to false');
+        throw new Error('Pembaruan produk hanya mendukung pengaturan isActive menjadi false');
       }
 
       ALLOWED_PRODUCT_UPDATES.forEach((field) => {

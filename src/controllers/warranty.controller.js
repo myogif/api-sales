@@ -23,7 +23,7 @@ const streamWarrantyCertificate = async (req, res) => {
   } catch (error) {
     logger.error('Failed to generate warranty certificate', error);
     if (!res.headersSent) {
-      return res.status(500).json({ message: 'Failed to generate certificate' });
+      return res.status(500).json({ message: 'Gagal membuat sertifikat' });
     }
     res.end();
     return null;

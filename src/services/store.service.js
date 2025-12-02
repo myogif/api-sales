@@ -30,19 +30,19 @@ const resolveLimitScope = (data = {}, options = {}) => {
 };
 
 const createStoreLimitError = () => {
-  const error = new Error('Store limit reached');
+  const error = new Error('Batas toko telah tercapai');
   error.code = STORE_LIMIT_ERROR_CODE;
   return error;
 };
 
 const createStoreNotFoundError = () => {
-  const error = new Error('Store not found');
+  const error = new Error('Toko tidak ditemukan');
   error.code = STORE_NOT_FOUND_ERROR_CODE;
   return error;
 };
 
 const createStoreHasProductsError = () => {
-  const error = new Error('Cannot delete store because products exist under this store.');
+  const error = new Error('Tidak dapat menghapus toko karena masih ada produk yang terdaftar pada toko ini.');
   error.code = STORE_HAS_PRODUCTS_ERROR_CODE;
   return error;
 };
@@ -105,7 +105,7 @@ class StoreService {
   }
 
   get limitReachedMessage() {
-    return 'Pembuatan Toko SUdah Mencapai Limit';
+    return 'Pembuatan toko sudah mencapai batas';
   }
 
   async checkLimit(options = {}) {
@@ -169,7 +169,7 @@ class StoreService {
 
     await store.destroy({ transaction: options.transaction });
 
-    return { message: 'Deleted successfully' };
+    return { message: 'Toko berhasil dihapus' };
   }
 
   async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', where = {} } = {}) {

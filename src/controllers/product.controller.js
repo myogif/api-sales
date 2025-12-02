@@ -17,7 +17,7 @@ const checkProductLimit = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === STORE_NOT_FOUND_ERROR_CODE) {
-      return res.status(404).json(response.error('Store not found'));
+      return res.status(404).json(response.error('Toko tidak ditemukan'));
     }
     next(error);
   }
