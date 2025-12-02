@@ -1,5 +1,4 @@
 const { Product, sequelize } = require('../models');
-const { calculatePriceWarranty } = require('../utils/product-pricing');
 const logger = require('../utils/logger');
 const productService = require('./product.service');
 const { STORE_NOT_FOUND_ERROR_CODE } = require('./store.service');
@@ -41,6 +40,16 @@ const sanitizeProductPayload = (data = {}) => {
 
   if (Object.prototype.hasOwnProperty.call(data, 'persen')) {
     sanitized.persen = data.persen;
+  }
+
+  const priceWarrantyValue = Object.prototype.hasOwnProperty.call(data, 'priceWarranty')
+    ? data.priceWarranty
+    : data.price_warranty;
+  if (priceWarrantyValue !== undefined) {
+    const numericPriceWarranty = Number(priceWarrantyValue);
+    sanitized.priceWarranty = Number.isNaN(numericPriceWarranty)
+      ? priceWarrantyValue
+      : numericPriceWarranty;
   }
 
   const invoiceNumberValue = Object.prototype.hasOwnProperty.call(data, 'invoiceNumber')
@@ -106,7 +115,6 @@ const sanitizeProductPayload = (data = {}) => {
 class SalesService {
   async createProduct(creatorId, storeId, productData) {
     const sanitizedData = sanitizeProductPayload(productData);
-    delete sanitizedData.priceWarranty;
     delete sanitizedData.nomorKepesertaan;
 
     const maxAttempts = typeof productService.maxSequenceAttempts === 'number'
@@ -130,7 +138,7 @@ class SalesService {
 
           const payload = {
             ...sanitizedData,
-            priceWarranty: calculatePriceWarranty(sanitizedData.price, sanitizedData.persen),
+            priceWarranty: sanitizedData.priceWarranty ?? 0,
             nomorKepesertaan,
             creatorId,
             storeId,

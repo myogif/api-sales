@@ -1,5 +1,3 @@
-const { calculatePriceWarranty } = require('../../utils/product-pricing');
-
 module.exports = {
   up: async (queryInterface) => {
     const products = [
@@ -10,7 +8,7 @@ module.exports = {
         code: 'APPLE-IP15P-001',
         price: 19990000,
         persen: 60,
-        price_warranty: calculatePriceWarranty(19990000, 60),
+        price_warranty: 11994000,
         notes: 'Latest iPhone model with titanium design',
         customer_name: 'Adi Nugroho',
         customer_phone: '081233344455',
@@ -29,7 +27,7 @@ module.exports = {
         code: 'SAMSUNG-GS24-001',
         price: 15999000,
         persen: 60,
-        price_warranty: calculatePriceWarranty(15999000, 60),
+        price_warranty: 9599400,
         customer_name: 'Budi Santoso',
         customer_phone: '081266677788',
         customer_email: 'budi.santoso@example.com',
@@ -47,7 +45,7 @@ module.exports = {
         code: 'APPLE-MBA-M3-001',
         price: 24999000,
         persen: 60,
-        price_warranty: calculatePriceWarranty(24999000, 60),
+        price_warranty: 14999400,
         notes: '13-inch laptop with M3 chip',
         customer_name: 'Clara Wulandari',
         customer_phone: '081255566677',
@@ -66,7 +64,7 @@ module.exports = {
         code: 'SONY-WH1000-001',
         price: 5499000,
         persen: 60,
-        price_warranty: calculatePriceWarranty(5499000, 60),
+        price_warranty: 3299400,
         notes: 'Noise canceling headphones',
         customer_name: 'Adi Nugroho',
         customer_phone: '081233344455',
@@ -85,7 +83,7 @@ module.exports = {
         code: 'APPLE-IPP-129-001',
         price: 18999000,
         persen: 60,
-        price_warranty: calculatePriceWarranty(18999000, 60),
+        price_warranty: 11399400,
         notes: 'Professional tablet with M2 chip',
         customer_name: 'Clara Wulandari',
         customer_phone: '081255566677',

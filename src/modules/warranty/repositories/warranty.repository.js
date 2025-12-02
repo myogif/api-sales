@@ -1,6 +1,5 @@
 const { Product } = require('../../../models');
 const {
-  calculatePriceWarranty,
   calculateWarrantyDurationMonths,
 } = require('../../../utils/product-pricing');
 
@@ -29,7 +28,7 @@ const findById = async (id) => {
   const plainProduct = product.get({ plain: true });
   const harga = Number(plainProduct.price) || 0;
   const persen = plainProduct.persen;
-  const biayaGaransi = calculatePriceWarranty(harga, persen);
+  const biayaGaransi = Number(plainProduct.priceWarranty ?? plainProduct.price_warranty) || 0;
   const periodeDurasiBulan = calculateWarrantyDurationMonths(persen);
   const tanggalPembelian = toDateOrNull(plainProduct.createdAt) || new Date();
   const periodeMulai = tanggalPembelian;
