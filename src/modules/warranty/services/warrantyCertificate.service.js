@@ -76,15 +76,6 @@ async function generateKartuGaransiPdf(data) {
     });
   }
   
-  // NO. KEPESERTAAN
-  page.drawText('NO. KEPESERTAAN', {
-    x: leftMargin,
-    y: y,
-    size: 9,
-    font: font,
-    color: rgb(0.4, 0.4, 0.4)
-  });
-  
   y -= 15;
   
   page.drawText(data.noKepesertaan, {
