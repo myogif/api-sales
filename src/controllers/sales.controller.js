@@ -79,7 +79,8 @@ const createProductValidation = [
     .isInt({ gt: 0 })
     .withMessage('Lama garansi (bulan) harus berupa bilangan bulat positif'),
   body('price_warranty')
-    .optional()
+    .notEmpty()
+    .withMessage('Harga garansi wajib diisi')
     .isFloat({ min: 0 })
     .withMessage('Harga garansi harus berupa angka tidak negatif')
     .toFloat(),

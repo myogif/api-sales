@@ -280,6 +280,7 @@ const options = {
             'tipe',
             'code',
             'price',
+            'price_warranty',
             'persen',
             'customer_phone',
             'invoice_number',
@@ -319,8 +320,10 @@ const options = {
             price_warranty: {
               type: 'number',
               format: 'float',
-              nullable: true,
+              nullable: false,
               example: 600000,
+              description:
+                'Harga garansi yang dikirimkan oleh klien dan disimpan langsung, tidak dihitung ulang di backend.',
             },
             notes: {
               type: 'string',
@@ -799,6 +802,7 @@ const options = {
               type: 'number',
               format: 'float',
               example: 11994000,
+              description: 'Harga garansi yang disimpan apa adanya dari kolom database (dikirim oleh klien).',
             },
             status: {
               type: 'string',

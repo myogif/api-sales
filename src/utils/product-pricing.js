@@ -26,6 +26,8 @@ const normalizePersen = (value) => {
   return Number.isFinite(numericValue) ? numericValue : null;
 };
 
+// Deprecated: price_warranty is now provided directly from the request/DB.
+// Do not use this helper for new flows.
 const calculatePriceWarranty = (price, persen) => {
   const normalizedPrice = toNumberOrZero(price);
   const normalizedPersen = normalizePersen(persen);
@@ -137,7 +139,9 @@ const formatProductForOutput = (product) => {
 
   const price = toNullableNumber(plainProduct.price);
   const persen = toNullableNumber(plainProduct.persen);
-  const priceWarranty = calculatePriceWarranty(price ?? 0, persen ?? 0);
+  const priceWarranty = toNullableNumber(
+    plainProduct.priceWarranty ?? plainProduct.price_warranty,
+  );
   const status = determineStatus(plainProduct);
 
   return {
