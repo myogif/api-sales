@@ -5,6 +5,36 @@ const { Product, Store } = require('../../../models');
 
 const LIME_GREEN = rgb(0.788235294117647, 0.9529411764705882, 0.3568627450980392);
 
+function wrapText(text, font, fontSize, maxWidth) {
+  const content = text || '';
+  const words = content.split(/\s+/).filter((word) => word.length > 0);
+
+  if (words.length === 0) {
+    return [''];
+  }
+
+  const lines = [];
+  let currentLine = '';
+
+  words.forEach((word) => {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    const candidateWidth = font.widthOfTextAtSize(candidate, fontSize);
+
+    if (candidateWidth <= maxWidth || !currentLine) {
+      currentLine = candidate;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  return lines;
+}
+
 /**
  * Generate PDF Kartu Garansi
  * @param {Object} data - Data untuk kartu garansi
@@ -177,52 +207,67 @@ async function generateKartuGaransiPdf(data) {
   const tableTop = y;
   const tableLeft = leftMargin;
   const tableWidth = rightMargin - leftMargin;
-  const rowHeight = 30;
+  const headerHeight = 30;
   const colWidths = [tableWidth * 0.25, tableWidth * 0.25, tableWidth * 0.25, tableWidth * 0.25];
-  
+
   // Header row background (lime green)
   page.drawRectangle({
     x: tableLeft,
-    y: tableTop - rowHeight,
+    y: tableTop - headerHeight,
     width: tableWidth,
-    height: rowHeight,
+    height: headerHeight,
     color: LIME_GREEN
   });
-  
+
   // Header row border (no vertical lines)
   page.drawRectangle({
     x: tableLeft,
-    y: tableTop - rowHeight,
+    y: tableTop - headerHeight,
     width: tableWidth,
-    height: rowHeight,
+    height: headerHeight,
     borderColor: rgb(0, 0, 0),
     borderWidth: 1
   });
-  
+
   // Header text (centered)
   const headers = ['MEREK', 'TIPE', 'KODE', 'HARGA'];
   let currentX = tableLeft;
-  
+
   headers.forEach((header, i) => {
     const headerWidth = fontBold.widthOfTextAtSize(header, 10);
     const centerX = currentX + (colWidths[i] - headerWidth) / 2;
-    
+
     page.drawText(header, {
       x: centerX,
-      y: tableTop - rowHeight + 10,
+      y: tableTop - headerHeight + 10,
       size: 10,
       font: fontBold,
       color: rgb(0, 0, 0)
     });
     currentX += colWidths[i];
   });
-  
-  y = tableTop - rowHeight;
-  
+
+  y = tableTop - headerHeight;
+  const lineHeight = 12;
+
   // Data rows
   data.produk.forEach((produk) => {
+    const brandLines = wrapText(produk.merek, font, 10, colWidths[0]);
+    const typeLines = wrapText(produk.tipe, font, 10, colWidths[1]);
+    const codeLines = wrapText(produk.kode, font, 10, colWidths[2]);
+    const priceLines = wrapText(produk.harga, font, 10, colWidths[3]);
+
+    const maxLines = Math.max(
+      brandLines.length,
+      typeLines.length,
+      codeLines.length,
+      priceLines.length
+    );
+
+    const rowHeight = maxLines * lineHeight + 10;
+    const rowTop = y;
     y -= rowHeight;
-    
+
     // Row border
     page.drawRectangle({
       x: tableLeft,
@@ -232,35 +277,35 @@ async function generateKartuGaransiPdf(data) {
       borderColor: rgb(0, 0, 0),
       borderWidth: 1
     });
-    
+
     // Draw vertical lines for data row
     currentX = tableLeft;
     for (let i = 1; i < colWidths.length; i++) {
       currentX += colWidths[i - 1];
       page.drawLine({
-        start: { x: currentX, y: y + rowHeight },
-        end: { x: currentX, y: y },
+        start: { x: currentX, y: rowTop },
+        end: { x: currentX, y: rowTop - rowHeight },
         thickness: 1,
         color: rgb(0, 0, 0)
       });
     }
-    
-    // Row data (centered)
-    const rowData = [produk.merek, produk.tipe, produk.kode, produk.harga];
-    currentX = tableLeft;
-    
-    rowData.forEach((dataText, i) => {
-      const dataWidth = font.widthOfTextAtSize(dataText, 10);
-      const centerX = currentX + (colWidths[i] - dataWidth) / 2;
-      
-      page.drawText(dataText, {
-        x: centerX,
-        y: y + 10,
-        size: 10,
-        font: font,
-        color: rgb(0, 0, 0)
+
+    const columnLines = [brandLines, typeLines, codeLines, priceLines];
+    let textX = tableLeft;
+
+    columnLines.forEach((lines, index) => {
+      let lineY = rowTop - 15;
+      lines.forEach((line) => {
+        page.drawText(line, {
+          x: textX + 5,
+          y: lineY,
+          size: 10,
+          font: font,
+          color: rgb(0, 0, 0)
+        });
+        lineY -= lineHeight;
       });
-      currentX += colWidths[i];
+      textX += colWidths[index];
     });
   });
   
