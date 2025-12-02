@@ -275,7 +275,16 @@ const options = {
         },
         CreateProductRequest: {
           type: 'object',
-          required: ['name', 'tipe', 'code', 'price', 'persen', 'customer_phone'],
+          required: [
+            'name',
+            'tipe',
+            'code',
+            'price',
+            'persen',
+            'customer_phone',
+            'invoice_number',
+            'warranty_months',
+          ],
           description:
             'Customer phone is required and used to generate nomor_kepesertaan (store code + last three digits of the phone).',
           properties: {
@@ -305,6 +314,13 @@ const options = {
             persen: {
               type: 'integer',
               example: 30,
+              description: 'Warranty percentage. Mapping to months is handled on the frontend.',
+            },
+            price_warranty: {
+              type: 'number',
+              format: 'float',
+              nullable: true,
+              example: 600000,
             },
             notes: {
               type: 'string',
@@ -332,6 +348,16 @@ const options = {
               maxLength: 150,
               nullable: true,
               example: 'adi.nugroho@example.com',
+            },
+            invoice_number: {
+              type: 'string',
+              example: 'INV-2025-001',
+            },
+            warranty_months: {
+              type: 'integer',
+              example: 12,
+              description:
+                'Final warranty duration in months (already mapped by frontend). The backend only validates and stores the provided value.',
             },
           },
         },
@@ -760,6 +786,10 @@ const options = {
               description: 'Auto-generated membership number per store.',
               readOnly: true,
             },
+            invoice_number: {
+              type: 'string',
+              example: 'INV-2025-001',
+            },
             price: {
               type: 'number',
               format: 'float',
@@ -779,6 +809,12 @@ const options = {
             persen: {
               type: 'integer',
               example: 60,
+            },
+            warranty_months: {
+              type: 'integer',
+              example: 12,
+              description:
+                'Warranty duration in months. The value is determined by the client; the backend stores the provided number.',
             },
             notes: {
               type: 'string',

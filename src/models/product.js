@@ -82,6 +82,32 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
     },
+    invoiceNumber: {
+      type: DataTypes.STRING,
+      field: 'invoice_number',
+      allowNull: false,
+      set(value) {
+        if (typeof value === 'string') {
+          this.setDataValue('invoiceNumber', value.trim());
+        } else {
+          this.setDataValue('invoiceNumber', value);
+        }
+      },
+      validate: {
+        notEmpty: {
+          msg: 'Invoice number is required',
+        },
+      },
+    },
+    warrantyMonths: {
+      type: DataTypes.INTEGER,
+      field: 'warranty_months',
+      allowNull: false,
+      validate: {
+        min: 1,
+        isInt: true,
+      },
+    },
     nomorKepesertaan: {
       type: DataTypes.STRING(120),
       field: 'nomor_kepesertaan',

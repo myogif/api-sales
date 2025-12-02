@@ -36,7 +36,10 @@ const createProductValidation = [
     .toFloat(),
   body('persen')
     .notEmpty()
-    .withMessage('Persen is required'),
+    .withMessage('Persen is required')
+    .isFloat({ gt: 0 })
+    .withMessage('Persen must be a positive number')
+    .toFloat(),
   body('notes')
     .optional()
     .isLength({ max: 1000 })
@@ -65,6 +68,21 @@ const createProductValidation = [
     .withMessage('Customer email must be a valid email address')
     .isLength({ max: 150 })
     .withMessage('Customer email cannot exceed 150 characters'),
+  body('invoice_number')
+    .notEmpty()
+    .withMessage('Invoice number is required')
+    .isString()
+    .withMessage('Invoice number must be a string'),
+  body('warranty_months')
+    .notEmpty()
+    .withMessage('Warranty months is required')
+    .isInt({ gt: 0 })
+    .withMessage('Warranty months must be a positive integer'),
+  body('price_warranty')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Price warranty must be a non-negative number')
+    .toFloat(),
 ];
 
 const createProduct = async (req, res, next) => {
