@@ -421,7 +421,7 @@ function buildWarrantyPdfDataFromProduct(product) {
       nomorTelepon: product.customer_phone || product.customerPhone || '-',
       persentase: product.persen != null ? `${product.persen}%` : '-',
       biayaGaransi: formatRupiah(product.price_warranty || product.priceWarranty || 0),
-      biayaTotal: formatRupiah(product.price || 0),
+      biayaTotal: formatRupiah(product.price + product.price_warranty || 0),
       periodeGaransi: buildPeriodeGaransi(product.created_at || product.createdAt, product.warranty_months || product.warrantyMonths)
     },
     produk: [
