@@ -193,6 +193,8 @@ async function generateKartuGaransiPdf(data) {
   y -= 18;
   drawField('NOMOR TELEPON', data.customer.nomorTelepon, y);
   y -= 18;
+  drawField('HARGA BARANG', data.customer.hargaBarang, y);
+  y -= 18;
   drawField('PERSENTASE', data.customer.persentase, y);
   y -= 18;
   drawField('BIAYA GARANSI +', data.customer.biayaGaransi, y);
@@ -464,6 +466,7 @@ function buildWarrantyPdfDataFromProduct(product) {
       nama: product.customer_name || product.customerName || '-',
       email: product.customer_email || product.customerEmail || '-',
       nomorTelepon: product.customer_phone || product.customerPhone || '-',
+      hargaBarang: formatRupiah(product.price || 0),
       persentase: product.persen != null ? `${product.persen}%` : '-',
       biayaGaransi: formatRupiah(product.price_warranty || product.priceWarranty || 0),
       biayaTotal: formatRupiah(product.price || 0),
