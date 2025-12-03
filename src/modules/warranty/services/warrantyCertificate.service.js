@@ -469,7 +469,7 @@ function buildWarrantyPdfDataFromProduct(product) {
       hargaBarang: formatRupiah(product.price || 0),
       persentase: product.persen != null ? `${product.persen}%` : '-',
       biayaGaransi: formatRupiah(product.price_warranty || product.priceWarranty || 0),
-      biayaTotal: formatRupiah(product.price + product.priceWarranty || 0),
+      biayaTotal: formatRupiah(product.price + product.priceWarranty),
       periodeGaransi: buildPeriodeGaransi(product.created_at || product.createdAt, product.warranty_months || product.warrantyMonths)
     },
     produk: [
