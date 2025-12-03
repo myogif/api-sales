@@ -13,7 +13,10 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
     { header: 'Status', key: 'status', width: 15 },
     { header: 'Toko', key: 'storeName', width: 25 },
     { header: 'No. HP Toko', key: 'storePhone', width: 15 },
-    { header: 'Sales', key: 'creatorName', width: 25 },
+    { header: 'Nama Customer', key: 'customerName', width: 25 },
+    { header: 'Nomor Telepon Customer', key: 'customerPhone', width: 18 },
+    { header: 'Email Customer', key: 'customerEmail', width: 28 },
+    { header: 'Nama Sales', key: 'creatorName', width: 25 },
     { header: 'No. HP Sales', key: 'creatorPhone', width: 15 },
     { header: 'Tanggal Mulai Garansi', key: 'createdAt', width: 20 },
   ];
@@ -36,6 +39,9 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       status: deriveStatus(product.isActive, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
       storePhone: product.creator?.supervisor?.phone ?? '',
+      customerName: product.customerName || '',
+      customerPhone: product.customerPhone || '',
+      customerEmail: product.customerEmail || '',
       creatorName: product.creator?.name || '',
       creatorPhone: product.creator?.phone || '',
       createdAt: formatDateToDDMMYYYY(product.createdAt),
