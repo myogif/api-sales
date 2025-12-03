@@ -457,6 +457,9 @@ function buildPeriodeGaransi(startDate, months) {
 }
 
 function buildWarrantyPdfDataFromProduct(product) {
+  const hargaBarang = Number(product.price) || 0;
+  const biayaGaransi = Number(product.price_warranty || product.priceWarranty) || 0;
+
   return {
     noKepesertaan: product.nomor_kepesertaan || product.nomorKepesertaan || '-',
     nomorNota: product.invoice_number || product.invoiceNumber || '-',
@@ -466,10 +469,10 @@ function buildWarrantyPdfDataFromProduct(product) {
       nama: product.customer_name || product.customerName || '-',
       email: product.customer_email || product.customerEmail || '-',
       nomorTelepon: product.customer_phone || product.customerPhone || '-',
-      hargaBarang: formatRupiah(product.price || 0),
+      hargaBarang: formatRupiah(hargaBarang),
       persentase: product.persen != null ? `${product.persen}%` : '-',
-      biayaGaransi: formatRupiah(product.price_warranty || product.priceWarranty || 0),
-      biayaTotal: formatRupiah(product.price + product.priceWarranty),
+      biayaGaransi: formatRupiah(biayaGaransi),
+      biayaTotal: formatRupiah(hargaBarang + biayaGaransi),
       periodeGaransi: buildPeriodeGaransi(product.created_at || product.createdAt, product.warranty_months || product.warrantyMonths)
     },
     produk: [
