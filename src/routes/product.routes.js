@@ -21,7 +21,6 @@ router.use(authenticate);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
  *     responses:
  *       200:
  *         description: Returns the current number of products and whether new products can be created.
@@ -32,7 +31,6 @@ router.use(authenticate);
  *               properties:
  *                 store_id:
  *                   type: string
- *                   format: uuid
  *                   example: "11111111-1111-1111-1111-111111111111"
  *                 total:
  *                   type: integer
