@@ -1,9 +1,10 @@
-const { Store, Product } = require('../models');
+const { Store, Product, User } = require('../models');
 
 const STORE_LIMIT = 300;
 const STORE_LIMIT_ERROR_CODE = 'STORE_LIMIT_REACHED';
 const STORE_NOT_FOUND_ERROR_CODE = 'STORE_NOT_FOUND';
 const STORE_HAS_PRODUCTS_ERROR_CODE = 'STORE_HAS_PRODUCTS';
+const STORE_HAS_SUPERVISOR_ERROR_CODE = 'STORE_HAS_SUPERVISOR';
 const DEFAULT_SCOPE_ATTRIBUTES = ['tenantId', 'companyId', 'ownerId'];
 
 const resolveLimitScope = (data = {}, options = {}) => {
@@ -44,6 +45,12 @@ const createStoreNotFoundError = () => {
 const createStoreHasProductsError = () => {
   const error = new Error('Tidak dapat menghapus toko karena masih ada produk yang terdaftar pada toko ini.');
   error.code = STORE_HAS_PRODUCTS_ERROR_CODE;
+  return error;
+};
+
+const createStoreHasSupervisorError = () => {
+  const error = new Error('Tidak dapat menghapus toko karena masih ada supervisor yang terdaftar pada toko ini.');
+  error.code = STORE_HAS_SUPERVISOR_ERROR_CODE;
   return error;
 };
 
@@ -158,6 +165,15 @@ class StoreService {
       throw createStoreNotFoundError();
     }
 
+    const supervisorCount = await User.count({
+      where: { storeId, role: 'SUPERVISOR' },
+      transaction: options.transaction,
+    });
+
+    if (supervisorCount > 0) {
+      throw createStoreHasSupervisorError();
+    }
+
     const productCount = await Product.count({
       where: { storeId },
       transaction: options.transaction,
@@ -199,7 +215,9 @@ module.exports.STORE_LIMIT = STORE_LIMIT;
 module.exports.STORE_LIMIT_ERROR_CODE = STORE_LIMIT_ERROR_CODE;
 module.exports.STORE_NOT_FOUND_ERROR_CODE = STORE_NOT_FOUND_ERROR_CODE;
 module.exports.STORE_HAS_PRODUCTS_ERROR_CODE = STORE_HAS_PRODUCTS_ERROR_CODE;
+module.exports.STORE_HAS_SUPERVISOR_ERROR_CODE = STORE_HAS_SUPERVISOR_ERROR_CODE;
 module.exports.createStoreLimitError = createStoreLimitError;
 module.exports.createStoreNotFoundError = createStoreNotFoundError;
 module.exports.createStoreHasProductsError = createStoreHasProductsError;
+module.exports.createStoreHasSupervisorError = createStoreHasSupervisorError;
 module.exports.sanitizeStorePayload = sanitizeStorePayload;

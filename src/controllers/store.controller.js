@@ -81,6 +81,12 @@ const deleteStore = async (req, res, next) => {
         message: 'Tidak dapat menghapus toko karena masih ada produk yang terdaftar pada toko ini.',
       });
     }
+    if (error.code === storeService.STORE_HAS_SUPERVISOR_ERROR_CODE) {
+      return res.json({
+        success: false,
+        message: 'Tidak dapat menghapus toko karena masih ada supervisor yang terdaftar pada toko ini.',
+      });
+    }
     next(error);
   }
 };
