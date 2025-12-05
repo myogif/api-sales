@@ -7,6 +7,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   // Define columns
   worksheet.columns = [
     { header: 'Nama', key: 'name', width: 30 },
+    { header: 'Tipe', key: 'tipe', width: 20 },
     { header: 'Kode', key: 'code', width: 20 },
     { header: 'Harga', key: 'price', width: 18, style: { numFmt: '"Rp" #,##0' } },
     { header: 'Harga Garansi', key: 'priceWarranty', width: 18, style: { numFmt: '"Rp" #,##0' } },
@@ -33,6 +34,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
   products.forEach((product) => {
     worksheet.addRow({
       name: product.name,
+      tipe: product.tipe,
       code: product.code,
       price: product.price !== undefined && product.price !== null ? Number(product.price) : '',
       priceWarranty: product.priceWarranty !== undefined && product.priceWarranty !== null ? Number(product.priceWarranty) : '',
