@@ -75,7 +75,7 @@ const options = {
           schema: {
             type: 'string',
           },
-          description: 'Search in name, code, and notes',
+          description: 'Search in name, code, customer phone, and notes',
         },
         codeParam: {
           in: 'query',
