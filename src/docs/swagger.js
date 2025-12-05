@@ -90,7 +90,6 @@ const options = {
           name: 'store_id',
           schema: {
             type: 'string',
-            format: 'uuid',
           },
           description: 'Filter by store ID',
         },
