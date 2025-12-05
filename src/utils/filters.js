@@ -23,7 +23,7 @@ const buildProductFilters = (query, user, sequelize) => {
     const caseInsensitiveMatchers = [
       buildCaseInsensitiveLike('Product.name', query.q),
       buildCaseInsensitiveLike('Product.code', query.q),
-      buildCaseInsensitiveLike('Product.customerPhone', query.q),
+      buildCaseInsensitiveLike('Product.customer_phone', query.q),
       buildCaseInsensitiveLike('Product.notes', query.q),
     ].filter(Boolean);
 
