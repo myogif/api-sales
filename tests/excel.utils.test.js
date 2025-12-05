@@ -20,6 +20,7 @@ test('streamProductsXlsx uses supervisor phone number for storePhone column', as
   const products = [
     {
       name: 'Sample Product',
+      tipe: 'Gold',
       code: 'PRD-001',
       price: 10000,
       priceWarranty: 15000,
@@ -51,5 +52,6 @@ test('streamProductsXlsx uses supervisor phone number for storePhone column', as
 
   assert.equal(worksheet.rows.length, 1);
   const [firstRow] = worksheet.rows;
+  assert.equal(firstRow.tipe, 'Gold');
   assert.equal(firstRow.storePhone, '0822222222');
 });
