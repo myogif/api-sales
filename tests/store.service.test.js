@@ -32,12 +32,22 @@ const loadService = (overrides = {}) => {
     },
   };
 
+  const ProductStub = {
+    count: async () => (typeof overrides.productCountResult === 'number' ? overrides.productCountResult : 0),
+  };
+
+  const UserStub = {
+    count: async () => (typeof overrides.supervisorCountResult === 'number' ? overrides.supervisorCountResult : 0),
+  };
+
   require.cache[modelsPath] = {
     id: modelsPath,
     filename: modelsPath,
     loaded: true,
     exports: {
       Store: { ...StoreStub, ...(overrides.store || {}) },
+      Product: { ...ProductStub, ...(overrides.product || {}) },
+      User: { ...UserStub, ...(overrides.user || {}) },
     },
   };
 
@@ -94,6 +104,31 @@ test('createStore and updateStore sanitize kode_toko values', async () => {
     assert.ok(savedStore, 'Store save should be invoked');
     assert.equal(savedStore.kode_toko, 'BETA22');
     assert.equal(savedStore.name, 'Beta Store');
+  } finally {
+    cleanup();
+  }
+});
+
+test('deleteStore throws an error when a supervisor is assigned', async () => {
+  const storeRecord = {
+    id: 'store-1',
+    destroy: async () => {
+      throw new Error('destroy should not be called when supervisor exists');
+    },
+  };
+
+  const { storeService, cleanup } = loadService({
+    storeInstance: storeRecord,
+    supervisorCountResult: 1,
+    productCountResult: 0,
+  });
+
+  try {
+    await assert.rejects(
+      () => storeService.deleteStore('store-1'),
+      (error) => error.code === storeService.STORE_HAS_SUPERVISOR_ERROR_CODE,
+      'Expected STORE_HAS_SUPERVISOR_ERROR_CODE when supervisor exists',
+    );
   } finally {
     cleanup();
   }
