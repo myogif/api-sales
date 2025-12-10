@@ -142,6 +142,7 @@ const formatProductForOutput = (product) => {
   const priceWarranty = toNullableNumber(
     plainProduct.priceWarranty ?? plainProduct.price_warranty,
   );
+  const invoiceNumber = plainProduct.invoiceNumber ?? plainProduct.invoice_number;
   const status = determineStatus(plainProduct);
 
   return {
@@ -149,6 +150,7 @@ const formatProductForOutput = (product) => {
     price,
     persen,
     priceWarranty,
+    invoiceNumber,
     status,
   };
 };
