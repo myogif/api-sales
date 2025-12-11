@@ -42,7 +42,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       priceWarranty: product.priceWarranty !== undefined && product.priceWarranty !== null ? Number(product.priceWarranty) : '',
       status: deriveStatus(product.isActive, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
-      storePhone: product.creator?.supervisor?.phone ?? '',
+      storePhone: product.store?.phone ?? '',
       customerName: product.customerName || '',
       customerPhone: product.customerPhone || '',
       customerEmail: product.customerEmail || '',
