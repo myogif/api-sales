@@ -189,6 +189,55 @@ class ManagerService {
     }
   }
 
+  async updateSupervisor(supervisorId, updateData) {
+    const transaction = await sequelize.transaction();
+    try {
+      const supervisor = await User.findOne({
+        where: { id: supervisorId, role: 'SUPERVISOR' },
+        transaction,
+      });
+
+      if (!supervisor) {
+        throw new Error('Supervisor tidak ditemukan');
+      }
+
+      // Update with the provided data
+      await supervisor.update(updateData, { transaction });
+
+      // Reload to include store relation
+      await supervisor.reload({
+        include: [
+          {
+            model: Store,
+            as: 'store',
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
+          },
+        ],
+        transaction,
+      });
+
+      await transaction.commit();
+
+      logger.info('Supervisor updated by manager:', {
+        supervisorId,
+        updatedFields: Object.keys(updateData),
+      });
+
+      return supervisor.toSafeJSON();
+    } catch (error) {
+      if (!transaction.finished) {
+        try {
+          await transaction.rollback();
+        } catch (rollbackError) {
+          logger.error('Failed to rollback updateSupervisor transaction:', rollbackError);
+        }
+      }
+
+      logger.error('Failed to update supervisor:', error);
+      throw error;
+    }
+  }
+
   async getMonthlyProductSummary(yearInput = new Date().getUTCFullYear()) {
     try {
       const year = typeof yearInput === 'number' && !Number.isNaN(yearInput)

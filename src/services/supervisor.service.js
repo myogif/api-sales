@@ -79,17 +79,18 @@ class SupervisorService {
         throw new Error('Sales tidak ditemukan');
       }
 
-      await salesUser.destroy();
+      // Deactivate instead of delete
+      await salesUser.update({ isActive: false });
 
-      logger.info('Sales user deleted by supervisor:', {
+      logger.info('Sales user deactivated by supervisor:', {
         salesUserId,
         supervisorId,
         phone: salesUser.phone,
       });
 
-      return { message: 'Sales berhasil dihapus' };
+      return { message: 'Sales berhasil dinonaktifkan' };
     } catch (error) {
-      logger.error('Failed to delete sales user:', error);
+      logger.error('Failed to deactivate sales user:', error);
       throw error;
     }
   }

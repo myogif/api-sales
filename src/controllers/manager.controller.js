@@ -111,6 +111,34 @@ const deleteSupervisor = async (req, res, next) => {
   }
 };
 
+const updateSupervisorValidation = [
+  body('name')
+    .notEmpty()
+    .withMessage('Nama wajib diisi')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Nama harus antara 2 hingga 100 karakter'),
+  body('phone')
+    .notEmpty()
+    .withMessage('Nomor telepon wajib diisi')
+    .isLength({ min: 10, max: 20 })
+    .withMessage('Nomor telepon harus antara 10 hingga 20 karakter'),
+];
+
+const updateSupervisor = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, phone } = req.body;
+    
+    const updatedSupervisor = await managerService.updateSupervisor(id, { name, phone });
+    res.json(response.success('Supervisor berhasil diperbarui', updatedSupervisor));
+  } catch (error) {
+    if (error.message === 'Supervisor tidak ditemukan') {
+      return res.status(404).json(response.error('Supervisor tidak ditemukan'));
+    }
+    next(error);
+  }
+};
+
 const getSupervisors = async (req, res, next) => {
   try {
     const pageInfo = parsePaginationQuery(req.query);
@@ -231,6 +259,8 @@ module.exports = {
   getDashboard,
   createSupervisorValidation,
   createSupervisor,
+  updateSupervisorValidation,
+  updateSupervisor,
   deleteSupervisor,
   getSupervisors,
   getSalesUsers,

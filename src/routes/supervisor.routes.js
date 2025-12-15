@@ -55,7 +55,8 @@ router.post('/sales', createSalesValidation, handleValidationErrors, createSales
  * @swagger
  * /api/supervisors/sales/{id}:
  *   delete:
- *     summary: Delete a sales user
+ *     summary: Deactivate a sales user
+ *     description: Deactivates a sales user by setting isActive to false instead of permanently deleting
  *     tags: [Supervisor]
  *     security:
  *       - bearerAuth: []
@@ -68,7 +69,7 @@ router.post('/sales', createSalesValidation, handleValidationErrors, createSales
  *           format: uuid
  *     responses:
  *       200:
- *         description: Sales berhasil dihapus
+ *         description: Sales berhasil dinonaktifkan
  *         content:
  *           application/json:
  *             schema:

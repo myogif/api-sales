@@ -5,6 +5,8 @@ const {
   getDashboard,
   createSupervisorValidation,
   createSupervisor,
+  updateSupervisorValidation,
+  updateSupervisor,
   deleteSupervisor,
   getSupervisors,
   getSalesUsers,
@@ -182,6 +184,49 @@ router.post(
   createSupervisorValidation,
   handleValidationErrors,
   createSupervisor,
+);
+
+/**
+ * @swagger
+ * /api/managers/supervisors/{id}:
+ *   put:
+ *     summary: Update a supervisor
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateSupervisorRequest'
+ *     responses:
+ *       200:
+ *         description: Supervisor berhasil diperbarui
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserResponse'
+ *       404:
+ *         description: Supervisor tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.put(
+  '/supervisors/:id',
+  requireManager,
+  updateSupervisorValidation,
+  handleValidationErrors,
+  updateSupervisor,
 );
 
 /**

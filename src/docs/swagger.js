@@ -249,6 +249,26 @@ const options = {
             },
           },
         },
+        UpdateSupervisorRequest: {
+          type: 'object',
+          required: ['name', 'phone'],
+          properties: {
+            name: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 100,
+              example: 'John Updated Supervisor',
+              description: 'Nama supervisor yang akan diperbarui',
+            },
+            phone: {
+              type: 'string',
+              minLength: 10,
+              maxLength: 20,
+              example: '080000000099',
+              description: 'Nomor HP supervisor yang akan diperbarui',
+            },
+          },
+        },
         CreateSalesRequest: {
           type: 'object',
           required: ['phone', 'password', 'name'],

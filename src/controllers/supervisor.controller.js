@@ -49,7 +49,7 @@ const deleteSalesUser = async (req, res, next) => {
     const supervisorId = req.user.sub;
 
     const result = await supervisorService.deleteSalesUser(id, supervisorId);
-    res.json(response.success('Sales berhasil dihapus', result));
+    res.json(response.success('Sales berhasil diahpu', result));
   } catch (error) {
     if (error.message === 'Sales tidak ditemukan') {
       return res.status(404).json(response.error('Sales tidak ditemukan'));
