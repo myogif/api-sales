@@ -102,6 +102,7 @@ class SupervisorService {
           role: 'SALES',
           supervisorId,
           storeId,
+          isActive: true,
         },
         attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [

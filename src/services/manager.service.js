@@ -361,7 +361,7 @@ class ManagerService {
 
   async getSalesUsers(page, limit, offset, sortBy, sortOrder, where = {}) {
     try {
-      const normalizedWhere = where?.role ? where : { ...where, role: 'SALES' };
+      const normalizedWhere = where?.role ? { ...where, isActive: true } : { ...where, role: 'SALES', isActive: true };
       const result = await User.findAndCountAll({
         where: normalizedWhere,
         attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
