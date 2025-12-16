@@ -309,11 +309,36 @@ class ManagerService {
     }
   }
 
+  async getSupervisorById(supervisorId) {
+    try {
+      const supervisor = await User.findOne({
+        where: { id: supervisorId, role: 'SUPERVISOR' },
+        include: [
+          {
+            model: Store,
+            as: 'store',
+            attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email'],
+          },
+        ],
+      });
+
+      if (!supervisor) {
+        throw new Error('Supervisor tidak ditemukan');
+      }
+
+      return supervisor.toSafeJSON();
+    } catch (error) {
+      logger.error('Failed to get supervisor by ID:', error);
+      throw error;
+    }
+  }
+
   async getSupervisors(page, limit, offset, sortBy, sortOrder, where = {}) {
     try {
       const normalizedWhere = where?.role ? where : { ...where, role: 'SUPERVISOR' };
       const result = await User.findAndCountAll({
         where: normalizedWhere,
+        attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [
           {
             model: Store,
@@ -339,6 +364,7 @@ class ManagerService {
       const normalizedWhere = where?.role ? where : { ...where, role: 'SALES' };
       const result = await User.findAndCountAll({
         where: normalizedWhere,
+        attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [
           {
             model: Store,
@@ -348,7 +374,7 @@ class ManagerService {
           {
             model: User,
             as: 'supervisor',
-            attributes: ['id', 'name', 'phone'],
+            attributes: ['id', 'name', 'phone', 'isActive'],
           },
         ],
         limit,

@@ -139,6 +139,19 @@ const updateSupervisor = async (req, res, next) => {
   }
 };
 
+const getSupervisorById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const supervisor = await managerService.getSupervisorById(id);
+    res.json(response.success('Data supervisor berhasil diambil', supervisor));
+  } catch (error) {
+    if (error.message === 'Supervisor tidak ditemukan') {
+      return res.status(404).json(response.error('Supervisor tidak ditemukan'));
+    }
+    next(error);
+  }
+};
+
 const getSupervisors = async (req, res, next) => {
   try {
     const pageInfo = parsePaginationQuery(req.query);
@@ -262,6 +275,7 @@ module.exports = {
   updateSupervisorValidation,
   updateSupervisor,
   deleteSupervisor,
+  getSupervisorById,
   getSupervisors,
   getSalesUsers,
   getProducts,

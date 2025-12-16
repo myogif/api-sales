@@ -8,6 +8,7 @@ const {
   updateSupervisorValidation,
   updateSupervisor,
   deleteSupervisor,
+  getSupervisorById,
   getSupervisors,
   getSalesUsers,
   getProducts,
@@ -228,6 +229,38 @@ router.put(
   handleValidationErrors,
   updateSupervisor,
 );
+
+/**
+ * @swagger
+ * /api/managers/supervisors/{id}:
+ *   get:
+ *     summary: Get a supervisor by ID
+ *     tags: [Manager]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Supervisor ID
+ *     responses:
+ *       200:
+ *         description: Data supervisor berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserResponse'
+ *       404:
+ *         description: Supervisor tidak ditemukan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/supervisors/:id', requireManagerOrServiceCenter, getSupervisorById);
 
 /**
  * @swagger

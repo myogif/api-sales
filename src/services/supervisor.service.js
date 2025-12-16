@@ -103,6 +103,7 @@ class SupervisorService {
           supervisorId,
           storeId,
         },
+        attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [
           {
             model: Store,
@@ -112,7 +113,7 @@ class SupervisorService {
           {
             model: User,
             as: 'supervisor',
-            attributes: ['id', 'name', 'phone'],
+            attributes: ['id', 'name', 'phone', 'isActive'],
           },
         ],
       });
