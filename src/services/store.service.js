@@ -165,24 +165,41 @@ class StoreService {
       throw createStoreNotFoundError();
     }
 
-    const supervisorCount = await User.count({
+    // Cascade delete: Hapus semua data terkait
+    
+    // 1. Ambil semua supervisor IDs di toko ini
+    const supervisors = await User.findAll({
+      where: { storeId, role: 'SUPERVISOR' },
+      attributes: ['id'],
+      transaction: options.transaction,
+    });
+
+    const supervisorIds = supervisors.map(s => s.id);
+
+    // 2. Hapus semua SALES yang terkait dengan SPV di toko ini
+    if (supervisorIds.length > 0) {
+      await User.destroy({
+        where: { 
+          supervisorId: supervisorIds,
+          role: 'SALES' 
+        },
+        transaction: options.transaction,
+      });
+    }
+
+    // 3. Hapus semua SPV/SUPERVISOR di toko ini
+    await User.destroy({
       where: { storeId, role: 'SUPERVISOR' },
       transaction: options.transaction,
     });
 
-    if (supervisorCount > 0) {
-      throw createStoreHasSupervisorError();
-    }
-
-    const productCount = await Product.count({
+    // 4. Hapus semua Product di toko ini
+    await Product.destroy({
       where: { storeId },
       transaction: options.transaction,
     });
 
-    if (productCount > 0) {
-      throw createStoreHasProductsError();
-    }
-
+    // 5. Hapus Store
     await store.destroy({ transaction: options.transaction });
 
     return { message: 'Toko berhasil dihapus' };
