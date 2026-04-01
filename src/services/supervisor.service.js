@@ -100,7 +100,6 @@ class SupervisorService {
       const salesUsers = await User.findAll({
         where: {
           role: 'SALES',
-          supervisorId,
           storeId,
           isActive: true,
         },
