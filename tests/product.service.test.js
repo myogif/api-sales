@@ -17,6 +17,7 @@ const loadService = (overrides = {}) => {
 
   const captured = {
     storeFindArgs: [],
+    productFindArgs: [],
   };
 
   const ProductStub = {
@@ -28,6 +29,13 @@ const loadService = (overrides = {}) => {
         return overrides.count();
       }
       return 0;
+    },
+    findOne: async (options) => {
+      captured.productFindArgs.push(options);
+      if (typeof overrides.findOne === 'function') {
+        return overrides.findOne(options);
+      }
+      return overrides.productRecord || null;
     },
   };
 
@@ -106,6 +114,33 @@ test('generateNomorKepesertaan locks the store row and builds from phone digits'
     assert.equal(result.store, storeRecord);
     assert.equal(captured.storeFindArgs.length, 1);
     assert.equal(captured.storeFindArgs[0].options.lock, 'FOR UPDATE');
+  } finally {
+    cleanup();
+  }
+});
+
+test('generateNomorKepesertaan retries with suffix when the base number already exists', async () => {
+  const storeRecord = { id: 'store-1', kode_toko: 'TOKO001' };
+  const { productService, captured, cleanup } = loadService({
+    storeRecord,
+    findOne: (options) => {
+      if (options.where.nomorKepesertaan === 'TOKO001-789') {
+        return { id: 'existing-1' };
+      }
+      return null;
+    },
+  });
+
+  try {
+    const result = await productService.generateNomorKepesertaan(
+      'store-1',
+      '+62 812-345-6789',
+    );
+
+    assert.equal(result.nomorKepesertaan, 'TOKO001-789-1');
+    assert.equal(captured.productFindArgs.length >= 2, true);
+    assert.equal(captured.productFindArgs[0].where.nomorKepesertaan, 'TOKO001-789');
+    assert.equal(captured.productFindArgs[1].where.nomorKepesertaan, 'TOKO001-789-1');
   } finally {
     cleanup();
   }

@@ -5,6 +5,7 @@ const PRODUCT_LIMIT = 10_000_000;
 const PRODUCT_LIMIT_ERROR_CODE = 'PRODUCT_LIMIT_REACHED';
 const MAX_SEQUENCE_ATTEMPTS = 3;
 const CUSTOMER_PHONE_REQUIRED_ERROR_CODE = 'CUSTOMER_PHONE_REQUIRED';
+const NOMOR_KEPESERTAAN_CONFLICT_ERROR_CODE = 'NOMOR_KEPESERTAAN_CONFLICT';
 
 const {
   createStoreNotFoundError,
@@ -39,13 +40,17 @@ const extractLastThreeDigits = (phone) => {
   return suffix.padStart(3, '0');
 };
 
-const buildNomorKepesertaan = (kodeToko, customerPhone) => {
+const buildNomorKepesertaan = (kodeToko, customerPhone, sequence = 0) => {
   const lastDigits = extractLastThreeDigits(customerPhone);
 
   if (!lastDigits) {
     const error = new Error('Customer phone is required to generate nomor kepesertaan');
     error.code = CUSTOMER_PHONE_REQUIRED_ERROR_CODE;
     throw error;
+  }
+
+  if (sequence > 0) {
+    return `${kodeToko}-${lastDigits}-${sequence}`;
   }
 
   return `${kodeToko}-${lastDigits}`;
@@ -101,9 +106,23 @@ class ProductService {
       throw error;
     }
 
-    const nomorKepesertaan = buildNomorKepesertaan(store.kode_toko, customerPhone);
+    for (let sequence = 0; sequence < this.maxSequenceAttempts; sequence += 1) {
+      const nomorKepesertaan = buildNomorKepesertaan(store.kode_toko, customerPhone, sequence);
 
-    return { nomorKepesertaan, store };
+      const existingProduct = await Product.findOne({
+        where: { nomorKepesertaan },
+        transaction,
+        lock: resolveLockOption(transaction, options.lock === true),
+      });
+
+      if (!existingProduct) {
+        return { nomorKepesertaan, store };
+      }
+    }
+
+    const error = new Error('Failed to generate unique nomor kepesertaan');
+    error.code = NOMOR_KEPESERTAAN_CONFLICT_ERROR_CODE;
+    throw error;
   }
 }
 
@@ -116,4 +135,5 @@ module.exports.STORE_NOT_FOUND_ERROR_CODE = STORE_NOT_FOUND_ERROR_CODE;
 module.exports.MAX_SEQUENCE_ATTEMPTS = MAX_SEQUENCE_ATTEMPTS;
 module.exports.buildNomorKepesertaan = buildNomorKepesertaan;
 module.exports.CUSTOMER_PHONE_REQUIRED_ERROR_CODE = CUSTOMER_PHONE_REQUIRED_ERROR_CODE;
+module.exports.NOMOR_KEPESERTAAN_CONFLICT_ERROR_CODE = NOMOR_KEPESERTAAN_CONFLICT_ERROR_CODE;
 module.exports.extractLastThreeDigits = extractLastThreeDigits;
