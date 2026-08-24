@@ -205,15 +205,20 @@ class StoreService {
     return { message: 'Toko berhasil dihapus' };
   }
 
-  async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', where = {} } = {}) {
-    return Store.findAndCountAll({
+  async getPaginatedStores({ limit, offset, sortBy = 'createdAt', sortOrder = 'DESC', where = {}, fetchAll = false } = {}) {
+    const findOptions = {
       attributes: ['id', 'kode_toko', 'name', 'address', 'phone', 'email', 'isActive'],
       where,
-      limit,
-      offset,
       order: [[sortBy, sortOrder.toUpperCase()]],
       distinct: true,
-    });
+    };
+
+    if (!fetchAll) {
+      findOptions.limit = limit;
+      findOptions.offset = offset;
+    }
+
+    return Store.findAndCountAll(findOptions);
   }
 
   async getAllStores(options = {}) {

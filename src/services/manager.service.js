@@ -333,10 +333,10 @@ class ManagerService {
     }
   }
 
-  async getSupervisors(page, limit, offset, sortBy, sortOrder, where = {}) {
+  async getSupervisors(page, limit, offset, sortBy, sortOrder, where = {}, fetchAll = false) {
     try {
       const normalizedWhere = where?.role ? where : { ...where, role: 'SUPERVISOR' };
-      const result = await User.findAndCountAll({
+      const findOptions = {
         where: normalizedWhere,
         attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [
@@ -346,12 +346,16 @@ class ManagerService {
             attributes: ['id', 'kode_toko', 'name', 'address', 'phone'],
           },
         ],
-        limit,
-        offset,
         order: [[sortBy, sortOrder.toUpperCase()]],
         distinct: true,
-      });
+      };
 
+      if (!fetchAll) {
+        findOptions.limit = limit;
+        findOptions.offset = offset;
+      }
+
+      const result = await User.findAndCountAll(findOptions);
       return result;
     } catch (error) {
       logger.error('Failed to get supervisors:', error);
@@ -359,10 +363,10 @@ class ManagerService {
     }
   }
 
-  async getSalesUsers(page, limit, offset, sortBy, sortOrder, where = {}) {
+  async getSalesUsers(page, limit, offset, sortBy, sortOrder, where = {}, fetchAll = false) {
     try {
       const normalizedWhere = where?.role ? { ...where, isActive: true } : { ...where, role: 'SALES', isActive: true };
-      const result = await User.findAndCountAll({
+      const findOptions = {
         where: normalizedWhere,
         attributes: ['id', 'name', 'phone', 'role', 'isActive', 'storeId', 'supervisorId', 'createdAt', 'updatedAt'],
         include: [
@@ -377,12 +381,16 @@ class ManagerService {
             attributes: ['id', 'name', 'phone', 'isActive'],
           },
         ],
-        limit,
-        offset,
         order: [[sortBy, sortOrder.toUpperCase()]],
         distinct: true,
-      });
+      };
 
+      if (!fetchAll) {
+        findOptions.limit = limit;
+        findOptions.offset = offset;
+      }
+
+      const result = await User.findAndCountAll(findOptions);
       return result;
     } catch (error) {
       logger.error('Failed to get sales users:', error);

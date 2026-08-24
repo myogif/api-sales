@@ -27,6 +27,7 @@ const getStoresPaginated = async (req, res, next) => {
       offset: pageInfo.offset,
       sortBy: pageInfo.sortBy,
       sortOrder: pageInfo.sortOrder,
+      fetchAll: pageInfo.fetchAll,
       where,
     });
 

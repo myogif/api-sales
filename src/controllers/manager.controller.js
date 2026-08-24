@@ -163,6 +163,7 @@ const getSupervisors = async (req, res, next) => {
       pageInfo.sortBy,
       pageInfo.sortOrder,
       where,
+      pageInfo.fetchAll,
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
@@ -183,6 +184,7 @@ const getSalesUsers = async (req, res, next) => {
       pageInfo.sortBy,
       pageInfo.sortOrder,
       where,
+      pageInfo.fetchAll,
     );
 
     const paginatedResponse = buildPaginatedResponse(result, pageInfo);
