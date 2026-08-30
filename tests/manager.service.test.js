@@ -79,6 +79,71 @@ test.after(() => {
   restoreModuleMocks();
 });
 
+test('getDashboard returns topTenStores sorted by productCount from DB, not in-memory', async () => {
+  const storeFindAllResult = [
+    { id: 'store-a', name: 'Toko A', address: 'Jl. A', productCount: '15' },
+    { id: 'store-b', name: 'Toko B', address: 'Jl. B', productCount: '8' },
+    { id: 'store-c', name: 'Toko C', address: 'Jl. C', productCount: '0' },
+  ];
+
+  let storeFindAllOptions;
+
+  const { managerService, cleanup } = loadService({
+    store: {
+      count: async () => 3,
+      findAll: async (options) => {
+        storeFindAllOptions = options;
+        return storeFindAllResult;
+      },
+    },
+    user: {
+      count: async () => 2,
+    },
+    product: {
+      name: 'Product',
+      rawAttributes: { createdAt: { field: 'createdAt' } },
+      count: async () => 23,
+      findAll: async () => [],
+    },
+    sequelize: {
+      fn: (...args) => ({ fn: args }),
+      col: (value) => ({ col: value }),
+      literal: (value) => ({ literal: value }),
+      transaction: async () => ({ commit: async () => {}, rollback: async () => {} }),
+    },
+  });
+
+  try {
+    const result = await managerService.getDashboard();
+
+    // topTenStores harus datang langsung dari query DB (sudah terurut dari DB)
+    assert.equal(result.topTenStores.length, 3);
+    assert.equal(result.topTenStores[0].storeId, 'store-a');
+    assert.equal(result.topTenStores[0].productCount, 15);
+    assert.equal(result.topTenStores[1].storeId, 'store-b');
+    assert.equal(result.topTenStores[1].productCount, 8);
+    assert.equal(result.topTenStores[2].productCount, 0);
+
+    // productCount harus berupa Number, bukan string
+    assert.equal(typeof result.topTenStores[0].productCount, 'number');
+
+    // Pastikan query DB memakai GROUP BY + ORDER + LIMIT (bukan sort di JS)
+    assert.ok(storeFindAllOptions.group, 'harus ada GROUP BY di query');
+    assert.ok(storeFindAllOptions.order, 'harus ada ORDER BY di query');
+    assert.equal(storeFindAllOptions.limit, 10, 'limit 10 harus ada di query DB');
+
+    // Tidak boleh ada attributes products yang mengambil rows (harus [])
+    const productsInclude = storeFindAllOptions.include.find((i) => i.as === 'products');
+    assert.ok(productsInclude, 'include products harus ada');
+    assert.deepEqual(productsInclude.attributes, [], 'attributes products harus kosong ([] bukan [\'id\'])');
+
+    assert.equal(result.totalProducts, 23);
+    assert.equal(result.totalStores, 3);
+  } finally {
+    cleanup();
+  }
+});
+
 test('getMonthlyProductSummary includes inactive products in counts', async () => {
   const { managerService, captured, cleanup } = loadService();
 

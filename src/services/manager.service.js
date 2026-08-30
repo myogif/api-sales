@@ -23,49 +23,47 @@ class ManagerService {
 
   async getDashboard() {
     try {
-      const [totalStores, totalSupervisors, totalSales, totalProducts,topStores ] = await Promise.all([
+      const [totalStores, totalSupervisors, totalSales, totalProducts, topStores] = await Promise.all([
         Store.count({ where: { isActive: true } }),
         User.count({ where: { role: 'SUPERVISOR', isActive: true } }),
         User.count({ where: { role: 'SALES', isActive: true } }),
         Product.count(),
         Store.findAll({
-            attributes: [
-              'id',
-              'name',
-              'address'
-            ],
-            include: [
-              {
-                model: Product,
-                as: 'products',
-                attributes: ['id'], // Only fetch product ID for counting
-                required: false,
-                paranoid: false,
-              }
-            ],
-            paranoid: false,
-            limit: 10,
-            subQuery: false // Keep subQuery: false for correct LEFT JOIN behavior
-          })
-        ]);
+          attributes: [
+            'id',
+            'name',
+            'address',
+            [sequelize.fn('COUNT', sequelize.col('products.id')), 'productCount'],
+          ],
+          include: [
+            {
+              model: Product,
+              as: 'products',
+              attributes: [],
+              required: false,
+            },
+          ],
+          group: ['Store.id', 'Store.name', 'Store.address'],
+          order: [[sequelize.literal('productCount'), 'DESC']],
+          limit: 10,
+          subQuery: false,
+          raw: true,
+        }),
+      ]);
 
-      // Manually calculate productCount after fetching
-      const topTenStores = topStores.map(s => ({
+      const topTenStores = topStores.map((s) => ({
         storeId: s.id,
         storeName: s.name,
         address: s.address,
-        productCount: s.products ? s.products.length : 0, // Count associated products
+        productCount: Number(s.productCount),
       }));
-
-      // Sort the stores by productCount in descending order
-      topTenStores.sort((a, b) => b.productCount - a.productCount);
 
       return {
         totalStores,
         totalSupervisors,
         totalSales,
         totalProducts,
-        topTenStores: topTenStores.slice(0, 10), // Take top 10 after sorting
+        topTenStores,
       };
     } catch (error) {
       logger.error('Failed to get manager dashboard:', error);
