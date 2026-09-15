@@ -25,6 +25,7 @@ test('streamProductsXlsx uses supervisor phone number for storePhone column', as
       price: 10000,
       priceWarranty: 15000,
       isActive: true,
+      warrantyMonths: 6,
       createdAt: '2024-01-01T00:00:00.000Z',
       store: {
         name: 'Main Store',
@@ -54,4 +55,5 @@ test('streamProductsXlsx uses supervisor phone number for storePhone column', as
   const [firstRow] = worksheet.rows;
   assert.equal(firstRow.tipe, 'Gold');
   assert.equal(firstRow.storePhone, '0822222222');
+  assert.ok(firstRow.warrantyEnd.startsWith('01-07-2024'));
 });

@@ -21,6 +21,7 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
     { header: 'Nama Sales', key: 'creatorName', width: 25 },
     { header: 'No. HP Sales', key: 'creatorPhone', width: 15 },
     { header: 'Tanggal Mulai Garansi', key: 'createdAt', width: 20 },
+    { header: 'Tanggal Berakhir Garansi', key: 'warrantyEnd', width: 20 },
   ];
 
   // Style header row
@@ -33,6 +34,15 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
 
   // Add data rows
   products.forEach((product) => {
+    let warrantyEndStr = '';
+    if (product.createdAt && product.warrantyMonths) {
+      const createdDate = new Date(product.createdAt);
+      if (!isNaN(createdDate)) {
+        createdDate.setMonth(createdDate.getMonth() + Number(product.warrantyMonths));
+        warrantyEndStr = formatDateToDDMMYYYY(createdDate);
+      }
+    }
+
     worksheet.addRow({
       name: product.name,
       tipe: product.tipe,
@@ -42,13 +52,14 @@ const streamProductsXlsx = async (res, products, filename = 'products.xlsx') => 
       priceWarranty: product.priceWarranty !== undefined && product.priceWarranty !== null ? Number(product.priceWarranty) : '',
       status: deriveStatus(product.isActive, product.createdAt), // <-- status terhitung
       storeName: product.store?.name || '',
-      storePhone: product.store?.phone ?? '',
+      storePhone: product.creator?.supervisor?.phone || product.store?.phone || '',
       customerName: product.customerName || '',
       customerPhone: product.customerPhone || '',
       customerEmail: product.customerEmail || '',
       creatorName: product.creator?.name || '',
       creatorPhone: product.creator?.phone || '',
       createdAt: formatDateToDDMMYYYY(product.createdAt),
+      warrantyEnd: warrantyEndStr,
     });
   });
 
