@@ -194,3 +194,154 @@ test('getProducts allows service center role access', async () => {
   }
 });
 
+test('getProducts blocks export for SERVICE_CENTER when phone is not 0855667788 with 403', async () => {
+  const { controller, cleanup } = loadController();
+
+  try {
+    const req = {
+      query: { export: 'excel' },
+      user: { role: 'SERVICE_CENTER', phone: '08123456789' },
+    };
+    let statusCode;
+    let payload;
+    const res = {
+      status(code) {
+        statusCode = code;
+        return this;
+      },
+      json(body) {
+        payload = body;
+        return this;
+      },
+    };
+
+    await controller.getProducts(req, res, (err) => { throw err; });
+
+    assert.equal(statusCode, 403);
+    assert.deepEqual(payload, {
+      success: false,
+      message: 'Akun SERVICE_CENTER anda tidak memiliki izin untuk export excel',
+      errors: null,
+      data: null,
+    });
+  } finally {
+    cleanup();
+  }
+});
+
+test('getProducts blocks export for SERVICE_CENTER when phone is missing with 403', async () => {
+  const { controller, cleanup } = loadController();
+
+  try {
+    const req = {
+      query: { export: 'excel' },
+      user: { role: 'SERVICE_CENTER' },
+    };
+    let statusCode;
+    let payload;
+    const res = {
+      status(code) {
+        statusCode = code;
+        return this;
+      },
+      json(body) {
+        payload = body;
+        return this;
+      },
+    };
+
+    await controller.getProducts(req, res, (err) => { throw err; });
+
+    assert.equal(statusCode, 403);
+    assert.deepEqual(payload, {
+      success: false,
+      message: 'Akun SERVICE_CENTER anda tidak memiliki izin untuk export excel',
+      errors: null,
+      data: null,
+    });
+  } finally {
+    cleanup();
+  }
+});
+
+test('getProducts allows export for SERVICE_CENTER when phone is 0855667788', async () => {
+  const sampleProducts = [
+    {
+      id: 'prod-1',
+      name: 'Sample Prod',
+      code: 'SP-1',
+      price: 10000,
+      priceWarranty: 15000,
+      isActive: true,
+      store: { name: 'Store 1' },
+    },
+  ];
+
+  const { controller, cleanup } = loadController({
+    findAll: async () => sampleProducts,
+  });
+
+  try {
+    const req = {
+      query: { export: 'excel' },
+      user: { role: 'SERVICE_CENTER', phone: '0855667788' },
+    };
+    let ended = false;
+    const res = {
+      setHeader: () => {},
+      end: () => {
+        ended = true;
+      },
+      status: () => res,
+      json: () => res,
+    };
+
+    await controller.getProducts(req, res, (err) => { throw err; });
+
+    assert.equal(ended, true, 'Export should complete for authorized SERVICE_CENTER');
+  } finally {
+    cleanup();
+  }
+});
+
+test('getProducts allows export for MANAGER role regardless of phone', async () => {
+  const sampleProducts = [
+    {
+      id: 'prod-1',
+      name: 'Sample Prod',
+      code: 'SP-1',
+      price: 10000,
+      priceWarranty: 15000,
+      isActive: true,
+      store: { name: 'Store 1' },
+    },
+  ];
+
+  const { controller, cleanup } = loadController({
+    findAll: async () => sampleProducts,
+  });
+
+  try {
+    const req = {
+      query: { export: 'excel' },
+      user: { role: 'MANAGER', phone: '08123456789' },
+    };
+    let ended = false;
+    const res = {
+      setHeader: () => {},
+      end: () => {
+        ended = true;
+      },
+      status: () => res,
+      json: () => res,
+    };
+
+    await controller.getProducts(req, res, (err) => { throw err; });
+
+    assert.equal(ended, true, 'Export should complete for MANAGER');
+  } finally {
+    cleanup();
+  }
+});
+
+
