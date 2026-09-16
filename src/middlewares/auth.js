@@ -21,9 +21,12 @@ const authenticate = async (req, res, next) => {
     }
     
     // Attach user and token payload to request
-    req.user = decoded;
+    req.user = {
+        ...decoded,
+        phone: user.phone,
+      };
     req.currentUser = user;
-    
+
     next();
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {

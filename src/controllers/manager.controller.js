@@ -197,7 +197,8 @@ const getSalesUsers = async (req, res, next) => {
 const getProducts = async (req, res, next) => {
   try {
     const exporting = req.query.export === 'excel';
-    if (exporting && req.user?.role === 'SERVICE_CENTER' && req.user?.phone !== '0855667788') {
+    const userPhone = req.user?.phone || req.currentUser?.phone;
+    if (exporting && req.user?.role === 'SERVICE_CENTER' && userPhone !== '0855667788') {
       return res.status(403).json(response.error('Akun SERVICE_CENTER anda tidak memiliki izin untuk export excel'));
     }
 
