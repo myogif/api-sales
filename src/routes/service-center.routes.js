@@ -1,6 +1,7 @@
 const express = require('express');
 const { authenticate } = require('../middlewares/auth');
 const { requireServiceCenter } = require('../middlewares/role');
+const { getProducts } = require('../controllers/manager.controller');
 const {
   updateProductValidation,
   updateProduct,
@@ -11,6 +12,48 @@ const router = express.Router();
 
 // Apply authentication and service center role to all routes
 router.use(authenticate, requireServiceCenter);
+
+/**
+ * @swagger
+ * /api/service-center/products:
+ *   get:
+ *     summary: Get all products (SERVICE_CENTER role)
+ *     description: Retrieve products with optional filters. Export to Excel is only permitted for a specific account.
+ *     tags: [Service Center]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/SortByParam'
+ *       - $ref: '#/components/parameters/SortOrderParam'
+ *       - $ref: '#/components/parameters/SearchParam'
+ *       - $ref: '#/components/parameters/codeParam'
+ *       - $ref: '#/components/parameters/StoreIdParam'
+ *       - $ref: '#/components/parameters/StoreNameParam'
+ *       - $ref: '#/components/parameters/CreatedAtFromParam'
+ *       - $ref: '#/components/parameters/CreatedAtToParam'
+ *       - $ref: '#/components/parameters/CreatorIdParam'
+ *       - $ref: '#/components/parameters/ExportParam'
+ *     responses:
+ *       200:
+ *         description: Produk berhasil diambil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedProductsResponse'
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       403:
+ *         description: Akun tidak memiliki izin untuk export excel
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/products', getProducts);
 
 /**
  * @swagger
